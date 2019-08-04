@@ -1,6 +1,6 @@
 /*
  *
- *  This file is part of fof/username-request.
+ *  This file is part of fof/drafts.
  *
  *  Copyright (c) 2019 FriendsOfFlarum..
  *
@@ -32,14 +32,14 @@ export default class DraftsDropdown extends NotificationsDropdown {
     }
 
     getUnreadCount() {
-        if ( app.cache.drafts) {
+        if (app.cache.drafts) {
             return app.cache.drafts.length
         }
         return  app.session.user.data.relationships.drafts.data.length
     }
 
     getNewCount() {
-        if ( app.cache.drafts) {
+        if (app.cache.drafts) {
             return app.cache.drafts.length
         }
         return  app.session.user.data.relationships.drafts.data.length

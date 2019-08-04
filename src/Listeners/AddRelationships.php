@@ -2,7 +2,7 @@
 
 /**
  *
- *  This file is part of fof/username-request.
+ *  This file is part of fof/drafts.
  *
  *  Copyright (c) 2019 FriendsOfFlarum..
  *
@@ -37,7 +37,7 @@ class AddRelationships
 
     /**
      * @param GetModelRelationship $event
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function getModelRelationship(GetModelRelationship $event)
     {
@@ -62,7 +62,6 @@ class AddRelationships
      */
     public function includeRequestsRelationship(WillGetData $event)
     {
-
         if ($event->isController(Controller\ListUsersController::class)
             || $event->isController(Controller\ShowUserController::class)) {
             $event->addInclude('drafts');

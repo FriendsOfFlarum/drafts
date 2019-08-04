@@ -1,7 +1,7 @@
 <?php
 /**
  *
- *  This file is part of fof/username-request.
+ *  This file is part of fof/drafts.
  *
  *  Copyright (c) 2019 FriendsOfFlarum..
  *

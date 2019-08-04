@@ -1,6 +1,6 @@
 /*
  *
- *  This file is part of fof/username-request.
+ *  This file is part of fof/drafts.
  *
  *  Copyright (c) 2019 FriendsOfFlarum..
  *
@@ -15,13 +15,21 @@ import DiscussionComposer from 'flarum/components/DiscussionComposer';
 import avatar from 'flarum/helpers/avatar';
 import icon from 'flarum/helpers/icon';
 import humanTime from 'flarum/helpers/humanTime';
-import ItemList from "flarum/utils/ItemList";
 import {truncate} from 'flarum/utils/string';
+import Button from 'flarum/components/Button';
 
 export default class FlagList extends Component {
     init() {
 
         this.loading = false;
+    }
+
+    config (isIntialized) {
+        if (!isIntialized) return;
+
+        $(".draft--delete").click( function( event ) {
+            event.stopPropagation();
+        });
     }
 
     view() {
@@ -35,17 +43,25 @@ export default class FlagList extends Component {
                 <div className="NotificationList-content">
                     <ul className="NotificationGroup-content">
                         {drafts.length
-                            ? drafts.map(draft => {
+                            ? drafts.sort((a, b) => b.updatedAt() - a.updatedAt())
+                                .map(draft => {
 
                                 return (
                                     <li>
-                                        <a onclick={this.showComposer.bind(this, draft)} className="Notification Request">
+                                        <a onclick={this.showComposer.bind(this, draft)} className="Notification draft--item">
                                             {avatar(draft.user())}
                                             {icon('fas fa-edit', {className: 'Notification-icon'})}
                                             <span className="Notification-content">
                                                 {draft.title()}
                                             </span>
                                             {humanTime(draft.updatedAt())}
+                                            {Button.component({
+                                                icon: 'fas fa-times',
+                                                style: 'float: right; z-index: 20;',
+                                                className: 'Button Button--icon Button--link draft--delete',
+                                                title: app.translator.trans('fof-drafts.forum.dropdown.button'),
+                                                onclick: this.deleteDraft.bind(this, draft)
+                                            })}
                                             <div className="Notification-excerpt">
                                                 {truncate(draft.content(), 200)}
                                             </div>
@@ -63,15 +79,31 @@ export default class FlagList extends Component {
         );
     }
 
+    deleteDraft(draft) {
+        this.loading = true;
+
+        if (!window.confirm(app.translator.trans('fof-drafts.forum.dropdown.alert'))) return;
+
+        draft.delete();
+        app.cache.drafts.some((cacheDraft, i) => {
+            if (cacheDraft.id() === draft.id()) {
+                app.cache.drafts.splice(i, 1);
+            }
+        });
+        app.composer.hide();
+
+        this.loading = false;
+    }
+
     showComposer(draft) {
+        if (this.loading) return;
+
         var data = {
             originalContent: draft.content(),
-            title : draft.title(),
+            title: draft.title(),
             user: app.session.user,
             draft
-        }
-
-        console.log(draft)
+        };
 
         Object.keys(draft.relationships()).forEach(relationship => {
             draft.relationships()[relationship].data.map((model, i) => {
@@ -97,7 +129,7 @@ export default class FlagList extends Component {
         app.store.find('drafts')
             .then(response => {
                 delete response.payload;
-                app.cache.drafts = response.sort((a, b) => b.updatedAt() - a.updatedAt());
+                app.cache.drafts = response;
             })
             .catch(() => {
             })

@@ -1,6 +1,6 @@
 /*
  *
- *  This file is part of fof/username-request.
+ *  This file is part of fof/drafts.
  *
  *  Copyright (c) 2019 FriendsOfFlarum..
  *
@@ -16,6 +16,7 @@ import DraftsDropdown from './components/DraftsDropdown';
 
 export default function() {
     extend(HeaderSecondary.prototype, 'items', function(items) {
+        if (!app.session.user) return;
         if ((app.session.user.data.relationships.drafts && app.session.user.data.relationships.drafts.data.length && !app.cache.drafts) || (app.cache.drafts && app.cache.drafts.length !== 0)) {
             items.add('Drafts', <DraftsDropdown/>, 20);
         }

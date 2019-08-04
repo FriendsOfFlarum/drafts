@@ -1,7 +1,7 @@
 <?php
 /**
  *
- *  This file is part of fof/username-request.
+ *  This file is part of fof/drafts.
  *
  *  Copyright (c) 2019 FriendsOfFlarum..
  *
@@ -14,7 +14,7 @@ namespace FoF\Drafts\Api\Controller;
 
 use Flarum\Api\Controller\AbstractDeleteController;
 use Flarum\User\Exception\PermissionDeniedException;
-use FoF\UserRequest\Command\DeleteDraft;
+use FoF\Drafts\Command\DeleteDraft;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 

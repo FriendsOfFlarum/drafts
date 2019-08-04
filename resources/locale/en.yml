@@ -1,37 +1,13 @@
-fof-username-request:
+fof-drafts:
   admin:
     permissions:
-      start: Request username change
-      moderate: Approve username change requests
+      start: Create discussion drafts
   forum:
-    action:
-      title: => fof-username-request.forum.results.title
-      help_text: Make sure the username follows the forum guidelines.
-      decision_title: Decision
-      approval_label: Approve
-      denial_label: Deny
-      submit_button: Submit
-      reason_title: Reason for Denial
-      success: Decision sent.
-      name: '{username} has requested their username be changed to "{newUsername}"'
-    results:
-      title: Username Change
-      approved: 'Your username change request has been approved!'
-      new_username: 'Your username is now "{username}"'
-      denied: Your username request was denied
-      reason: 'Reason: <i>"{reason}"</i>'
-      resubmit: You may resubmit a new username request from your account settings.
-    request:
-      title: Request Username Change
-      current_request: You have already requested the username "{username}." You can update or delete this request.
-      submit_button: Submit Request
-      delete_button: Delete Request
-      confirmation_message: Your request has been received and will be reviewed soon.
-      dismiss_button: Understood
-      deleted: Username request deleted.
-    account_label: Change Username
-    profile_link: Username History
+    composer:
+      title: Save Draft
+      alert: Draft saved.
     dropdown:
-      title: Username Change Requests
-      item_text: "{username} requested a username change"
-      exerpt: "Requsted username: {requestedUsername}"
+      title: Drafts
+      button: Delete Draft
+      tooltip: => fof-drafts.forum.dropdown.title
+      alert: Are you sure you want to delete your draft?

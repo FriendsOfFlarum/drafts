@@ -1,7 +1,7 @@
 <?php
 /**
  *
- *  This file is part of fof/username-request.
+ *  This file is part of fof/drafts.
  *
  *  Copyright (c) 2019 FriendsOfFlarum..
  *
@@ -14,6 +14,7 @@ namespace FoF\Drafts\Command;
 
 use Flarum\User\AssertPermissionTrait;
 use Flarum\User\Exception\PermissionDeniedException;
+use FoF\Drafts\Draft;
 
 class DeleteDraftHandler
 {

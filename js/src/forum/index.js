@@ -1,6 +1,6 @@
 /*
  *
- *  This file is part of fof/username-request.
+ *  This file is part of fof/drafts.
  *
  *  Copyright (c) 2019 FriendsOfFlarum..
  *
@@ -9,7 +9,7 @@
  *
  */
 
-import { extend } from 'flarum/extend';
+import {extend} from 'flarum/extend';
 import User from 'flarum/models/User';
 import Model from 'flarum/Model';
 import Draft from './models/Draft';
@@ -17,6 +17,7 @@ import DraftsPage from './components/DraftsPage';
 import addDraftsDropdown from './addDraftsDropdown';
 import DiscussionComposer from 'flarum/components/DiscussionComposer';
 import Button from 'flarum/components/Button';
+import Alert from 'flarum/components/Alert';
 
 app.initializers.add('fof-drafts', () => {
     app.store.models.drafts = Draft;
@@ -24,9 +25,8 @@ app.initializers.add('fof-drafts', () => {
 
     app.routes.drafts = {path: '/drafts', component: <DraftsPage/>};
 
-    extend(DiscussionComposer.prototype, 'headerItems', function(items) {
+    extend(DiscussionComposer.prototype, 'headerItems', function (items) {
         if (!app.forum.attribute('canSaveDrafts')) return;
-        console.log(this.props)
         items.add('save-draft',
             Button.component({
                 icon: 'fas fa-save',
@@ -35,42 +35,47 @@ app.initializers.add('fof-drafts', () => {
                 title: app.translator.trans('fof-drafts.forum.composer.title'),
                 onclick: () => {
                     if (this.draft) {
+                        delete this.draft.data.attributes.relationships;
                         this.draft.save(this.data()).then(
                             (draft) => {
                                 if (!app.cache.drafts) app.cache.drafts = [];
                                 app.cache.drafts.some((cacheDraft, i) => {
                                     if (cacheDraft.id() === draft.id()) {
+                                        var now = new Date();
+                                        draft.data.attributes.updatedAt = now.toString();
                                         app.cache.drafts[i] = draft;
                                     }
                                 });
-                                app.composer.hide();
+                            }
+                        );
+                    } else {
+                        app.store.createRecord('drafts').save(this.data()).then(
+                            (draft) => {
+                                if (!app.cache.drafts) {
+                                    app.session.user.data.relationships.drafts.data.push(draft);
+                                } else {
+                                    app.cache.drafts.push(draft);
+                                }
+                                m.redraw();
                             }
                         );
                     }
-                    console.log(this.data())
-                    app.store.createRecord('drafts').save(this.data()).then(
-                        (draft) => {
-                            if (!app.cache.drafts) app.cache.drafts = [];
-                            app.cache.drafts.push(draft);
-                            app.composer.hide();
-                        }
-                    );
-
+                    app.alerts.show(this.successAlert = new Alert({type: 'success', children: app.translator.trans('fof-drafts.forum.composer.alert')}));
+                    app.composer.hide();
                 }
             })
-        , 20);
+            , 20);
 
     });
 
-    extend(DiscussionComposer.prototype, 'init', function() {
-        console.log(this.props)
-       Object.keys(this.props).forEach(key => {
-           if (!['originalContent', 'title', 'user'].includes(key)) {
+    extend(DiscussionComposer.prototype, 'init', function () {
+        Object.keys(this.props).forEach(key => {
+            if (!['originalContent', 'title', 'user'].includes(key)) {
                 this[key] = this.props[key];
-           } else if (key === 'title') {
-               this.title = m.prop(this.props.title)
-           }
-       });
+            } else if (key === 'title') {
+                this.title = m.prop(this.props.title)
+            }
+        });
     });
 
     addDraftsDropdown();
