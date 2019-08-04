@@ -24,10 +24,10 @@ export default class FlagList extends Component {
         this.loading = false;
     }
 
-    config (isIntialized) {
+    config(isIntialized) {
         if (!isIntialized) return;
 
-        $(".draft--delete").click( function( event ) {
+        $(".draft--delete").on('click tap', function (event) {
             event.stopPropagation();
         });
     }
@@ -46,29 +46,29 @@ export default class FlagList extends Component {
                             ? drafts.sort((a, b) => b.updatedAt() - a.updatedAt())
                                 .map(draft => {
 
-                                return (
-                                    <li>
-                                        <a onclick={this.showComposer.bind(this, draft)} className="Notification draft--item">
-                                            {avatar(draft.user())}
-                                            {icon('fas fa-edit', {className: 'Notification-icon'})}
-                                            <span className="Notification-content">
+                                    return (
+                                        <li>
+                                            <a onclick={this.showComposer.bind(this, draft)} className="Notification draft--item">
+                                                {avatar(draft.user())}
+                                                {icon('fas fa-edit', {className: 'Notification-icon'})}
+                                                <span className="Notification-content">
                                                 {draft.title()}
                                             </span>
-                                            {humanTime(draft.updatedAt())}
-                                            {Button.component({
-                                                icon: 'fas fa-times',
-                                                style: 'float: right; z-index: 20;',
-                                                className: 'Button Button--icon Button--link draft--delete',
-                                                title: app.translator.trans('fof-drafts.forum.dropdown.button'),
-                                                onclick: this.deleteDraft.bind(this, draft)
-                                            })}
-                                            <div className="Notification-excerpt">
-                                                {truncate(draft.content(), 200)}
-                                            </div>
-                                        </a>
-                                    </li>
-                                );
-                            })
+                                                {humanTime(draft.updatedAt())}
+                                                {Button.component({
+                                                    icon: 'fas fa-times',
+                                                    style: 'float: right; z-index: 20;',
+                                                    className: 'Button Button--icon Button--link draft--delete',
+                                                    title: app.translator.trans('fof-drafts.forum.dropdown.button'),
+                                                    onclick: this.deleteDraft.bind(this, draft)
+                                                })}
+                                                <div className="Notification-excerpt">
+                                                    {truncate(draft.content(), 200)}
+                                                </div>
+                                            </a>
+                                        </li>
+                                    );
+                                })
                             : !this.loading
                                 ?
                                 <div className="NotificationList-empty">{app.translator.trans('fof-drafts.forum.dropdown.empty_text')}</div>
@@ -95,8 +95,11 @@ export default class FlagList extends Component {
         this.loading = false;
     }
 
+
     showComposer(draft) {
         if (this.loading) return;
+
+        const deferred = m.deferred();
 
         var data = {
             originalContent: draft.content(),
@@ -105,17 +108,23 @@ export default class FlagList extends Component {
             draft
         };
 
-        Object.keys(draft.relationships()).forEach(relationship => {
-            draft.relationships()[relationship].data.map((model, i) => {
-                draft.relationships()[relationship].data[i] = app.store.getById(model.type, model.id)
+        if (draft.relationships()) {
+            Object.keys(draft.relationships()).forEach(relationship => {
+                draft.relationships()[relationship].data.map((model, i) => {
+                    draft.relationships()[relationship].data[i] = app.store.getById(model.type, model.id)
+                });
+                data[relationship] = draft.relationships()[relationship].data
             });
-            data[relationship] = draft.relationships()[relationship].data
-        });
+        }
 
         var component = new DiscussionComposer(data);
 
         app.composer.load(component);
         app.composer.show();
+
+        deferred.resolve(component);
+
+        return deferred.promise;
     }
 
     load() {
