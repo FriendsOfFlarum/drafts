@@ -35,13 +35,13 @@ export default class DraftsDropdown extends NotificationsDropdown {
         if (app.cache.drafts) {
             return app.cache.drafts.length
         }
-        return  app.session.user.data.relationships.drafts.data.length
+        return  app.session.user.drafts().length
     }
 
     getNewCount() {
         if (app.cache.drafts) {
             return app.cache.drafts.length
         }
-        return  app.session.user.data.relationships.drafts.data.length
+        return  app.session.user.drafts().length
     }
 }
