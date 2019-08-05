@@ -41,7 +41,7 @@ class UpdateDraftController extends AbstractShowController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        $this->bus->dispatch(
+        return $this->bus->dispatch(
             new UpdateDraft(array_get($request->getQueryParams(), 'id'), $request->getAttribute('actor'), array_get($request->getParsedBody(), 'data', []))
         );
     }
