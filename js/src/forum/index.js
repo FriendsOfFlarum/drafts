@@ -78,5 +78,17 @@ app.initializers.add('fof-drafts', () => {
         });
     });
 
+    extend(DiscussionComposer.prototype, 'onsubmit', function () {
+        if (this.draft) {
+            this.draft.delete();
+
+            app.cache.drafts.some((cacheDraft, i) => {
+                if (cacheDraft.id() === this.draft.id()) {
+                    app.cache.drafts.splice(i, 1);
+                }
+            });
+        }
+    });
+
     addDraftsDropdown();
 });
