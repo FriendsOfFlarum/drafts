@@ -1,14 +1,12 @@
 <?php
 
-/**
+/*
+ * This file is part of fof/drafts.
  *
- *  This file is part of fof/drafts.
+ * Copyright (c) 2019 FriendsOfFlarum.
  *
- *  Copyright (c) 2019 FriendsOfFlarum..
- *
- *  For the full copyright and license information, please view the license.md
- *  file that was distributed with this source code.
- *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
  */
 
 namespace FoF\Drafts;
@@ -33,9 +31,9 @@ return [
         ->delete('/drafts/{id}', 'fof.drafts.delete', Controller\DeleteDraftController::class),
 
     new Extend\Locales(__DIR__.'/resources/locale'),
-    
+
     function (Dispatcher $events) {
-        $events->listen(Serializing::class,Listeners\AddApiAttributes::class);
+        $events->listen(Serializing::class, Listeners\AddApiAttributes::class);
 
         $events->subscribe(Listeners\AddRelationships::class);
     },

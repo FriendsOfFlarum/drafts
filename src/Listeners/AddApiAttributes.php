@@ -1,26 +1,19 @@
 <?php
 
-/**
+/*
+ * This file is part of fof/drafts.
  *
- *  This file is part of fof/drafts.
+ * Copyright (c) 2019 FriendsOfFlarum.
  *
- *  Copyright (c) 2019 FriendsOfFlarum..
- *
- *  For the full copyright and license information, please view the license.md
- *  file that was distributed with this source code.
- *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
  */
 
 namespace FoF\Drafts\Listeners;
 
 use Flarum\Api\Event\Serializing;
-use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
-use Flarum\Api\Serializer\PostSerializer;
-use Flarum\Api\Serializer\UserSerializer;
-use FoF\UserRequest\UsernameRequest;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\User\User;
 
 class AddApiAttributes
 {

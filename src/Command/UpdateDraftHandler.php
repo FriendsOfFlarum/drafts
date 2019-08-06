@@ -1,13 +1,12 @@
 <?php
-/**
+
+/*
+ * This file is part of fof/drafts.
  *
- *  This file is part of fof/drafts.
+ * Copyright (c) 2019 FriendsOfFlarum.
  *
- *  Copyright (c) 2019 FriendsOfFlarum..
- *
- *  For the full copyright and license information, please view the license.md
- *  file that was distributed with this source code.
- *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
  */
 
 namespace FoF\Drafts\Command;
@@ -23,8 +22,10 @@ class UpdateDraftHandler
 
     /**
      * @param UpdateDraft $command
-     * @return mixed
+     *
      * @throws PermissionDeniedException
+     *
+     * @return mixed
      */
     public function handle(UpdateDraft $command)
     {
@@ -33,8 +34,9 @@ class UpdateDraftHandler
 
         $draft = Draft::findOrFail($command->draftId);
 
-        if ($actor->id !== $draft->user_id) throw new PermissionDeniedException();
-
+        if ($actor->id !== $draft->user_id) {
+            throw new PermissionDeniedException();
+        }
         $this->assertCan($actor, 'user.saveDrafts');
 
         $draft->title = isset($data['attributes']['title']) ? $data['attributes']['title'] : '';
