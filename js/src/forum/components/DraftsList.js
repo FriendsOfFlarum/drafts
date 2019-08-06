@@ -2,9 +2,9 @@
  *
  *  This file is part of fof/drafts.
  *
- *  Copyright (c) 2019 FriendsOfFlarum..
+ *  Copyright (c) 2019 FriendsOfFlarum.
  *
- *  For the full copyright and license information, please view the license.md
+ *  For the full copyright and license information, please view the LICENSE.md
  *  file that was distributed with this source code.
  *
  */
@@ -15,19 +15,18 @@ import DiscussionComposer from 'flarum/components/DiscussionComposer';
 import avatar from 'flarum/helpers/avatar';
 import icon from 'flarum/helpers/icon';
 import humanTime from 'flarum/helpers/humanTime';
-import {truncate} from 'flarum/utils/string';
+import { truncate } from 'flarum/utils/string';
 import Button from 'flarum/components/Button';
 
 export default class FlagList extends Component {
     init() {
-
         this.loading = false;
     }
 
     config(isIntialized) {
         if (!isIntialized) return;
 
-        $(".draft--delete").on('click tap', function (event) {
+        $('.draft--delete').on('click tap', function(event) {
             event.stopPropagation();
         });
     }
@@ -42,37 +41,34 @@ export default class FlagList extends Component {
                 </div>
                 <div className="NotificationList-content">
                     <ul className="NotificationGroup-content">
-                        {drafts.length
-                            ? drafts.sort((a, b) => b.updatedAt() - a.updatedAt())
+                        {drafts.length ? (
+                            drafts
+                                .sort((a, b) => b.updatedAt() - a.updatedAt())
                                 .map(draft => {
-
                                     return (
                                         <li>
                                             <a onclick={this.showComposer.bind(this, draft)} className="Notification draft--item">
                                                 {avatar(draft.user())}
-                                                {icon('fas fa-edit', {className: 'Notification-icon'})}
-                                                <span className="Notification-content">
-                                                {draft.title()}
-                                            </span>
+                                                {icon('fas fa-edit', { className: 'Notification-icon' })}
+                                                <span className="Notification-content">{draft.title()}</span>
                                                 {humanTime(draft.updatedAt())}
                                                 {Button.component({
                                                     icon: 'fas fa-times',
                                                     style: 'float: right; z-index: 20;',
                                                     className: 'Button Button--icon Button--link draft--delete',
                                                     title: app.translator.trans('fof-drafts.forum.dropdown.button'),
-                                                    onclick: this.deleteDraft.bind(this, draft)
+                                                    onclick: this.deleteDraft.bind(this, draft),
                                                 })}
-                                                <div className="Notification-excerpt">
-                                                    {truncate(draft.content(), 200)}
-                                                </div>
+                                                <div className="Notification-excerpt">{truncate(draft.content(), 200)}</div>
                                             </a>
                                         </li>
                                     );
                                 })
-                            : !this.loading
-                                ?
-                                <div className="NotificationList-empty">{app.translator.trans('fof-drafts.forum.dropdown.empty_text')}</div>
-                                : LoadingIndicator.component({className: 'LoadingIndicator--block'})}
+                        ) : !this.loading ? (
+                            <div className="NotificationList-empty">{app.translator.trans('fof-drafts.forum.dropdown.empty_text')}</div>
+                        ) : (
+                            LoadingIndicator.component({ className: 'LoadingIndicator--block' })
+                        )}
                     </ul>
                 </div>
             </div>
@@ -95,7 +91,6 @@ export default class FlagList extends Component {
         this.loading = false;
     }
 
-
     showComposer(draft) {
         if (this.loading) return;
 
@@ -105,15 +100,15 @@ export default class FlagList extends Component {
             originalContent: draft.content(),
             title: draft.title(),
             user: app.session.user,
-            draft
+            draft,
         };
 
         if (draft.relationships()) {
             Object.keys(draft.relationships()).forEach(relationship => {
                 draft.relationships()[relationship].data.map((model, i) => {
-                    draft.relationships()[relationship].data[i] = app.store.getById(model.type, model.id)
+                    draft.relationships()[relationship].data[i] = app.store.getById(model.type, model.id);
                 });
-                data[relationship] = draft.relationships()[relationship].data
+                data[relationship] = draft.relationships()[relationship].data;
             });
         }
 
@@ -135,13 +130,13 @@ export default class FlagList extends Component {
         this.loading = true;
         m.redraw();
 
-        app.store.find('drafts')
+        app.store
+            .find('drafts')
             .then(response => {
                 delete response.payload;
                 app.cache.drafts = response;
             })
-            .catch(() => {
-            })
+            .catch(() => {})
             .then(() => {
                 this.loading = false;
                 m.redraw();

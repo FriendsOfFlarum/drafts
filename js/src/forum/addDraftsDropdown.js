@@ -2,9 +2,9 @@
  *
  *  This file is part of fof/drafts.
  *
- *  Copyright (c) 2019 FriendsOfFlarum..
+ *  Copyright (c) 2019 FriendsOfFlarum.
  *
- *  For the full copyright and license information, please view the license.md
+ *  For the full copyright and license information, please view the LICENSE.md
  *  file that was distributed with this source code.
  *
  */
@@ -17,8 +17,11 @@ import DraftsDropdown from './components/DraftsDropdown';
 export default function() {
     extend(HeaderSecondary.prototype, 'items', function(items) {
         if (!app.session.user) return;
-        if ((app.session.user.drafts() && app.session.user.drafts().length && !app.cache.drafts) || (app.cache.drafts && app.cache.drafts.length !== 0)) {
-            items.add('Drafts', <DraftsDropdown/>, 20);
+        if (
+            (app.session.user.drafts() && app.session.user.drafts().length && !app.cache.drafts) ||
+            (app.cache.drafts && app.cache.drafts.length !== 0)
+        ) {
+            items.add('Drafts', <DraftsDropdown />, 20);
         }
     });
 }
