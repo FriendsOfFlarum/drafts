@@ -1,0 +1,14 @@
+
+fof-drafts:
+  admin:
+    permissions:
+      start: Utwórz szkic dyskusji
+  forum:
+    composer:
+      title: Zapisz szkic
+      alert: Szkic zapisany.
+    dropdown:
+      title: Szkice
+      button: Usuń Szkice
+      tooltip: => fof-drafts.forum.dropdown.title
+      alert: Czy na pewno chcesz usunąć wersję roboczą?
