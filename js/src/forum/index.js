@@ -15,9 +15,11 @@ import Model from 'flarum/Model';
 import Draft from './models/Draft';
 import DraftsPage from './components/DraftsPage';
 import addDraftsDropdown from './addDraftsDropdown';
+import Composer from 'flarum/components/Composer';
 import DiscussionComposer from 'flarum/components/DiscussionComposer';
 import Button from 'flarum/components/Button';
 import Alert from 'flarum/components/Alert';
+
 
 app.initializers.add('fof-drafts', () => {
     app.store.models.drafts = Draft;
@@ -25,32 +27,36 @@ app.initializers.add('fof-drafts', () => {
 
     app.routes.drafts = { path: '/drafts', component: <DraftsPage /> };
 
-    extend(DiscussionComposer.prototype, 'headerItems', function(items) {
-        if (!app.forum.attribute('canSaveDrafts')) return;
+    extend(Composer.prototype, 'controlItems', function(items) {
+        if (!(this.component instanceof DiscussionComposer) || !app.forum.attribute('canSaveDrafts'))
+            return;
+
         items.add(
             'save-draft',
             Button.component({
                 icon: 'fas fa-save',
                 className: 'Button Button--icon Button--link',
-                style: 'margin: 0 10px 2px -10px;',
                 title: app.translator.trans('fof-drafts.forum.composer.title'),
                 onclick: () => {
-                    if (this.draft) {
-                        delete this.draft.data.attributes.relationships;
-                        this.draft.save(this.data()).then(draft => {
-                            if (!app.cache.drafts) app.cache.drafts = [];
-                            app.cache.drafts.some((cacheDraft, i) => {
-                                if (cacheDraft.id() === draft.id()) {
-                                    var now = new Date();
-                                    draft.data.attributes.updatedAt = now.toString();
-                                    app.cache.drafts[i] = draft;
-                                }
+                    if (this.component.draft) {
+                        delete this.component.draft.data.attributes.relationships;
+
+                        this.component.draft
+                            .save(this.component.data())
+                            .then(draft => {
+                                app.cache.drafts = app.cache.drafts || [];
+                                app.cache.drafts.forEach((cacheDraft, i) => {
+                                    if (cacheDraft.id() === draft.id()) {
+                                        var now = new Date();
+                                        draft.data.attributes.updatedAt = now.toString();
+                                        app.cache.drafts[i] = draft;
+                                    }
+                                });
                             });
-                        });
                     } else {
                         app.store
                             .createRecord('drafts')
-                            .save(this.data())
+                            .save(this.component.data())
                             .then(draft => {
                                 if (!app.cache.drafts) {
                                     app.session.user.data.relationships.drafts.data.push(draft);
@@ -83,12 +89,7 @@ app.initializers.add('fof-drafts', () => {
     extend(DiscussionComposer.prototype, 'onsubmit', function() {
         if (this.draft) {
             this.draft.delete();
-
-            app.cache.drafts.some((cacheDraft, i) => {
-                if (cacheDraft.id() === this.draft.id()) {
-                    app.cache.drafts.splice(i, 1);
-                }
-            });
+            app.cache.drafts = app.cache.drafts.filter(cacheDraft => (cacheDraft.id() !== this.draft.id()));
         }
     });
 

@@ -6,7 +6,9 @@ fof-drafts:
     composer:
       title: Save Draft
       alert: Draft saved.
+      exit_alert: Discard changes to draft?
     dropdown:
+      empty_text: You didn't save any drafts
       title: Drafts
       button: Delete Draft
       tooltip: => fof-drafts.forum.dropdown.title

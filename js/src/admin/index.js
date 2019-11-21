@@ -13,7 +13,7 @@ import app from 'flarum/app';
 import { extend } from 'flarum/extend';
 import PermissionGrid from 'flarum/components/PermissionGrid';
 
-app.initializers.add('fof-username-request', app => {
+app.initializers.add('fof-drafts', app => {
     extend(PermissionGrid.prototype, 'startItems', items => {
         items.add('fof-draft-create', {
             icon: 'fa fa-edit',
