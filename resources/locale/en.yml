@@ -6,6 +6,7 @@ fof-drafts:
     composer:
       title: Save Draft
       alert: Draft saved.
+      exit_alert: Discard changes to draft?
     dropdown:
       title: Drafts
       button: Delete Draft

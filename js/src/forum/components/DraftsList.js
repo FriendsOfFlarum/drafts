@@ -100,6 +100,7 @@ export default class FlagList extends Component {
             originalContent: draft.content(),
             title: draft.title(),
             user: app.session.user,
+            confirmExit: app.translator.trans('fof-drafts.forum.composer.exit_alert'),
             draft,
         };
 
