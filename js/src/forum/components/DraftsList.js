@@ -103,12 +103,14 @@ export default class FlagList extends Component {
             draft,
         };
 
-        if (draft.relationships()) {
-            Object.keys(draft.relationships()).forEach(relationship => {
-                draft.relationships()[relationship].data.map((model, i) => {
-                    draft.relationships()[relationship].data[i] = app.store.getById(model.type, model.id);
-                });
-                data[relationship] = draft.relationships()[relationship].data;
+        const relationships = draft.relationships();
+
+        if (relationships) {
+            Object.keys(relationships).forEach(relationshipName => {
+                const relationship = relationships[relationshipName];
+                const relationshipData = relationship.data.map( (model, i) => app.store.getById(model.type, model.id) );
+
+                data[relationshipName] = relationshipData;
             });
         }
 
