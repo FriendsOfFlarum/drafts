@@ -18,7 +18,7 @@ import humanTime from 'flarum/helpers/humanTime';
 import { truncate } from 'flarum/utils/string';
 import Button from 'flarum/components/Button';
 
-export default class FlagList extends Component {
+export default class DraftsList extends Component {
     init() {
         this.loading = false;
     }
@@ -35,7 +35,7 @@ export default class FlagList extends Component {
         const drafts = app.cache.drafts || [];
 
         return (
-            <div className="NotificationList RequestsList">
+            <div className="NotificationList DraftsList">
                 <div className="NotificationList-header">
                     <h4 className="App-titleControl App-titleControl--text">{app.translator.trans('fof-drafts.forum.dropdown.title')}</h4>
                 </div>
@@ -96,7 +96,7 @@ export default class FlagList extends Component {
 
         const deferred = m.deferred();
 
-        var data = {
+        const data = {
             originalContent: draft.content(),
             title: draft.title(),
             user: app.session.user,
@@ -115,7 +115,7 @@ export default class FlagList extends Component {
             });
         }
 
-        var component = new DiscussionComposer(data);
+        const component = new DiscussionComposer(data);
 
         app.composer.load(component);
         app.composer.show();
