@@ -32,7 +32,7 @@ class DeleteDraftHandler
 
         $draft = Draft::findOrFail($command->draftId);
 
-        if ($actor->id !== $draft->user_id) {
+        if (strval($actor->id) !== strval($draft->user_id)) {
             throw new PermissionDeniedException();
         }
         $draft->delete();
