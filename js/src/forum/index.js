@@ -33,51 +33,53 @@ app.initializers.add('fof-drafts', () => {
         if (!(this.component instanceof DiscussionComposer) || !app.forum.attribute('canSaveDrafts'))
             return;
 
-        items.add(
-            'save-draft',
-            Button.component({
-                icon: 'fas fa-save',
-                className: 'Button Button--icon Button--link',
-                title: app.translator.trans('fof-drafts.forum.composer.title'),
-                onclick: () => {
-                    app.alerts.dismiss(this.successAlert);
+        if (this.position !== Composer.PositionEnum.MINIMIZED) {
+            items.add(
+                'save-draft',
+                Button.component({
+                    icon: 'fas fa-save',
+                    className: 'Button Button--icon Button--link',
+                    title: app.translator.trans('fof-drafts.forum.composer.title'),
+                    onclick: () => {
+                        app.alerts.dismiss(this.successAlert);
 
-                    if (this.component.draft) {
-                        delete this.component.draft.data.attributes.relationships;
+                        if (this.component.draft) {
+                            delete this.component.draft.data.attributes.relationships;
 
-                        this.component.draft
-                            .save(this.component.data())
-                            .then(draft => {
-                                app.cache.drafts = app.cache.drafts || [];
-                                app.cache.drafts.forEach((cacheDraft, i) => {
-                                    if (cacheDraft.id() === draft.id()) {
-                                        var now = new Date();
-                                        draft.data.attributes.updatedAt = now.toString();
-                                        app.cache.drafts[i] = draft;
-                                    }
+                            this.component.draft
+                                .save(this.component.data())
+                                .then(draft => {
+                                    app.cache.drafts = app.cache.drafts || [];
+                                    app.cache.drafts.forEach((cacheDraft, i) => {
+                                        if (cacheDraft.id() === draft.id()) {
+                                            var now = new Date();
+                                            draft.data.attributes.updatedAt = now.toString();
+                                            app.cache.drafts[i] = draft;
+                                        }
+                                    });
+                                    app.alerts.show(
+                                        (this.successAlert = new Alert({ type: 'success', children: app.translator.trans('fof-drafts.forum.composer.alert') }))
+                                    );
                                 });
-                                app.alerts.show(
-                                    (this.successAlert = new Alert({ type: 'success', children: app.translator.trans('fof-drafts.forum.composer.alert') }))
-                                );
-                            });
-                    } else {
-                        app.store
-                            .createRecord('drafts')
-                            .save(this.component.data())
-                            .then(draft => {
-                                app.cache.drafts = app.cache.drafts || [];
-                                app.cache.drafts.push(draft);
-                                this.component.draft = draft;
-                                app.alerts.show(
-                                    (this.successAlert = new Alert({ type: 'success', children: app.translator.trans('fof-drafts.forum.composer.alert') }))
-                                );
-                                m.redraw();
-                            });
-                    }
-                },
-            }),
-            20
-        );
+                        } else {
+                            app.store
+                                .createRecord('drafts')
+                                .save(this.component.data())
+                                .then(draft => {
+                                    app.cache.drafts = app.cache.drafts || [];
+                                    app.cache.drafts.push(draft);
+                                    this.component.draft = draft;
+                                    app.alerts.show(
+                                        (this.successAlert = new Alert({ type: 'success', children: app.translator.trans('fof-drafts.forum.composer.alert') }))
+                                    );
+                                    m.redraw();
+                                });
+                        }
+                    },
+                }),
+                20
+            );
+        }
     });
 
     extend(Composer.prototype, 'init', function () {
