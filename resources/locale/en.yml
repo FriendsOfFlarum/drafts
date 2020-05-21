@@ -5,7 +5,7 @@ fof-drafts:
   forum:
     composer:
       title: Save Draft
-      alert: Draft saved.
+      saving: Saving...
       exit_alert: Discard changes to draft?
     dropdown:
       empty_text: You haven't saved any drafts

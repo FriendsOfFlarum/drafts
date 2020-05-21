@@ -18,7 +18,6 @@ import addDraftsDropdown from './addDraftsDropdown';
 import Composer from 'flarum/components/Composer';
 import DiscussionComposer from 'flarum/components/DiscussionComposer';
 import Button from 'flarum/components/Button';
-import Alert from 'flarum/components/Alert';
 import DraftsList from './components/DraftsList';
 
 
@@ -29,9 +28,13 @@ app.initializers.add('fof-drafts', () => {
 
     app.routes.drafts = { path: '/drafts', component: <DraftsPage /> };
 
-    extend(Composer.prototype, 'controlItems', function(items) {
+    extend(Composer.prototype, 'controlItems', function (items) {
         if (!(this.component instanceof DiscussionComposer) || !app.forum.attribute('canSaveDrafts'))
             return;
+
+        if (this.saving) {
+            items.add('save-message', <p>{app.translator.trans('fof-drafts.forum.composer.saving')}</p>, 21)
+        }
 
         items.add(
             'save-draft',
@@ -40,7 +43,7 @@ app.initializers.add('fof-drafts', () => {
                 className: 'Button Button--icon Button--link',
                 title: app.translator.trans('fof-drafts.forum.composer.title'),
                 onclick: () => {
-                    app.alerts.dismiss(this.successAlert);
+                    this.saving = true;
 
                     if (this.component.draft) {
                         delete this.component.draft.data.attributes.relationships;
@@ -56,9 +59,8 @@ app.initializers.add('fof-drafts', () => {
                                         app.cache.drafts[i] = draft;
                                     }
                                 });
-                                app.alerts.show(
-                                    (this.successAlert = new Alert({ type: 'success', children: app.translator.trans('fof-drafts.forum.composer.alert') }))
-                                );
+                                this.saving = false;
+                                m.redraw();
                             });
                     } else {
                         app.store
@@ -68,9 +70,7 @@ app.initializers.add('fof-drafts', () => {
                                 app.cache.drafts = app.cache.drafts || [];
                                 app.cache.drafts.push(draft);
                                 this.component.draft = draft;
-                                app.alerts.show(
-                                    (this.successAlert = new Alert({ type: 'success', children: app.translator.trans('fof-drafts.forum.composer.alert') }))
-                                );
+                                this.saving = false;
                                 m.redraw();
                             });
                     }
