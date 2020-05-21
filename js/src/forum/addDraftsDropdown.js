@@ -15,13 +15,9 @@ import HeaderSecondary from 'flarum/components/HeaderSecondary';
 import DraftsDropdown from './components/DraftsDropdown';
 
 export default function() {
-    extend(HeaderSecondary.prototype, 'items', function(items) {
-        if (!app.session.user) return;
-        if (
-            (app.session.user.drafts() && app.session.user.drafts().length && !app.cache.drafts) ||
-            (app.cache.drafts && app.cache.drafts.length !== 0)
-        ) {
-            items.add('Drafts', <DraftsDropdown />, 20);
-        }
+    extend(HeaderSecondary.prototype, 'items', function (items) {
+        if (!app.session.user || !app.forum.attribute('canSaveDrafts')) return;
+
+        items.add('Drafts', <DraftsDropdown />, 20);
     });
 }
