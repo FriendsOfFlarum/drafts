@@ -140,12 +140,16 @@ app.initializers.add('fof-drafts', () => {
         draftsList.load();
 
         if (!app.session.user.preferences().disableDraftAutosave) {
-            setInterval(() => {
+            this.autosaveInterval = setInterval(() => {
                 if (this.changed()) {
                     this.saveDraft();
                 }
             }, 4000);
         }
+    });
+
+    extend(Composer.prototype, 'close', function () {
+        if (this.autosaveInterval) clearInterval(this.autosaveInterval);
     });
 
     extend(DiscussionComposer.prototype, 'init', function () {
