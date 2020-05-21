@@ -100,6 +100,7 @@ app.initializers.add('fof-drafts', () => {
 
     extend(Composer.prototype, 'init', function () {
         if (!app.forum.attribute('canSaveDrafts')) return;
+
         // Load drafts; if already loaded, this will not do anything.
         const draftsList = new DraftsList();
         draftsList.load();
