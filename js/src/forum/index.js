@@ -28,7 +28,49 @@ app.initializers.add('fof-drafts', () => {
 
     app.routes.drafts = { path: '/drafts', component: <DraftsPage /> };
 
-    extend(Composer.prototype, 'controlItems', function (items) {
+    Composer.prototype['saveDraft'] = function () {
+        this.saving = true;
+
+        const afterSave = () => {
+            this.saving = false;
+            this.justSaved = true;
+            setTimeout(() => {
+                this.justSaved = false;
+                m.redraw();
+            }, 300);
+            m.redraw();
+        }
+
+        if (this.component.draft) {
+            delete this.component.draft.data.attributes.relationships;
+
+            this.component.draft
+                .save(Object.assign(this.component.draft.data.attributes, this.component.data()))
+                .then(draft => {
+                    app.cache.drafts = app.cache.drafts || [];
+                    app.cache.drafts.forEach((cacheDraft, i) => {
+                        if (cacheDraft.id() === draft.id()) {
+                            var now = new Date();
+                            draft.data.attributes.updatedAt = now.toString();
+                            app.cache.drafts[i] = draft;
+                        }
+                    });
+                    afterSave();
+                });
+        } else {
+            app.store
+                .createRecord('drafts')
+                .save(this.component.data())
+                .then(draft => {
+                    app.cache.drafts = app.cache.drafts || [];
+                    app.cache.drafts.push(draft);
+                    this.component.draft = draft;
+                    afterSave();
+                });
+        }
+    };
+
+    extend(Composer.prototype, 'controlItems', function(items) {
         if (!(this.component instanceof DiscussionComposer) || !app.forum.attribute('canSaveDrafts'))
             return;
 
@@ -50,47 +92,7 @@ app.initializers.add('fof-drafts', () => {
                 itemClassName: 'App-backControl',
                 title: app.translator.trans('fof-drafts.forum.composer.title'),
                 disabled: this.saving || this.justSaved,
-                onclick: () => {
-                    this.saving = true;
-
-                    const afterSave = () => {
-                        this.saving = false;
-                        this.justSaved = true;
-                        setTimeout(() => {
-                            this.justSaved = false;
-                            m.redraw();
-                        }, 300);
-                        m.redraw();
-                    }
-
-                    if (this.component.draft) {
-                        delete this.component.draft.data.attributes.relationships;
-
-                        this.component.draft
-                            .save(Object.assign(this.component.draft.data.attributes, this.component.data()))
-                            .then(draft => {
-                                app.cache.drafts = app.cache.drafts || [];
-                                app.cache.drafts.forEach((cacheDraft, i) => {
-                                    if (cacheDraft.id() === draft.id()) {
-                                        var now = new Date();
-                                        draft.data.attributes.updatedAt = now.toString();
-                                        app.cache.drafts[i] = draft;
-                                    }
-                                });
-                                afterSave();
-                            });
-                    } else {
-                        app.store
-                            .createRecord('drafts')
-                            .save(this.component.data())
-                            .then(draft => {
-                                app.cache.drafts = app.cache.drafts || [];
-                                app.cache.drafts.push(draft);
-                                this.component.draft = draft;
-                                afterSave();
-                            });
-                    }
-                },
+                onclick: this.saveDraft.bind(this),
             }),
             20
         );
