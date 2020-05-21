@@ -33,7 +33,9 @@ app.initializers.add('fof-drafts', () => {
             return;
 
         if (this.saving) {
-            items.add('save-message', <p>{app.translator.trans('fof-drafts.forum.composer.saving')}</p>, 21)
+            items.add('saving-message', <p>{app.translator.trans('fof-drafts.forum.composer.saving')}</p>, 21);
+        } else if (this.justSaved) {
+            items.add('saved-message', <p>{app.translator.trans('fof-drafts.forum.composer.saved')}</p>, 21);
         }
 
         items.add(
@@ -44,6 +46,16 @@ app.initializers.add('fof-drafts', () => {
                 title: app.translator.trans('fof-drafts.forum.composer.title'),
                 onclick: () => {
                     this.saving = true;
+
+                    const afterSave = () => {
+                        this.saving = false;
+                        this.justSaved = true;
+                        setTimeout(() => {
+                            this.justSaved = false;
+                            m.redraw();
+                        }, 500);
+                        m.redraw();
+                    }
 
                     if (this.component.draft) {
                         delete this.component.draft.data.attributes.relationships;
@@ -59,8 +71,7 @@ app.initializers.add('fof-drafts', () => {
                                         app.cache.drafts[i] = draft;
                                     }
                                 });
-                                this.saving = false;
-                                m.redraw();
+                                afterSave();
                             });
                     } else {
                         app.store
@@ -70,8 +81,7 @@ app.initializers.add('fof-drafts', () => {
                                 app.cache.drafts = app.cache.drafts || [];
                                 app.cache.drafts.push(draft);
                                 this.component.draft = draft;
-                                this.saving = false;
-                                m.redraw();
+                                afterSave();
                             });
                     }
                 },
