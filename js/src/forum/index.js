@@ -19,11 +19,13 @@ import Composer from 'flarum/components/Composer';
 import DiscussionComposer from 'flarum/components/DiscussionComposer';
 import Button from 'flarum/components/Button';
 import Alert from 'flarum/components/Alert';
+import DraftsList from './components/DraftsList';
 
 
 app.initializers.add('fof-drafts', () => {
     app.store.models.drafts = Draft;
     User.prototype.drafts = Model.hasMany('drafts');
+    User.prototype.draftCount = Model.attribute('draftCount');
 
     app.routes.drafts = { path: '/drafts', component: <DraftsPage /> };
 
@@ -38,6 +40,8 @@ app.initializers.add('fof-drafts', () => {
                 className: 'Button Button--icon Button--link',
                 title: app.translator.trans('fof-drafts.forum.composer.title'),
                 onclick: () => {
+                    app.alerts.dismiss(this.successAlert);
+
                     if (this.component.draft) {
                         delete this.component.draft.data.attributes.relationships;
 
@@ -52,28 +56,34 @@ app.initializers.add('fof-drafts', () => {
                                         app.cache.drafts[i] = draft;
                                     }
                                 });
+                                app.alerts.show(
+                                    (this.successAlert = new Alert({ type: 'success', children: app.translator.trans('fof-drafts.forum.composer.alert') }))
+                                );
                             });
                     } else {
                         app.store
                             .createRecord('drafts')
                             .save(this.component.data())
                             .then(draft => {
-                                if (!app.cache.drafts) {
-                                    app.session.user.data.relationships.drafts.data.push(draft);
-                                } else {
-                                    app.cache.drafts.push(draft);
-                                }
+                                app.cache.drafts = app.cache.drafts || [];
+                                app.cache.drafts.push(draft);
+                                this.component.draft = draft;
+                                app.alerts.show(
+                                    (this.successAlert = new Alert({ type: 'success', children: app.translator.trans('fof-drafts.forum.composer.alert') }))
+                                );
                                 m.redraw();
                             });
                     }
-                    app.alerts.show(
-                        (this.successAlert = new Alert({ type: 'success', children: app.translator.trans('fof-drafts.forum.composer.alert') }))
-                    );
-                    app.composer.hide();
                 },
             }),
             20
         );
+    });
+
+    extend(Composer.prototype, 'init', function () {
+        // Load drafts; if already loaded, this will not do anything.
+        const draftsList = new DraftsList();
+        draftsList.load();
     });
 
     extend(DiscussionComposer.prototype, 'init', function() {
