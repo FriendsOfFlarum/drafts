@@ -103,6 +103,8 @@ app.initializers.add('fof-drafts', () => {
         // Load drafts; if already loaded, this will not do anything.
         const draftsList = new DraftsList();
         draftsList.load();
+
+        setInterval(this.saveDraft.bind(this), 5000)
     });
 
     extend(DiscussionComposer.prototype, 'init', function() {
