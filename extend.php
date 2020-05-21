@@ -14,6 +14,7 @@ namespace FoF\Drafts;
 use Flarum\Api\Event\Serializing;
 use Flarum\Extend;
 use Flarum\Foundation\Application;
+use Flarum\User\User;
 use FoF\Drafts\Api\Controller;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -46,5 +47,9 @@ return [
         $events->subscribe(Listeners\AddSettings::class);
 
         $app->register(Providers\ConsoleProvider::class);
+
+        User::addPreference('disableDraftAutosave', function ($value) {
+            return boolval($value);
+        }, false);
     },
 ];

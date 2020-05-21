@@ -15,6 +15,7 @@ import Model from 'flarum/Model';
 import Draft from './models/Draft';
 import DraftsPage from './components/DraftsPage';
 import addDraftsDropdown from './addDraftsDropdown';
+import addPrivacySetting from './addPrivacySetting';
 import Composer from 'flarum/components/Composer';
 import DiscussionComposer from 'flarum/components/DiscussionComposer';
 import Button from 'flarum/components/Button';
@@ -138,11 +139,13 @@ app.initializers.add('fof-drafts', () => {
         const draftsList = new DraftsList();
         draftsList.load();
 
-        setInterval(() => {
-            if (this.changed()) {
-                this.saveDraft();
-            }
-        }, 4000);
+        if (!app.session.user.preferences().disableDraftAutosave) {
+            setInterval(() => {
+                if (this.changed()) {
+                    this.saveDraft();
+                }
+            }, 4000);
+        }
     });
 
     extend(DiscussionComposer.prototype, 'init', function () {
@@ -163,4 +166,5 @@ app.initializers.add('fof-drafts', () => {
     });
 
     addDraftsDropdown();
+    addPrivacySetting();
 });
