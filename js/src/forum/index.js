@@ -21,12 +21,45 @@ import Button from 'flarum/components/Button';
 import DraftsList from './components/DraftsList';
 
 
+const SAVED_FIELDS_PER_COMPOSER = {
+    DiscussionComposer: ['content', 'title'],
+    ReplyComposer: ['content'],
+};
+
+
 app.initializers.add('fof-drafts', () => {
     app.store.models.drafts = Draft;
     User.prototype.drafts = Model.hasMany('drafts');
     User.prototype.draftCount = Model.attribute('draftCount');
 
     app.routes.drafts = { path: '/drafts', component: <DraftsPage /> };
+
+    Composer.prototype['changed'] = function () {
+        const composer = this.component.constructor.name;
+        const data = this.component.data();
+        const draft = this.component.draft;
+        const fields = SAVED_FIELDS_PER_COMPOSER[composer];
+
+        const getData = (field) => (field == 'content' ? this.component.editor.value() : data[field]) || "";
+
+        if (!fields) {
+            return false;
+        }
+
+        for (const field of fields) {
+            if (!draft) {
+                if (getData(field)) {
+                    return true;
+                }
+            } else {
+                if (getData(field) != draft[field]()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 
     Composer.prototype['saveDraft'] = function () {
         this.saving = true;
@@ -70,7 +103,7 @@ app.initializers.add('fof-drafts', () => {
         }
     };
 
-    extend(Composer.prototype, 'controlItems', function(items) {
+    extend(Composer.prototype, 'controlItems', function (items) {
         if (!(this.component instanceof DiscussionComposer) || !app.forum.attribute('canSaveDrafts'))
             return;
 
@@ -105,10 +138,14 @@ app.initializers.add('fof-drafts', () => {
         const draftsList = new DraftsList();
         draftsList.load();
 
-        setInterval(this.saveDraft.bind(this), 5000)
+        setInterval(() => {
+            if (this.changed()) {
+                this.saveDraft();
+            }
+        }, 4000);
     });
 
-    extend(DiscussionComposer.prototype, 'init', function() {
+    extend(DiscussionComposer.prototype, 'init', function () {
         Object.keys(this.props).forEach(key => {
             if (!['originalContent', 'title', 'user'].includes(key)) {
                 this[key] = this.props[key];
@@ -118,7 +155,7 @@ app.initializers.add('fof-drafts', () => {
         });
     });
 
-    extend(DiscussionComposer.prototype, 'onsubmit', function() {
+    extend(DiscussionComposer.prototype, 'onsubmit', function () {
         if (this.draft) {
             this.draft.delete();
             app.cache.drafts = app.cache.drafts.filter(cacheDraft => (cacheDraft.id() !== this.draft.id()));
