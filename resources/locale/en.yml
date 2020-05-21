@@ -28,3 +28,6 @@ fof-drafts:
       unschedule_button: Unschedule
       reschedule_button: Reschedule
       schedule_button: Schedule
+    user:
+      settings:
+        disable_draft_autosave: Disable Draft Autosave?
