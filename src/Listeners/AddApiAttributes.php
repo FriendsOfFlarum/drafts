@@ -12,8 +12,10 @@
 namespace FoF\Drafts\Listeners;
 
 use Flarum\Api\Event\Serializing;
+use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Settings\SettingsRepositoryInterface;
+use FoF\Drafts\Draft;
 
 class AddApiAttributes
 {
@@ -34,6 +36,10 @@ class AddApiAttributes
     {
         if ($event->isSerializer(ForumSerializer::class)) {
             $event->attributes['canSaveDrafts'] = $event->actor->hasPermissionLike('user.saveDrafts');
+        }
+
+        if ($event->isSerializer(CurrentUserSerializer::class)) {
+            $event->attributes['draftCount'] = (int) Draft::where('user_id', $event->actor->id)->count();
         }
     }
 }
