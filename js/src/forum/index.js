@@ -18,7 +18,6 @@ import addDraftsDropdown from './addDraftsDropdown';
 import Composer from 'flarum/components/Composer';
 import DiscussionComposer from 'flarum/components/DiscussionComposer';
 import Button from 'flarum/components/Button';
-import Alert from 'flarum/components/Alert';
 import DraftsList from './components/DraftsList';
 
 
@@ -29,19 +28,40 @@ app.initializers.add('fof-drafts', () => {
 
     app.routes.drafts = { path: '/drafts', component: <DraftsPage /> };
 
-    extend(Composer.prototype, 'controlItems', function(items) {
+    extend(Composer.prototype, 'controlItems', function (items) {
         if (!(this.component instanceof DiscussionComposer) || !app.forum.attribute('canSaveDrafts'))
             return;
+
+        const classNames = ['Button', 'Button--icon', 'Button--link'];
+
+        if (this.saving) {
+            classNames.push('saving');
+        }
+
+        if (this.justSaved) {
+            classNames.push('justSaved');
+        }
 
         items.add(
             'save-draft',
             Button.component({
-                icon: 'fas fa-save',
-                className: 'Button Button--icon Button--link',
+                icon: this.justSaved ? 'fas fa-check' : this.saving ? 'fas fa-spinner fa-spin' : 'fas fa-save',
+                className: classNames.join(' '),
                 itemClassName: 'App-backControl',
                 title: app.translator.trans('fof-drafts.forum.composer.title'),
+                disabled: this.saving || this.justSaved,
                 onclick: () => {
-                    app.alerts.dismiss(this.successAlert);
+                    this.saving = true;
+
+                    const afterSave = () => {
+                        this.saving = false;
+                        this.justSaved = true;
+                        setTimeout(() => {
+                            this.justSaved = false;
+                            m.redraw();
+                        }, 300);
+                        m.redraw();
+                    }
 
                     if (this.component.draft) {
                         delete this.component.draft.data.attributes.relationships;
@@ -57,9 +77,7 @@ app.initializers.add('fof-drafts', () => {
                                         app.cache.drafts[i] = draft;
                                     }
                                 });
-                                app.alerts.show(
-                                    (this.successAlert = new Alert({ type: 'success', children: app.translator.trans('fof-drafts.forum.composer.alert') }))
-                                );
+                                afterSave();
                             });
                     } else {
                         app.store
@@ -69,10 +87,7 @@ app.initializers.add('fof-drafts', () => {
                                 app.cache.drafts = app.cache.drafts || [];
                                 app.cache.drafts.push(draft);
                                 this.component.draft = draft;
-                                app.alerts.show(
-                                    (this.successAlert = new Alert({ type: 'success', children: app.translator.trans('fof-drafts.forum.composer.alert') }))
-                                );
-                                m.redraw();
+                                afterSave();
                             });
                     }
                 },
@@ -82,6 +97,7 @@ app.initializers.add('fof-drafts', () => {
     });
 
     extend(Composer.prototype, 'init', function () {
+        if (!app.forum.attribute('canSaveDrafts')) return;
         // Load drafts; if already loaded, this will not do anything.
         const draftsList = new DraftsList();
         draftsList.load();
