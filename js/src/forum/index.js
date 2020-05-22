@@ -47,6 +47,7 @@ app.initializers.add('fof-drafts', () => {
             Button.component({
                 icon: this.justSaved ? 'fas fa-check' : this.saving ? 'fas fa-spinner fa-spin' : 'fas fa-save',
                 className: classNames.join(' '),
+                itemClassName: 'App-backControl',
                 title: app.translator.trans('fof-drafts.forum.composer.title'),
                 disabled: this.saving || this.justSaved,
                 onclick: () => {
