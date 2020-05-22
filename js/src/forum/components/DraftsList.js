@@ -126,7 +126,7 @@ export default class DraftsList extends Component {
 
         switch (draft.type()) {
             case 'privateDiscussion':
-                componentClass = require('@fof-byobu').compat['components/PrivateDiscussionComposer'];
+                componentClass = require('@fof-byobu').components['PrivateDiscussionComposer'];
                 break;
             case 'reply':
                 componentClass = ReplyComposer;
