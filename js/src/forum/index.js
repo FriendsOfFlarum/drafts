@@ -141,10 +141,10 @@ app.initializers.add('fof-drafts', () => {
 
         if (!app.session.user.preferences().disableDraftAutosave) {
             this.autosaveInterval = setInterval(() => {
-                if (this.changed()) {
+                if (this.changed() && !this.saving) {
                     this.saveDraft();
                 }
-            }, 4000);
+            }, 6000);
         }
     });
 
