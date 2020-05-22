@@ -38,6 +38,7 @@ app.initializers.add('fof-drafts', () => {
             Button.component({
                 icon: 'fas fa-save',
                 className: 'Button Button--icon Button--link',
+                itemClassName: 'App-backControl',
                 title: app.translator.trans('fof-drafts.forum.composer.title'),
                 onclick: () => {
                     app.alerts.dismiss(this.successAlert);
