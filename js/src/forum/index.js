@@ -32,18 +32,13 @@ app.initializers.add('fof-drafts', () => {
         if (!(this.component instanceof DiscussionComposer) || !app.forum.attribute('canSaveDrafts'))
             return;
 
-        if (this.saving) {
-            items.add('saving-message', <p>{app.translator.trans('fof-drafts.forum.composer.saving')}</p>, 21);
-        } else if (this.justSaved) {
-            items.add('saved-message', <p>{app.translator.trans('fof-drafts.forum.composer.saved')}</p>, 21);
-        }
-
         items.add(
             'save-draft',
             Button.component({
-                icon: 'fas fa-save',
+                icon: this.justSaved ? 'fas fa-check' : this.saving ? 'fas fa-spinner fa-spin' : 'fas fa-save',
                 className: 'Button Button--icon Button--link',
                 title: app.translator.trans('fof-drafts.forum.composer.title'),
+                disabled: this.saving || this.justSaved,
                 onclick: () => {
                     this.saving = true;
 
@@ -53,7 +48,7 @@ app.initializers.add('fof-drafts', () => {
                         setTimeout(() => {
                             this.justSaved = false;
                             m.redraw();
-                        }, 500);
+                        }, 300);
                         m.redraw();
                     }
 
