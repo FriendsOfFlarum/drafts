@@ -32,11 +32,21 @@ app.initializers.add('fof-drafts', () => {
         if (!(this.component instanceof DiscussionComposer) || !app.forum.attribute('canSaveDrafts'))
             return;
 
+        const classNames = ['Button', 'Button--icon', 'Button--link'];
+
+        if (this.saving) {
+            classNames.push('saving');
+        }
+
+        if (this.justSaved) {
+            classNames.push('justSaved');
+        }
+
         items.add(
             'save-draft',
             Button.component({
                 icon: this.justSaved ? 'fas fa-check' : this.saving ? 'fas fa-spinner fa-spin' : 'fas fa-save',
-                className: 'Button Button--icon Button--link',
+                className: classNames.join(' '),
                 title: app.translator.trans('fof-drafts.forum.composer.title'),
                 disabled: this.saving || this.justSaved,
                 onclick: () => {
