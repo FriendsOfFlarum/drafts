@@ -18,6 +18,7 @@ import addDraftsDropdown from './addDraftsDropdown';
 import addPreferences from './addPreferences';
 import Composer from 'flarum/components/Composer';
 import DiscussionComposer from 'flarum/components/DiscussionComposer';
+import ReplyComposer from 'flarum/components/ReplyComposer';
 import Button from 'flarum/components/Button';
 import DraftsList from './components/DraftsList';
 import fillRelationship from './utils/fillRelationship';
@@ -128,7 +129,7 @@ app.initializers.add('fof-drafts', () => {
 
     extend(Composer.prototype, 'controlItems', function (items) {
         if (
-            !(this.component instanceof DiscussionComposer) ||
+            !(this.component instanceof DiscussionComposer || this.component instanceof ReplyComposer) ||
             !app.forum.attribute('canSaveDrafts') ||
             this.position === Composer.PositionEnum.MINIMIZED
         )
@@ -196,21 +197,27 @@ app.initializers.add('fof-drafts', () => {
         return prevented;
     });
 
-    extend(DiscussionComposer.prototype, 'init', function () {
-        Object.keys(this.props).forEach((key) => {
+    function initComposerBody() {
+        Object.keys(this.props).forEach(key => {
             if (!['originalContent', 'title', 'user'].includes(key)) {
                 this[key] = this.props[key];
             } else if (key === 'title') {
                 this.title = m.prop(this.props.title);
             }
         });
-    });
+    }
 
-    extend(DiscussionComposer.prototype, 'onsubmit', function () {
+    extend(DiscussionComposer.prototype, 'init', initComposerBody);
+    extend(ReplyComposer.prototype, 'init', initComposerBody);
+
+    function deleteDraftsOnSubmit() {
         if (this.draft) {
             this.draft.delete();
         }
-    });
+    }
+
+    extend(DiscussionComposer.prototype, 'onsubmit', deleteDraftsOnSubmit);
+    extend(ReplyComposer.prototype, 'onsubmit', deleteDraftsOnSubmit);
 
     addDraftsDropdown();
     addPreferences();
