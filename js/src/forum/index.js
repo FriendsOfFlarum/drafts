@@ -37,13 +37,29 @@ app.initializers.add('fof-drafts', () => {
 
         const fields = Object.keys(data).filter(element => element !== "relationships");
 
-        const relationships = Object.keys(data.relationships);
-
         if (!fields) {
             return false;
         }
 
         const getData = (field) => (field === 'content' ? this.component.editor.value() : data[field]) || "";
+
+        for (const field of fields) {
+            if (!draft) {
+                if (getData(field)) {
+                    return true;
+                }
+            } else {
+                if (getData(field) != draft[field]()) {
+                    return true;
+                }
+            }
+        }
+
+        if (!data.relationships) {
+            return false;
+        }
+
+        const relationships = Object.keys(data.relationships);
 
         const equalRelationships = (data, draft, relationship) => {
             if (data.relationships[relationship].length == 0 && (!(relationship in draft.relationships()) || draft.relationships()[relationship].data.length == 0)) {
@@ -63,18 +79,6 @@ app.initializers.add('fof-drafts', () => {
             }
 
             return true;
-        }
-
-        for (const field of fields) {
-            if (!draft) {
-                if (getData(field)) {
-                    return true;
-                }
-            } else {
-                if (getData(field) != draft[field]()) {
-                    return true;
-                }
-            }
         }
 
         for (const relationship of relationships) {
