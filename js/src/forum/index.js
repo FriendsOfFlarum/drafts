@@ -22,12 +22,6 @@ import Button from 'flarum/components/Button';
 import DraftsList from './components/DraftsList';
 
 
-const SAVED_FIELDS_PER_COMPOSER = {
-    DiscussionComposer: ['content', 'title'],
-    ReplyComposer: ['content'],
-};
-
-
 app.initializers.add('fof-drafts', () => {
     app.store.models.drafts = Draft;
     User.prototype.drafts = Model.hasMany('drafts');
@@ -36,15 +30,39 @@ app.initializers.add('fof-drafts', () => {
     app.routes.drafts = { path: '/drafts', component: <DraftsPage /> };
 
     Composer.prototype['changed'] = function () {
-        const composer = this.component.constructor.name;
+        if (!this.component) return false;
+
         const data = this.component.data();
         const draft = this.component.draft;
-        const fields = SAVED_FIELDS_PER_COMPOSER[composer];
 
-        const getData = (field) => (field == 'content' ? this.component.editor.value() : data[field]) || "";
+        const fields = Object.keys(data).filter(element => element !== "relationships");
+
+        const relationships = Object.keys(data.relationships);
 
         if (!fields) {
             return false;
+        }
+
+        const getData = (field) => (field === 'content' ? this.component.editor.value() : data[field]) || "";
+
+        const equalRelationships = (data, draft, relationship) => {
+            if (data.relationships[relationship].length == 0 && (!(relationship in draft.relationships()) || draft.relationships()[relationship].data.length == 0)) {
+                return true;
+            } else if (!(relationship in draft.relationships()) || data.relationships[relationship].length != draft.relationships()[relationship].data.length) {
+                return false;
+            }
+
+            const getId = element => typeof element.id == 'function' ? element.id() : element.id;
+
+            const dataIds = data.relationships[relationship].map(getId).sort();
+            const draftIds = draft.relationships()[relationship].data.map(getId).sort();
+
+            for (var i = 0; i < dataIds.length; i++) {
+                if (dataIds[i] !== draftIds[i])
+                    return false;
+            }
+
+            return true;
         }
 
         for (const field of fields) {
@@ -59,11 +77,25 @@ app.initializers.add('fof-drafts', () => {
             }
         }
 
+        for (const relationship of relationships) {
+            if (!draft) {
+                if (data.relationships[relationship]) {
+                    return true;
+                }
+            } else {
+                if (!equalRelationships(data, draft, relationship)) {
+                    return true;
+                }
+            }
+
+        }
+
         return false;
     }
 
     Composer.prototype['saveDraft'] = function () {
         this.saving = true;
+        m.redraw();
 
         const afterSave = () => {
             this.saving = false;
@@ -141,6 +173,7 @@ app.initializers.add('fof-drafts', () => {
 
         if (!app.session.user.preferences().disableDraftAutosave) {
             this.autosaveInterval = setInterval(() => {
+                console.log(this.changed());
                 if (this.changed() && !this.saving) {
                     this.saveDraft();
                 }
