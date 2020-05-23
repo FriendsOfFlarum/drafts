@@ -173,7 +173,6 @@ app.initializers.add('fof-drafts', () => {
 
         if (!app.session.user.preferences().disableDraftAutosave) {
             this.autosaveInterval = setInterval(() => {
-                console.log(this.changed());
                 if (this.changed() && !this.saving) {
                     this.saveDraft();
                 }
