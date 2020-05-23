@@ -15,7 +15,7 @@ import Model from 'flarum/Model';
 import Draft from './models/Draft';
 import DraftsPage from './components/DraftsPage';
 import addDraftsDropdown from './addDraftsDropdown';
-import addPrivacySetting from './addPrivacySetting';
+import addPreferences from './addPreferences';
 import Composer from 'flarum/components/Composer';
 import DiscussionComposer from 'flarum/components/DiscussionComposer';
 import Button from 'flarum/components/Button';
@@ -206,5 +206,5 @@ app.initializers.add('fof-drafts', () => {
     });
 
     addDraftsDropdown();
-    addPrivacySetting();
+    addPreferences();
 });
