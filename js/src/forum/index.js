@@ -188,7 +188,18 @@ app.initializers.add('fof-drafts', () => {
         if (this.autosaveInterval) clearInterval(this.autosaveInterval);
     });
 
-    extend(DiscussionComposer.prototype, 'init', function () {
+    extend(Composer.prototype, 'preventExit', function (prevented) {
+        if (prevented || !this.component) return;
+
+        const draft = this.component.draft;
+        if (!draft.title() && !draft.content() && confirm(app.translator.trans('fof-drafts.forum.composer.discard_empty_draft_alert'))) {
+            draft.delete();
+        }
+
+        return prevented;
+    })
+
+    extend(DiscussionComposer.prototype, 'init', function() {
         Object.keys(this.props).forEach(key => {
             if (!['originalContent', 'title', 'user'].includes(key)) {
                 this[key] = this.props[key];

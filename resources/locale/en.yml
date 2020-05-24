@@ -14,6 +14,7 @@ fof-drafts:
       saving: Saving...
       saved: Saved!
       exit_alert: Discard changes to draft?
+      discard_empty_draft_alert: Discard empty draft?
     dropdown:
       empty_text: You haven't saved any drafts
       title: Drafts
