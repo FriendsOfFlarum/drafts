@@ -53,6 +53,6 @@ return [
         }, true);
         User::addPreference('draftAutosaveInterval', function ($value) {
             return intval($value);
-        }, 4);
+        }, 6);
     },
 ];
