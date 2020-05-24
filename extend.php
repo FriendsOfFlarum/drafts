@@ -48,8 +48,11 @@ return [
 
         $app->register(Providers\ConsoleProvider::class);
 
-        User::addPreference('disableDraftAutosave', function ($value) {
+        User::addPreference('draftAutosaveEnable', function ($value) {
             return boolval($value);
-        }, false);
+        }, true);
+        User::addPreference('draftAutosaveInterval', function ($value) {
+            return intval($value);
+        }, 4);
     },
 ];

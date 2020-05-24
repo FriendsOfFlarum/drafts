@@ -30,4 +30,8 @@ fof-drafts:
       schedule_button: Schedule
     user:
       settings:
-        disable_draft_autosave: Disable Draft Autosave?
+        drafts_heading: Drafts
+        draft_autosave_enable: Enable Draft Autosave?
+        draft_autosave_interval_label: Autosave Interval (seconds)
+        draft_autosave_interval_button: Update Interval
+        draft_autosave_interval_invalid: The interval must be an integer greater than 4.

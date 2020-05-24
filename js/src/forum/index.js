@@ -175,12 +175,12 @@ app.initializers.add('fof-drafts', () => {
         const draftsList = new DraftsList();
         draftsList.load();
 
-        if (!app.session.user.preferences().disableDraftAutosave) {
+        if (app.session.user.preferences().draftAutosaveEnable) {
             this.autosaveInterval = setInterval(() => {
                 if (this.changed() && !this.saving) {
                     this.saveDraft();
                 }
-            }, 6000);
+            }, 1000 * app.session.user.preferences().draftAutosaveInterval);
         }
     });
 
