@@ -49,11 +49,14 @@ class PublishDrafts extends AbstractCommand
         foreach (Draft::where('scheduled_for', '<=', Carbon::now())->with('user')->get() as $draft) {
             try {
                 $relationships = json_decode($draft->relationships, true);
-                $ip = '172.0.0.1';
 
                 if (array_key_exists('discussion', $relationships)) {
                     $post = $this->bus->dispatch(
-                        new PostReply($relationships['discussion']['id'], $draft->user, ['attributes' => ['content' => $draft->content]], $ip)
+                        new PostReply($relationships['discussion']['id'], $draft->user, [
+                            'attributes' => [
+                                'content' => $draft->content
+                            ]
+                        ], $draft->ip_address)
                     );
                     $post->created_at = $draft->scheduled_for;
                     $post->save();
@@ -65,7 +68,7 @@ class PublishDrafts extends AbstractCommand
                                 'content' => $draft->content,
                             ],
                             'relationships' => $relationships,
-                        ], $ip)
+                        ], $draft->ip_address)
                     );
                     $discussion->created_at = $draft->scheduled_for;
                     $discussion->firstPost->created_at = $draft->scheduled_for;
