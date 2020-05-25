@@ -9,7 +9,8 @@
     "license": "MIT",
     "require": {
         "flarum/core": "^0.1.0-beta.8",
-        "fof/console": "^0.5"
+        "fof/console": "^0.5",
+        "fof/components": ">=0.1.0"
     },
     "authors": [
         {

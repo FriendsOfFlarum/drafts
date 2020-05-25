@@ -12,8 +12,27 @@
 import app from 'flarum/app';
 import { extend } from 'flarum/extend';
 import PermissionGrid from 'flarum/components/PermissionGrid';
+import { settings } from '@fof-components';
+
+const {
+    SettingsModal,
+    items: { BooleanItem },
+} = settings;
 
 app.initializers.add('fof-drafts', app => {
+    app.extensionSettings['fof-drafts'] = () =>
+        app.modal.show(
+            new SettingsModal({
+                title: app.translator.trans('fof-drafts.admin.settings.title'),
+                type: 'small',
+                items: [
+                    <BooleanItem key="fof-drafts.enable_scheduled_drafts">
+                        {app.translator.trans('fof-drafts.admin.settings.enable_scheduled_drafts')}
+                    </BooleanItem>,
+                ],
+            })
+        );
+
     extend(app, 'getRequiredPermissions', function (required, permission) {
         if (permission === 'user.scheduleDrafts') {
             required.push('user.saveDrafts');

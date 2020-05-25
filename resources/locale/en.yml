@@ -3,6 +3,11 @@ fof-drafts:
     permissions:
       start: Create drafts
       schedule: Schedule drafts
+    settings:
+      title: Drafts Settings
+      enable_scheduled_drafts: Enable Scheduled Drafts
+  console:
+    scheduled_drafts_disabled: Scheduled drafts are currently disabled in settings.
   forum:
     composer:
       title: Save Draft

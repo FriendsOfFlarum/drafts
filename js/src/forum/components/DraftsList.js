@@ -60,7 +60,7 @@ export default class DraftsList extends Component {
                                                     title: app.translator.trans('fof-drafts.forum.dropdown.delete_button'),
                                                     onclick: this.deleteDraft.bind(this, draft),
                                                 })}
-                                                {app.forum.attribute('canScheduleDrafts') ? Button.component({
+                                                {app.forum.attribute('canScheduleDrafts') && app.forum.attribute('drafts.enableScheduledDrafts') ? Button.component({
                                                     icon: draft.scheduledValidationError() ? 'fas fa-calendar-times' : draft.scheduledFor() ? 'fas fa-calendar-check' : 'fas fa-calendar-plus',
                                                     style: 'float: right; z-index: 20;',
                                                     className: 'Button Button--icon Button--link draft--schedule',
@@ -104,7 +104,7 @@ export default class DraftsList extends Component {
     }
 
     scheduleDraft(draft) {
-        if (!app.forum.attribute('canScheduleDrafts')) return;
+        if (!app.forum.attribute('canScheduleDrafts') || !app.forum.attribute('drafts.enableScheduledDrafts')) return;
 
         app.modal.show(new ScheduleDraftModal({draft}));
     }
