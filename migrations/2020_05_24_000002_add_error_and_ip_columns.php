@@ -13,5 +13,5 @@ use Flarum\Database\Migration;
 
 return Migration::addColumns('drafts', [
     'scheduled_validation_error' => ['mediumText', 'nullable' => true],
-    'ip_address'                 => ['string', 'length' => 45, 'nullable' => true]
+    'ip_address'                 => ['string', 'length' => 45, 'nullable' => true],
 ]);
