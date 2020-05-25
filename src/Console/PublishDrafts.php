@@ -54,6 +54,7 @@ class PublishDrafts extends AbstractCommand
 
         if (!$this->settings->get('fof-drafts.enable_scheduled_drafts')) {
             $this->error($this->translator->trans('fof-drafts.console.scheduled_drafts_disabled'));
+
             return;
         }
 
@@ -65,8 +66,8 @@ class PublishDrafts extends AbstractCommand
                     $post = $this->bus->dispatch(
                         new PostReply($relationships['discussion']['id'], $draft->user, [
                             'attributes' => [
-                                'content' => $draft->content
-                            ]
+                                'content' => $draft->content,
+                            ],
                         ], $draft->ip_address)
                     );
                     $post->created_at = $draft->scheduled_for;

@@ -12,5 +12,5 @@
 use Flarum\Database\Migration;
 
 return Migration::addSettings([
-    'fof-drafts.enable_scheduled_drafts' => true
+    'fof-drafts.enable_scheduled_drafts' => true,
 ]);
