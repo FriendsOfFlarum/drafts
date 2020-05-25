@@ -40,14 +40,18 @@ export default class ScheduleDraftModal extends Modal {
                             name="scheduledFor"
                             className="FormControl flatpickr-input"
                             data-input
+                            onchange={m.redraw}
                         />
                     </div>
                     <div className="Form-group">
                         {Button.component({
-                            className: 'Button Button--primary Button--block',
+                            className: 'Button Button--block' + (this.unscheduleMode() ? ' Button--danger' : ' Button--primary'),
                             type: 'submit',
                             loading: this.loading,
-                            children: app.translator.trans('fof-drafts.forum.schedule_draft_modal.submit_button'),
+                            children: this.unscheduleMode() ?
+                                app.translator.trans('fof-drafts.forum.schedule_draft_modal.unschedule_button') :
+                                this.rescheduleMode() ? app.translator.trans('fof-drafts.forum.schedule_draft_modal.reschedule_button') :
+                                    app.translator.trans('fof-drafts.forum.schedule_draft_modal.schedule_button'),
                         })}
                     </div>
                 </div>
@@ -67,23 +71,32 @@ export default class ScheduleDraftModal extends Modal {
         });
     }
 
+    scheduledFor() {
+        return new Date($("input[name=scheduledFor]").val());
+    }
+
+    changed() {
+        const getTimeOrNull = date => date ? date.getTime() : null;
+
+        return getTimeOrNull(this.scheduledFor()) !== getTimeOrNull(this.props.draft.scheduledFor());
+    }
+
+    unscheduleMode() {
+        return !this.changed() && this.props.draft.scheduledFor();
+    }
+
+    rescheduleMode() {
+        return this.changed() && this.props.draft.scheduledFor();
+    }
+
     onsubmit(e) {
         e.preventDefault();
-
-        const scheduledFor = new Date(document.getElementsByName("scheduledFor")[0].value);
-
-        // If the user hasn't actually entered a different email address, we don't
-        // need to do anything. Woot!
-        if (scheduledFor.getTime() === this.props.draft.scheduledFor().getTime()) {
-            m.redraw();
-            return;
-        }
 
         this.loading = true;
 
         this.props.draft
             .save(
-                { scheduledFor }
+                { scheduledFor: (this.unscheduleMode() ? null : this.scheduledFor()) }
             )
             .then(() => (this.success = true))
             .catch(() => { })

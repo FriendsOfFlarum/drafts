@@ -52,10 +52,7 @@ class UpdateDraftHandler
             $draft->relationships =  json_encode($data['relationships']);
         }
 
-        if (isset($data['attributes']['scheduledFor'])) {
-            $draft->scheduled_for = Carbon::parse($data['attributes']['scheduledFor']);
-        }
-
+        $draft->scheduled_for = isset($data['attributes']['scheduledFor']) ? Carbon::parse($data['attributes']['scheduledFor']) : null;
         $draft->updated_at = Carbon::now();
 
         $draft->save();

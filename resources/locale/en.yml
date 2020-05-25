@@ -18,4 +18,6 @@ fof-drafts:
       title: Schedule Draft
       text: Schedule your draft ahead of time!
       scheduled_text: Scheduled to post on {datetime}.
-      submit_button: Schedule!
+      unschedule_button: Unschedule!
+      reschedule_button: Reschedule!
+      schedule_button: Schedule!
