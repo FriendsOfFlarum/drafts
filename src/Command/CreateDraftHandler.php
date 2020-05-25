@@ -41,6 +41,11 @@ class CreateDraftHandler
         $draft->relationships = isset($data['relationships']) ? json_encode($data['relationships']) : json_encode('');
         $draft->scheduled_for = isset($data['attributes']['scheduledFor']) && $actor->can('user.scheduleDrafts') ? Carbon::parse($data['attributes']['scheduledFor']) : null;
         $draft->updated_at = Carbon::now();
+        $draft->ip_address = $command->ipAddress;
+
+        if (array_key_exists('clearValidationError', $data['attributes'])) {
+            $draft->scheduled_validation_error = '';
+        }
 
         $draft->save();
 

@@ -61,7 +61,7 @@ export default class DraftsList extends Component {
                                                     onclick: this.deleteDraft.bind(this, draft),
                                                 })}
                                                 {app.forum.attribute('canScheduleDrafts') ? Button.component({
-                                                    icon: draft.scheduledFor() ? 'fas fa-calendar-check' : 'fas fa-calendar-plus',
+                                                    icon: draft.scheduledValidationError() ? 'fas fa-calendar-times' : draft.scheduledFor() ? 'fas fa-calendar-check' : 'fas fa-calendar-plus',
                                                     style: 'float: right; z-index: 20;',
                                                     className: 'Button Button--icon Button--link draft--schedule',
                                                     title: app.translator.trans('fof-drafts.forum.dropdown.schedule_button'),
@@ -71,6 +71,7 @@ export default class DraftsList extends Component {
                                                     },
                                                 }) : ''}
                                                 <div className="Notification-excerpt">{truncate(draft.content(), 200)}</div>
+                                                {draft.scheduledValidationError() ? <p className="scheduledValidationError">{draft.scheduledValidationError()}</p> : ''}
                                             </a>
                                         </li>
                                     );

@@ -37,16 +37,22 @@ class UpdateDraft
     public $data;
 
     /**
+     * The IP address of the draft's creator.
+     */
+    public $ipAddress;
+
+    /**
      * UpdateDraft constructor.
      *
      * @param $draftId
      * @param User  $actor
      * @param array $data
      */
-    public function __construct($draftId, User $actor, array $data)
+    public function __construct($draftId, User $actor, array $data, string $ipAddress)
     {
         $this->draftId = $draftId;
         $this->actor = $actor;
         $this->data = $data;
+        $this->ipAddress = $ipAddress;
     }
 }

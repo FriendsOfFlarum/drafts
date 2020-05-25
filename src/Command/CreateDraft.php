@@ -30,14 +30,20 @@ class CreateDraft
     public $data;
 
     /**
+     * The IP address of the draft's creator.
+     */
+    public $ipAddress;
+
+    /**
      * CreateDraft constructor.
      *
      * @param User  $actor
      * @param array $data
      */
-    public function __construct(User $actor, array $data)
+    public function __construct(User $actor, array $data, string $ipAddress)
     {
         $this->actor = $actor;
         $this->data = $data;
+        $this->ipAddress = $ipAddress;
     }
 }

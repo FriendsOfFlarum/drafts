@@ -31,6 +31,11 @@ export default class ScheduleDraftModal extends Modal {
                     {app.translator.trans('fof-drafts.forum.schedule_draft_modal.scheduled_text', {datetime: dayjs(this.props.draft.scheduledFor()).format('LLLL')})}
                 </Alert>
             </div> : '',
+            this.props.draft.scheduledValidationError() ? <div className="Modal-alert">
+                <Alert type="error" dismissible={false}>
+                    {app.translator.trans('fof-drafts.forum.schedule_draft_modal.scheduled_error', { error: this.props.draft.scheduledValidationError() })}
+                </Alert>
+            </div> : '',
             <input style="display: none"></input>,
             <div className="Modal-body">
                 <div className="Form Form--centered">
@@ -96,7 +101,7 @@ export default class ScheduleDraftModal extends Modal {
 
         this.props.draft
             .save(
-                { scheduledFor: (this.unscheduleMode() ? null : this.scheduledFor()) }
+                { scheduledFor: (this.unscheduleMode() ? null : this.scheduledFor()), clearValidationError: true, scheduledValidationError: '' }
             )
             .then(() => (this.success = true))
             .catch(() => { })

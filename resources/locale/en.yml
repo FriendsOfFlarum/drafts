@@ -19,6 +19,7 @@ fof-drafts:
       title: Schedule Draft
       text: Schedule your draft to automatically post at a later time!
       scheduled_text: Scheduled to post on {datetime}.
+      scheduled_error: "Unable to post because: {error}."
       unschedule_button: Unschedule
       reschedule_button: Reschedule
       schedule_button: Schedule
