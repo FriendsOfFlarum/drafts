@@ -60,7 +60,7 @@ export default class DraftsList extends Component {
                                                     title: app.translator.trans('fof-drafts.forum.dropdown.delete_button'),
                                                     onclick: this.deleteDraft.bind(this, draft),
                                                 })}
-                                                {Button.component({
+                                                {app.forum.attribute('canScheduleDrafts') ? Button.component({
                                                     icon: draft.scheduledFor() ? 'fas fa-calendar-check' : 'fas fa-calendar-plus',
                                                     style: 'float: right; z-index: 20;',
                                                     className: 'Button Button--icon Button--link draft--schedule',
@@ -69,7 +69,7 @@ export default class DraftsList extends Component {
                                                         this.scheduleDraft(draft);
                                                         e.stopPropagation();
                                                     },
-                                                })}
+                                                }) : ''}
                                                 <div className="Notification-excerpt">{truncate(draft.content(), 200)}</div>
                                             </a>
                                         </li>
@@ -103,6 +103,8 @@ export default class DraftsList extends Component {
     }
 
     scheduleDraft(draft) {
+        if (!app.forum.attribute('canScheduleDrafts')) return;
+
         app.modal.show(new ScheduleDraftModal({draft}));
     }
 
