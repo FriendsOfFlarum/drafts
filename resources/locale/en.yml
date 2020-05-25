@@ -1,7 +1,8 @@
 fof-drafts:
   admin:
     permissions:
-      start: Create discussion drafts
+      start: Create drafts
+      schedule: Schedule drafts
   forum:
     composer:
       title: Save Draft
