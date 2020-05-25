@@ -16,5 +16,6 @@ export default class Draft extends mixin(Model, {
     content: Model.attribute('content'),
     title: Model.attribute('title'),
     relationships: Model.attribute('relationships'),
+    scheduledFor: Model.attribute('scheduledFor', Model.transformDate),
     updatedAt: Model.attribute('updatedAt', Model.transformDate),
 }) {}
