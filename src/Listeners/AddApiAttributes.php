@@ -36,6 +36,7 @@ class AddApiAttributes
     {
         if ($event->isSerializer(ForumSerializer::class)) {
             $event->attributes['canSaveDrafts'] = $event->actor->hasPermissionLike('user.saveDrafts');
+            $event->attributes['canScheduleDrafts'] = $event->actor->hasPermissionLike('user.scheduleDrafts');
         }
 
         if ($event->isSerializer(CurrentUserSerializer::class)) {
