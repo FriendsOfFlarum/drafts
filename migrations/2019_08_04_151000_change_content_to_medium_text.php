@@ -18,4 +18,9 @@ return [
             $table->mediumText('content')->change();
         });
     },
+    'down'   => function (Builder $schema) {
+        $schema->table('drafts', function (Blueprint $table) {
+            $table->string('content')->change();
+        });
+    },
 ];
