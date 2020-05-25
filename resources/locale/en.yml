@@ -16,8 +16,8 @@ fof-drafts:
       alert: Are you sure you want to delete your draft?
     schedule_draft_modal:
       title: Schedule Draft
-      text: Schedule your draft ahead of time!
+      text: Schedule your draft to automatically post at a later time!
       scheduled_text: Scheduled to post on {datetime}.
-      unschedule_button: Unschedule!
-      reschedule_button: Reschedule!
-      schedule_button: Schedule!
+      unschedule_button: Unschedule
+      reschedule_button: Reschedule
+      schedule_button: Schedule
