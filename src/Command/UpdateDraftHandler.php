@@ -41,7 +41,7 @@ class UpdateDraftHandler
         $this->assertCan($actor, 'user.saveDrafts');
 
         if (isset($data['attributes']['title'])) {
-            $draft->title =  $data['attributes']['title'];
+            $draft->title = $data['attributes']['title'];
         }
 
         if (isset($data['attributes']['content'])) {
@@ -49,7 +49,7 @@ class UpdateDraftHandler
         }
 
         if (isset($data['relationships'])) {
-            $draft->relationships =  json_encode($data['relationships']);
+            $draft->relationships = json_encode($data['relationships']);
         }
 
         if (array_key_exists('clearValidationError', $data['attributes'])) {

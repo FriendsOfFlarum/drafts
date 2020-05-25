@@ -27,12 +27,12 @@ class DraftSerializer extends AbstractSerializer
     protected function getDefaultAttributes($draft)
     {
         return [
-            'title'         => $draft->title,
-            'content'       => $draft->content,
-            'relationships' => json_decode($draft->relationships),
+            'title'                    => $draft->title,
+            'content'                  => $draft->content,
+            'relationships'            => json_decode($draft->relationships),
             'scheduledValidationError' => $draft->scheduled_validation_error,
-            'scheduledFor'     => $this->formatDate($draft->scheduled_for),
-            'updatedAt'     => $this->formatDate($draft->updated_at),
+            'scheduledFor'             => $this->formatDate($draft->scheduled_for),
+            'updatedAt'                => $this->formatDate($draft->updated_at),
         ];
     }
 

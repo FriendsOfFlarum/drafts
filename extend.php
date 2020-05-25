@@ -12,14 +12,13 @@
 namespace FoF\Drafts;
 
 use Flarum\Api\Event\Serializing;
-use Flarum\Console\Event\Configuring;
-use Flarum\Foundation\Application;
 use Flarum\Extend;
+use Flarum\Foundation\Application;
 use FoF\Drafts\Api\Controller;
 use Illuminate\Contracts\Events\Dispatcher;
 
 return [
-    new \FoF\Console\Extend\EnableConsole,
+    new \FoF\Console\Extend\EnableConsole(),
 
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
@@ -37,7 +36,7 @@ return [
 
     new Extend\Locales(__DIR__.'/resources/locale'),
 
-    (new Extend\Console)->command(Console\PublishDrafts::class),
+    (new Extend\Console())->command(Console\PublishDrafts::class),
 
     function (Application $app, Dispatcher $events) {
         $events->listen(Serializing::class, Listeners\AddApiAttributes::class);

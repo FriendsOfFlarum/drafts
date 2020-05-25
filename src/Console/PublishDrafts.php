@@ -3,7 +3,7 @@
 /*
  * This file is part of fof/drafts.
  *
- * Copyright (c) 2020 FriendsOfFlarum.
+ * Copyright (c) 2019 FriendsOfFlarum.
  *
  * For the full copyright and license information, please view the LICENSE.md
  * file that was distributed with this source code.
@@ -16,7 +16,6 @@ use Flarum\Console\AbstractCommand;
 use Flarum\Discussion\Command\StartDiscussion;
 use Flarum\Foundation\ValidationException;
 use Flarum\Post\Command\PostReply;
-use Flarum\User\User;
 use FoF\Drafts\Draft;
 use Illuminate\Contracts\Bus\Dispatcher;
 
@@ -29,6 +28,7 @@ class PublishDrafts extends AbstractCommand
         parent::__construct();
         $this->bus = $bus;
     }
+
     /**
      * {@inheritdoc}
      */
@@ -61,10 +61,10 @@ class PublishDrafts extends AbstractCommand
                     $discussion = $this->bus->dispatch(
                         new StartDiscussion($draft->user, [
                             'attributes' => [
-                                'title' => $draft->title,
+                                'title'   => $draft->title,
                                 'content' => $draft->content,
                             ],
-                            'relationships' => $relationships
+                            'relationships' => $relationships,
                         ], $ip)
                     );
                     $discussion->created_at = $draft->scheduled_for;
