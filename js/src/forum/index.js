@@ -67,7 +67,7 @@ app.initializers.add('fof-drafts', () => {
                         delete this.component.draft.data.attributes.relationships;
 
                         this.component.draft
-                            .save(this.component.data())
+                            .save(Object.assign(this.component.draft.data.attributes, this.component.data()))
                             .then(draft => {
                                 app.cache.drafts = app.cache.drafts || [];
                                 app.cache.drafts.forEach((cacheDraft, i) => {
