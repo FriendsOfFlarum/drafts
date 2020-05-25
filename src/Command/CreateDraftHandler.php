@@ -39,7 +39,7 @@ class CreateDraftHandler
         $draft->title = isset($data['attributes']['title']) ? $data['attributes']['title'] : '';
         $draft->content = isset($data['attributes']['content']) ? $data['attributes']['content'] : '';
         $draft->relationships = isset($data['relationships']) ? json_encode($data['relationships']) : json_encode('');
-        $draft->scheduled_for = isset($data['attributes']['scheduledFor']) ? Carbon::parse($data['attributes']['scheduledFor']) : null;
+        $draft->scheduled_for = isset($data['attributes']['scheduledFor']) && $actor->can('user.scheduleDrafts') ? Carbon::parse($data['attributes']['scheduledFor']) : null;
         $draft->updated_at = Carbon::now();
 
         $draft->save();
