@@ -22,7 +22,7 @@ class Draft extends AbstractModel
     /**
      * {@inheritdoc}
      */
-    protected $dates = ['updated_at'];
+    protected $dates = ['updated_at', 'scheduled_for'];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

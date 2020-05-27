@@ -17,6 +17,7 @@ import icon from 'flarum/helpers/icon';
 import humanTime from 'flarum/helpers/humanTime';
 import { truncate } from 'flarum/utils/string';
 import Button from 'flarum/components/Button';
+import ScheduleDraftModal from './ScheduleDraftModal';
 
 export default class DraftsList extends Component {
     init() {
@@ -56,10 +57,21 @@ export default class DraftsList extends Component {
                                                     icon: 'fas fa-times',
                                                     style: 'float: right; z-index: 20;',
                                                     className: 'Button Button--icon Button--link draft--delete',
-                                                    title: app.translator.trans('fof-drafts.forum.dropdown.button'),
+                                                    title: app.translator.trans('fof-drafts.forum.dropdown.delete_button'),
                                                     onclick: this.deleteDraft.bind(this, draft),
                                                 })}
+                                                {app.forum.attribute('canScheduleDrafts') && app.forum.attribute('drafts.enableScheduledDrafts') ? Button.component({
+                                                    icon: draft.scheduledValidationError() ? 'fas fa-calendar-times' : draft.scheduledFor() ? 'fas fa-calendar-check' : 'fas fa-calendar-plus',
+                                                    style: 'float: right; z-index: 20;',
+                                                    className: 'Button Button--icon Button--link draft--schedule',
+                                                    title: app.translator.trans('fof-drafts.forum.dropdown.schedule_button'),
+                                                    onclick: e => {
+                                                        this.scheduleDraft(draft);
+                                                        e.stopPropagation();
+                                                    },
+                                                }) : ''}
                                                 <div className="Notification-excerpt">{truncate(draft.content(), 200)}</div>
+                                                {draft.scheduledValidationError() ? <p className="scheduledValidationError">{draft.scheduledValidationError()}</p> : ''}
                                             </a>
                                         </li>
                                     );
@@ -89,6 +101,12 @@ export default class DraftsList extends Component {
         app.composer.hide();
 
         this.loading = false;
+    }
+
+    scheduleDraft(draft) {
+        if (!app.forum.attribute('canScheduleDrafts') || !app.forum.attribute('drafts.enableScheduledDrafts')) return;
+
+        app.modal.show(new ScheduleDraftModal({draft}));
     }
 
     showComposer(draft) {

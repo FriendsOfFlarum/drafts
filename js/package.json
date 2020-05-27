@@ -2,10 +2,11 @@
   "name": "@fof/drafts",
   "version": "0.0.0",
   "dependencies": {
-    "fclone": "^1.0.11",
+    "dayjs": "^1.8",
     "flarum-webpack-config": "^0.1.0-beta.8",
-    "webpack": "^4.0.0",
-    "webpack-cli": "^3.0.7"
+    "flatpickr": "^4",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11"
   },
   "scripts": {
     "build": "webpack --mode production",
@@ -13,6 +14,6 @@
     "lint": "prettier --single-quote --trailing-comma es5 --print-width 150 --tab-width 4 --write 'src/**/*'"
   },
   "devDependencies": {
-    "prettier": "^1.15.2"
+    "prettier": "^1.19.1"
   }
 }

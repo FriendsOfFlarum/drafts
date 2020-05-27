@@ -37,11 +37,27 @@ class UpdateDraftHandler
         if ($actor->id !== $draft->user_id) {
             throw new PermissionDeniedException();
         }
+
         $this->assertCan($actor, 'user.saveDrafts');
 
-        $draft->title = isset($data['attributes']['title']) ? $data['attributes']['title'] : '';
-        $draft->content = isset($data['attributes']['content']) ? $data['attributes']['content'] : '';
-        $draft->relationships = isset($data['relationships']) ? json_encode($data['relationships']) : json_encode('');
+        if (isset($data['attributes']['title'])) {
+            $draft->title = $data['attributes']['title'];
+        }
+
+        if (isset($data['attributes']['content'])) {
+            $draft->content = $data['attributes']['content'];
+        }
+
+        if (isset($data['relationships'])) {
+            $draft->relationships = json_encode($data['relationships']);
+        }
+
+        if (array_key_exists('clearValidationError', $data['attributes'])) {
+            $draft->scheduled_validation_error = '';
+        }
+
+        $draft->scheduled_for = isset($data['attributes']['scheduledFor']) && $actor->can('user.scheduleDrafts') ? Carbon::parse($data['attributes']['scheduledFor']) : null;
+        $draft->ip_address = $command->ipAddress;
         $draft->updated_at = Carbon::now();
 
         $draft->save();

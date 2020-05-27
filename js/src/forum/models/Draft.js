@@ -15,6 +15,8 @@ export default class Draft extends mixin(Model, {
     user: Model.hasOne('user'),
     content: Model.attribute('content'),
     title: Model.attribute('title'),
+    scheduledValidationError: Model.attribute('scheduledValidationError'),
     relationships: Model.attribute('relationships'),
+    scheduledFor: Model.attribute('scheduledFor', Model.transformDate),
     updatedAt: Model.attribute('updatedAt', Model.transformDate),
 }) {}

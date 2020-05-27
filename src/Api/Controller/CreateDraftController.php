@@ -15,6 +15,7 @@ use Flarum\Api\Controller\AbstractCreateController;
 use FoF\Drafts\Api\Serializer\DraftSerializer;
 use FoF\Drafts\Command\CreateDraft;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -52,9 +53,10 @@ class CreateDraftController extends AbstractCreateController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         $actor = $request->getAttribute('actor');
+        $ipAddress = Arr::get($request->getServerParams(), 'REMOTE_ADDR', '127.0.0.1');
 
         return $this->bus->dispatch(
-            new CreateDraft($actor, array_get($request->getParsedBody(), 'data', []))
+            new CreateDraft($actor, array_get($request->getParsedBody(), 'data', []), $ipAddress)
         );
     }
 }
