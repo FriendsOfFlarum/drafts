@@ -141,7 +141,7 @@ app.initializers.add('fof-drafts', () => {
     };
 
     extend(Composer.prototype, 'controlItems', function (items) {
-        if (!(this.component instanceof DiscussionComposer) || !app.forum.attribute('canSaveDrafts'))
+        if (!(this.component instanceof DiscussionComposer) || !app.forum.attribute('canSaveDrafts') || this.position === Composer.PositionEnum.MINIMIZED)
             return;
 
         const classNames = ['Button', 'Button--icon', 'Button--link'];
