@@ -9,7 +9,7 @@
  *
  */
 
-import { extend } from 'flarum/extend';
+import { extend, override } from 'flarum/extend';
 import User from 'flarum/models/User';
 import Model from 'flarum/Model';
 import Draft from './models/Draft';
@@ -188,11 +188,18 @@ app.initializers.add('fof-drafts', () => {
         if (this.autosaveInterval) clearInterval(this.autosaveInterval);
     });
 
-    extend(Composer.prototype, 'preventExit', function (prevented) {
-        if (prevented || !this.component) return;
+    override(Composer.prototype, 'preventExit', function (original) {
+        let prevented = false;
+        if (this.changed()) {
+            prevented = original();
+        }
+
+        if (prevented) return prevented;
+
+        if (!this.component) return false;
 
         const draft = this.component.draft;
-        if (!draft.title() && !draft.content() && confirm(app.translator.trans('fof-drafts.forum.composer.discard_empty_draft_alert'))) {
+        if (draft && !draft.title() && !draft.content() && confirm(app.translator.trans('fof-drafts.forum.composer.discard_empty_draft_alert'))) {
             draft.delete();
         }
 
