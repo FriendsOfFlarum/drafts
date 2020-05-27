@@ -96,7 +96,7 @@ export default class DraftsList extends Component {
         if (!window.confirm(app.translator.trans('fof-drafts.forum.dropdown.alert'))) return;
 
         draft.delete().then(() => {
-            if (app.composer.component && app.composer.component.draft.id() === draft.id()) {
+            if (app.composer.component && app.composer.component.draft.id() === draft.id() && !app.composer.changed()) {
                 app.composer.hide();
             }
 
