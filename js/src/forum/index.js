@@ -9,7 +9,7 @@
  *
  */
 
-import { extend } from 'flarum/extend';
+import { extend, override } from 'flarum/extend';
 import User from 'flarum/models/User';
 import Model from 'flarum/Model';
 import Draft from './models/Draft';
@@ -188,7 +188,29 @@ app.initializers.add('fof-drafts', () => {
         if (this.autosaveInterval) clearInterval(this.autosaveInterval);
     });
 
-    extend(DiscussionComposer.prototype, 'init', function () {
+    override(Composer.prototype, 'preventExit', function (original) {
+        if (this.component && this.component.draft) {
+            this.component.props.confirmExit = app.translator.trans('fof-drafts.forum.composer.exit_alert');
+        }
+
+        let prevented = false;
+        if (this.changed()) {
+            prevented = original();
+        }
+
+        if (prevented) return prevented;
+
+        if (!this.component) return;
+
+        const draft = this.component.draft;
+        if (draft && !draft.title() && !draft.content() && confirm(app.translator.trans('fof-drafts.forum.composer.discard_empty_draft_alert'))) {
+            draft.delete();
+        }
+
+        return prevented;
+    })
+
+    extend(DiscussionComposer.prototype, 'init', function() {
         Object.keys(this.props).forEach(key => {
             if (!['originalContent', 'title', 'user'].includes(key)) {
                 this[key] = this.props[key];
