@@ -15,6 +15,7 @@ import Model from 'flarum/Model';
 import Draft from './models/Draft';
 import DraftsPage from './components/DraftsPage';
 import addDraftsDropdown from './addDraftsDropdown';
+import addPreferences from './addPreferences';
 import Composer from 'flarum/components/Composer';
 import DiscussionComposer from 'flarum/components/DiscussionComposer';
 import Button from 'flarum/components/Button';
@@ -27,6 +28,117 @@ app.initializers.add('fof-drafts', () => {
     User.prototype.draftCount = Model.attribute('draftCount');
 
     app.routes.drafts = { path: '/drafts', component: <DraftsPage /> };
+
+    Composer.prototype['changed'] = function () {
+        if (!this.component) return false;
+
+        const data = this.component.data();
+        const draft = this.component.draft;
+
+        const fields = Object.keys(data).filter(element => element !== "relationships");
+
+        if (!fields) {
+            return false;
+        }
+
+        const getData = (field) => (field === 'content' ? this.component.editor.value() : data[field]) || "";
+
+        for (const field of fields) {
+            if (!draft) {
+                if (getData(field)) {
+                    return true;
+                }
+            } else {
+                if (getData(field) != draft[field]()) {
+                    return true;
+                }
+            }
+        }
+
+        if (!data.relationships) {
+            return false;
+        }
+
+        const relationships = Object.keys(data.relationships);
+
+        const equalRelationships = (data, draft, relationship) => {
+            if (data.relationships[relationship].length == 0 && (!(relationship in draft.relationships()) || draft.relationships()[relationship].data.length == 0)) {
+                return true;
+            } else if (!(relationship in draft.relationships()) || data.relationships[relationship].length != draft.relationships()[relationship].data.length) {
+                return false;
+            }
+
+            const getId = element => typeof element.id == 'function' ? element.id() : element.id;
+
+            const dataIds = data.relationships[relationship].map(getId).sort();
+            const draftIds = draft.relationships()[relationship].data.map(getId).sort();
+
+            for (var i = 0; i < dataIds.length; i++) {
+                if (dataIds[i] !== draftIds[i])
+                    return false;
+            }
+
+            return true;
+        }
+
+        for (const relationship of relationships) {
+            if (!draft) {
+                if (data.relationships[relationship]) {
+                    return true;
+                }
+            } else {
+                if (!equalRelationships(data, draft, relationship)) {
+                    return true;
+                }
+            }
+
+        }
+
+        return false;
+    }
+
+    Composer.prototype['saveDraft'] = function () {
+        this.saving = true;
+        m.redraw();
+
+        const afterSave = () => {
+            this.saving = false;
+            this.justSaved = true;
+            setTimeout(() => {
+                this.justSaved = false;
+                m.redraw();
+            }, 300);
+            m.redraw();
+        }
+
+        if (this.component.draft) {
+            delete this.component.draft.data.attributes.relationships;
+
+            this.component.draft
+                .save(Object.assign(this.component.draft.data.attributes, this.component.data()))
+                .then(draft => {
+                    app.cache.drafts = app.cache.drafts || [];
+                    app.cache.drafts.forEach((cacheDraft, i) => {
+                        if (cacheDraft.id() === draft.id()) {
+                            var now = new Date();
+                            draft.data.attributes.updatedAt = now.toString();
+                            app.cache.drafts[i] = draft;
+                        }
+                    });
+                    afterSave();
+                });
+        } else {
+            app.store
+                .createRecord('drafts')
+                .save(this.component.data())
+                .then(draft => {
+                    app.cache.drafts = app.cache.drafts || [];
+                    app.cache.drafts.push(draft);
+                    this.component.draft = draft;
+                    afterSave();
+                });
+        }
+    };
 
     extend(Composer.prototype, 'controlItems', function (items) {
         if (!(this.component instanceof DiscussionComposer) || !app.forum.attribute('canSaveDrafts'))
@@ -50,47 +162,7 @@ app.initializers.add('fof-drafts', () => {
                 itemClassName: 'App-backControl',
                 title: app.translator.trans('fof-drafts.forum.composer.title'),
                 disabled: this.saving || this.justSaved,
-                onclick: () => {
-                    this.saving = true;
-
-                    const afterSave = () => {
-                        this.saving = false;
-                        this.justSaved = true;
-                        setTimeout(() => {
-                            this.justSaved = false;
-                            m.redraw();
-                        }, 300);
-                        m.redraw();
-                    }
-
-                    if (this.component.draft) {
-                        delete this.component.draft.data.attributes.relationships;
-
-                        this.component.draft
-                            .save(Object.assign(this.component.draft.data.attributes, this.component.data()))
-                            .then(draft => {
-                                app.cache.drafts = app.cache.drafts || [];
-                                app.cache.drafts.forEach((cacheDraft, i) => {
-                                    if (cacheDraft.id() === draft.id()) {
-                                        var now = new Date();
-                                        draft.data.attributes.updatedAt = now.toString();
-                                        app.cache.drafts[i] = draft;
-                                    }
-                                });
-                                afterSave();
-                            });
-                    } else {
-                        app.store
-                            .createRecord('drafts')
-                            .save(this.component.data())
-                            .then(draft => {
-                                app.cache.drafts = app.cache.drafts || [];
-                                app.cache.drafts.push(draft);
-                                this.component.draft = draft;
-                                afterSave();
-                            });
-                    }
-                },
+                onclick: this.saveDraft.bind(this),
             }),
             20
         );
@@ -98,12 +170,25 @@ app.initializers.add('fof-drafts', () => {
 
     extend(Composer.prototype, 'init', function () {
         if (!app.forum.attribute('canSaveDrafts')) return;
+
         // Load drafts; if already loaded, this will not do anything.
         const draftsList = new DraftsList();
         draftsList.load();
+
+        if (app.session.user.preferences().draftAutosaveEnable) {
+            this.autosaveInterval = setInterval(() => {
+                if (this.changed() && !this.saving) {
+                    this.saveDraft();
+                }
+            }, 1000 * app.session.user.preferences().draftAutosaveInterval);
+        }
     });
 
-    extend(DiscussionComposer.prototype, 'init', function() {
+    extend(Composer.prototype, 'close', function () {
+        if (this.autosaveInterval) clearInterval(this.autosaveInterval);
+    });
+
+    extend(DiscussionComposer.prototype, 'init', function () {
         Object.keys(this.props).forEach(key => {
             if (!['originalContent', 'title', 'user'].includes(key)) {
                 this[key] = this.props[key];
@@ -113,7 +198,7 @@ app.initializers.add('fof-drafts', () => {
         });
     });
 
-    extend(DiscussionComposer.prototype, 'onsubmit', function() {
+    extend(DiscussionComposer.prototype, 'onsubmit', function () {
         if (this.draft) {
             this.draft.delete();
             app.cache.drafts = app.cache.drafts.filter(cacheDraft => (cacheDraft.id() !== this.draft.id()));
@@ -121,4 +206,5 @@ app.initializers.add('fof-drafts', () => {
     });
 
     addDraftsDropdown();
+    addPreferences();
 });
