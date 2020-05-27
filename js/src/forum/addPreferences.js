@@ -35,7 +35,7 @@ export default function () {
         );
 
         items.add('draft-autosave-interval',
-                <label>
+            this.user.preferences().draftAutosaveEnable ? <label>
                     <p>{app.translator.trans('fof-drafts.forum.user.settings.draft_autosave_interval_label')}</p>
                     <input
                         className="FormControl"
@@ -62,7 +62,7 @@ export default function () {
                     {this.draftAutosaveIntervalInvalid ? <p class="invalidInterval">
                         <small>{app.translator.trans('fof-drafts.forum.user.settings.draft_autosave_interval_invalid')}</small>
                     </p> : ''}
-                </label>
+                </label>: ''
         );
 
         return items;
