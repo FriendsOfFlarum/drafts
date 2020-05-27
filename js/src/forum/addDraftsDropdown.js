@@ -14,7 +14,7 @@ import app from 'flarum/app';
 import HeaderSecondary from 'flarum/components/HeaderSecondary';
 import DraftsDropdown from './components/DraftsDropdown';
 
-export default function() {
+export default function () {
     extend(HeaderSecondary.prototype, 'items', function (items) {
         if (!app.session.user || !app.forum.attribute('canSaveDrafts')) return;
 

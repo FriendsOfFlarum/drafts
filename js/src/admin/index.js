@@ -19,7 +19,7 @@ const {
     items: { BooleanItem },
 } = settings;
 
-app.initializers.add('fof-drafts', app => {
+app.initializers.add('fof-drafts', (app) => {
     app.extensionSettings['fof-drafts'] = () =>
         app.modal.show(
             new SettingsModal({
@@ -39,7 +39,7 @@ app.initializers.add('fof-drafts', app => {
         }
     });
 
-    extend(PermissionGrid.prototype, 'startItems', items => {
+    extend(PermissionGrid.prototype, 'startItems', (items) => {
         items.add('fof-draft-create', {
             icon: 'fa fa-edit',
             label: app.translator.trans('fof-drafts.admin.permissions.start'),

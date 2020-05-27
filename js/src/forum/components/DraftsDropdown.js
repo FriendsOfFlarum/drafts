@@ -33,7 +33,7 @@ export default class DraftsDropdown extends NotificationsDropdown {
 
     getUnreadCount() {
         if (app.cache.draftsLoaded) {
-          return app.store.all('drafts').length;
+            return app.store.all('drafts').length;
         }
 
         return app.store.all('drafts').length + app.session.user.draftCount();

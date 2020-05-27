@@ -20,8 +20,7 @@ import Composer from 'flarum/components/Composer';
 import DiscussionComposer from 'flarum/components/DiscussionComposer';
 import Button from 'flarum/components/Button';
 import DraftsList from './components/DraftsList';
-import fillRelationship from "./utils/fillRelationship";
-
+import fillRelationship from './utils/fillRelationship';
 
 app.initializers.add('fof-drafts', () => {
     app.store.models.drafts = Draft;
@@ -36,13 +35,13 @@ app.initializers.add('fof-drafts', () => {
         const data = this.component.data();
         const draft = this.component.draft;
 
-        const fields = Object.keys(data).filter(element => element !== "relationships");
+        const fields = Object.keys(data).filter((element) => element !== 'relationships');
 
         if (!fields) {
             return false;
         }
 
-        const getData = (field) => (field === 'content' ? this.component.editor.value() : data[field]) || "";
+        const getData = (field) => (field === 'content' ? this.component.editor.value() : data[field]) || '';
 
         for (const field of fields) {
             if (!draft) {
@@ -63,19 +62,25 @@ app.initializers.add('fof-drafts', () => {
         const relationships = Object.keys(data.relationships);
 
         const equalRelationships = (data, draft, relationship) => {
-            if (!data.relationships[relationship].length && (!(relationship in draft.relationships()) || !draft.relationships()[relationship].data.length)) {
+            if (
+                !data.relationships[relationship].length &&
+                (!(relationship in draft.relationships()) || !draft.relationships()[relationship].data.length)
+            ) {
                 return true;
-            } else if (!(relationship in draft.relationships()) || data.relationships[relationship].length !== draft.relationships()[relationship].data.length) {
+            } else if (
+                !(relationship in draft.relationships()) ||
+                data.relationships[relationship].length !== draft.relationships()[relationship].data.length
+            ) {
                 return false;
             }
 
-            const getId = element => typeof element.id == 'function' ? element.id() : element.id;
+            const getId = (element) => (typeof element.id == 'function' ? element.id() : element.id);
 
             const dataIds = fillRelationship(data.relationships[relationship], getId);
             const draftIds = fillRelationship(draft.relationships()[relationship].data, getId);
 
             return !dataIds.some((id, i) => id !== draftIds[i]);
-        }
+        };
 
         for (const relationship of relationships) {
             if (!draft) {
@@ -87,11 +92,10 @@ app.initializers.add('fof-drafts', () => {
                     return true;
                 }
             }
-
         }
 
         return false;
-    }
+    };
 
     Composer.prototype['saveDraft'] = function () {
         this.saving = true;
@@ -105,19 +109,17 @@ app.initializers.add('fof-drafts', () => {
                 m.redraw();
             }, 300);
             m.redraw();
-        }
+        };
 
         if (this.component.draft) {
             delete this.component.draft.data.attributes.relationships;
 
-            this.component.draft
-                .save(Object.assign(this.component.draft.data.attributes, this.component.data()))
-                .then(() => afterSave());
+            this.component.draft.save(Object.assign(this.component.draft.data.attributes, this.component.data())).then(() => afterSave());
         } else {
             app.store
                 .createRecord('drafts')
                 .save(this.component.data())
-                .then(draft => {
+                .then((draft) => {
                     this.component.draft = draft;
                     afterSave();
                 });
@@ -125,7 +127,11 @@ app.initializers.add('fof-drafts', () => {
     };
 
     extend(Composer.prototype, 'controlItems', function (items) {
-        if (!(this.component instanceof DiscussionComposer) || !app.forum.attribute('canSaveDrafts') || this.position === Composer.PositionEnum.MINIMIZED)
+        if (
+            !(this.component instanceof DiscussionComposer) ||
+            !app.forum.attribute('canSaveDrafts') ||
+            this.position === Composer.PositionEnum.MINIMIZED
+        )
             return;
 
         const classNames = ['Button', 'Button--icon', 'Button--link'];
@@ -188,10 +194,10 @@ app.initializers.add('fof-drafts', () => {
         }
 
         return prevented;
-    })
+    });
 
-    extend(DiscussionComposer.prototype, 'init', function() {
-        Object.keys(this.props).forEach(key => {
+    extend(DiscussionComposer.prototype, 'init', function () {
+        Object.keys(this.props).forEach((key) => {
             if (!['originalContent', 'title', 'user'].includes(key)) {
                 this[key] = this.props[key];
             } else if (key === 'title') {
