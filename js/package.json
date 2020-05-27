@@ -2,7 +2,7 @@
   "name": "@fof/drafts",
   "version": "0.0.0",
   "dependencies": {
-    "dayjs": "^1.8",
+    "external-load": "^1.0.0",
     "flarum-webpack-config": "^0.1.0-beta.8",
     "flatpickr": "^4",
     "webpack": "^4.43.0",
@@ -10,7 +10,7 @@
   },
   "scripts": {
     "build": "webpack --mode production",
-    "watch": "webpack --mode development --watch",
+    "dev": "webpack --mode development --watch",
     "lint": "prettier --single-quote --trailing-comma es5 --print-width 150 --tab-width 4 --write 'src/**/*'"
   },
   "devDependencies": {

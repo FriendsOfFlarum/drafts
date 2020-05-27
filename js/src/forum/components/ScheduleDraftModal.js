@@ -1,12 +1,9 @@
 import Alert from 'flarum/components/Alert';
 import Button from 'flarum/components/Button';
 import Modal from 'flarum/components/Modal';
+import LoadingIndicator from 'flarum/components/LoadingIndicator';
 
-import flatpickr from "flatpickr";
-import * as dayjs from 'dayjs';
-import * as localizedFormat from 'dayjs/plugin/localizedFormat';
-
-dayjs.extend(localizedFormat);
+import load from 'external-load';
 
 export default class ScheduleDraftModal extends Modal {
     init() {
@@ -24,11 +21,14 @@ export default class ScheduleDraftModal extends Modal {
     }
 
     content() {
+      if (this.loading) {
+        return <LoadingIndicator />
+      }
+
         return [
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"></link>,
             this.props.draft.scheduledFor() ? <div className="Modal-alert">
                 <Alert type="success" dismissible={false}>
-                    {app.translator.trans('fof-drafts.forum.schedule_draft_modal.scheduled_text', {datetime: dayjs(this.props.draft.scheduledFor()).format('LLLL')})}
+                    {app.translator.trans('fof-drafts.forum.schedule_draft_modal.scheduled_text', {datetime: moment(this.props.draft.scheduledFor()).format('LLLL')})}
                 </Alert>
             </div> : '',
             this.props.draft.scheduledValidationError() ? <div className="Modal-alert">
@@ -67,13 +67,27 @@ export default class ScheduleDraftModal extends Modal {
     config(isInitialized) {
         if (isInitialized) return;
 
-        this.flatpickr = flatpickr('.flatpickr-input', {
-            enableTime: true,
-            enableSeconds: false,
-            minDate: Date.now(),
-            maxDate: new Date(9999, 12, 31),
-            defaultDate: this.props.draft.scheduledFor()
-        });
+        const url = app.forum.attribute('baseUrl') + '/assets/extensions/fof-drafts/flatpickr';
+
+        this.loading = true;
+
+        Promise.all(typeof flatpickr === 'undefined' ? [
+          load.js(`${url}.js`),
+          load.css(`${url}.css`),
+        ] : [])
+          .then(() => {
+            this.loading = false;
+
+            m.redraw();
+
+            this.flatpickr = flatpickr('.flatpickr-input', {
+              enableTime: true,
+              enableSeconds: false,
+              minDate: Date.now(),
+              maxDate: new Date(9999, 12, 31),
+              defaultDate: this.props.draft.scheduledFor()
+            });
+          })
     }
 
     scheduledFor() {
