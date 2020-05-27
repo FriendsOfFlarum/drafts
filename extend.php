@@ -38,12 +38,16 @@ return [
 
     new Extend\Locales(__DIR__.'/resources/locale'),
 
+    (new Extend\Model(User::class))
+        ->relationship('drafts', function ($model) {
+            return $model->hasMany(Draft::class, 'user_id');
+        }),
+
     (new Extend\Console())->command(Console\PublishDrafts::class),
 
     function (Application $app, Dispatcher $events) {
         $events->listen(Serializing::class, Listeners\AddApiAttributes::class);
 
-        $events->subscribe(Listeners\AddRelationships::class);
         $events->subscribe(Listeners\AddSettings::class);
 
         $app->register(Providers\ConsoleProvider::class);

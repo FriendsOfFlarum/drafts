@@ -21,12 +21,8 @@ import ScheduleDraftModal from './ScheduleDraftModal';
 import fillRelationship from "../utils/fillRelationship";
 
 export default class DraftsList extends Component {
-    init() {
-        this.loading = false;
-    }
-
-    config(isIntialized) {
-        if (!isIntialized) return;
+    config(isInitialized) {
+        if (!isInitialized) return;
 
         $('.draft--delete').on('click tap', function(event) {
             event.stopPropagation();
@@ -34,7 +30,7 @@ export default class DraftsList extends Component {
     }
 
     view() {
-        const drafts = app.cache.drafts || [];
+        const drafts = app.store.all('drafts');
 
         return (
             <div className="NotificationList DraftsList">
@@ -80,11 +76,15 @@ export default class DraftsList extends Component {
                                         </li>
                                     );
                                 })
-                        ) : !this.loading ? (
-                            <div className="NotificationList-empty">{app.translator.trans('fof-drafts.forum.dropdown.empty_text')}</div>
-                        ) : (
-                            LoadingIndicator.component({ className: 'LoadingIndicator--block' })
-                        )}
+                        ) : ''}
+
+                      {this.loading ? (
+                        LoadingIndicator.component({ className: 'LoadingIndicator--block' })
+                      ) : (
+                        !drafts.length && (
+                          <div className="NotificationList-empty">{app.translator.trans('fof-drafts.forum.dropdown.empty_text')}</div>
+                        )
+                      )}
                     </ul>
                 </div>
             </div>
@@ -144,24 +144,21 @@ export default class DraftsList extends Component {
         return deferred.promise;
     }
 
-    load() {
-        if (app.cache.drafts) {
-            return;
-        }
 
-        this.loading = true;
-        m.redraw();
-
-        app.store
-            .find('drafts')
-            .then(response => {
-                delete response.payload;
-                app.cache.drafts = response;
-            })
-            .catch(() => {})
-            .then(() => {
-                this.loading = false;
-                m.redraw();
-            });
+  load() {
+    if (app.cache.draftsLoaded) {
+      return;
     }
+
+    this.loading = true;
+    m.redraw();
+
+    app.store
+      .find('drafts')
+      .then(() => app.cache.draftsLoaded = true, () => {})
+      .then(() => {
+        this.loading = false;
+        m.redraw();
+      });
+  }
 }

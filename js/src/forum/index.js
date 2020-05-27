@@ -112,24 +112,12 @@ app.initializers.add('fof-drafts', () => {
 
             this.component.draft
                 .save(Object.assign(this.component.draft.data.attributes, this.component.data()))
-                .then(draft => {
-                    app.cache.drafts = app.cache.drafts || [];
-                    app.cache.drafts.forEach((cacheDraft, i) => {
-                        if (cacheDraft.id() === draft.id()) {
-                            var now = new Date();
-                            draft.data.attributes.updatedAt = now.toString();
-                            app.cache.drafts[i] = draft;
-                        }
-                    });
-                    afterSave();
-                });
+                .then(() => afterSave());
         } else {
             app.store
                 .createRecord('drafts')
                 .save(this.component.data())
                 .then(draft => {
-                    app.cache.drafts = app.cache.drafts || [];
-                    app.cache.drafts.push(draft);
                     this.component.draft = draft;
                     afterSave();
                 });
@@ -166,10 +154,6 @@ app.initializers.add('fof-drafts', () => {
 
     extend(Composer.prototype, 'init', function () {
         if (!app.forum.attribute('canSaveDrafts')) return;
-
-        // Load drafts; if already loaded, this will not do anything.
-        const draftsList = new DraftsList();
-        draftsList.load();
 
         if (app.session.user.preferences().draftAutosaveEnable) {
             this.autosaveInterval = setInterval(() => {
@@ -219,7 +203,6 @@ app.initializers.add('fof-drafts', () => {
     extend(DiscussionComposer.prototype, 'onsubmit', function () {
         if (this.draft) {
             this.draft.delete();
-            app.cache.drafts = app.cache.drafts.filter(cacheDraft => (cacheDraft.id() !== this.draft.id()));
         }
     });
 

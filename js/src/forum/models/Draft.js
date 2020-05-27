@@ -19,15 +19,4 @@ export default class Draft extends mixin(Model, {
     relationships: Model.attribute('relationships'),
     scheduledFor: Model.attribute('scheduledFor', Model.transformDate),
     updatedAt: Model.attribute('updatedAt', Model.transformDate),
-}) {
-    delete() {
-        return super.delete().then(() => {
-            app.cache.drafts.some((cacheDraft, i) => {
-                if (cacheDraft.id() === this.id()) {
-                    app.cache.drafts.splice(i, 1);
-                }
-            });
-            m.redraw();
-        });
-    }
-}
+}) {}
