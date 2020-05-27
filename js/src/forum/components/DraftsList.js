@@ -18,6 +18,7 @@ import humanTime from 'flarum/helpers/humanTime';
 import { truncate } from 'flarum/utils/string';
 import Button from 'flarum/components/Button';
 import ScheduleDraftModal from './ScheduleDraftModal';
+import fillRelationship from "../utils/fillRelationship";
 
 export default class DraftsList extends Component {
     init() {
@@ -128,9 +129,8 @@ export default class DraftsList extends Component {
         if (relationships) {
             Object.keys(relationships).forEach(relationshipName => {
                 const relationship = relationships[relationshipName];
-                const relationshipData = relationship.data.map( (model, i) => app.store.getById(model.type, model.id) );
 
-                data[relationshipName] = relationshipData;
+                data[relationshipName] = fillRelationship(relationship.data, model => app.store.getById(model.type, model.id));
             });
         }
 

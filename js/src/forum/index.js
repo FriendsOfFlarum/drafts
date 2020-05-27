@@ -20,6 +20,7 @@ import Composer from 'flarum/components/Composer';
 import DiscussionComposer from 'flarum/components/DiscussionComposer';
 import Button from 'flarum/components/Button';
 import DraftsList from './components/DraftsList';
+import fillRelationship from "./utils/fillRelationship";
 
 
 app.initializers.add('fof-drafts', () => {
@@ -62,23 +63,18 @@ app.initializers.add('fof-drafts', () => {
         const relationships = Object.keys(data.relationships);
 
         const equalRelationships = (data, draft, relationship) => {
-            if (data.relationships[relationship].length == 0 && (!(relationship in draft.relationships()) || draft.relationships()[relationship].data.length == 0)) {
+            if (!data.relationships[relationship].length && (!(relationship in draft.relationships()) || !draft.relationships()[relationship].data.length)) {
                 return true;
-            } else if (!(relationship in draft.relationships()) || data.relationships[relationship].length != draft.relationships()[relationship].data.length) {
+            } else if (!(relationship in draft.relationships()) || data.relationships[relationship].length !== draft.relationships()[relationship].data.length) {
                 return false;
             }
 
             const getId = element => typeof element.id == 'function' ? element.id() : element.id;
 
-            const dataIds = data.relationships[relationship].map(getId).sort();
-            const draftIds = draft.relationships()[relationship].data.map(getId).sort();
+            const dataIds = fillRelationship(data.relationships[relationship], getId);
+            const draftIds = fillRelationship(draft.relationships()[relationship].data, getId);
 
-            for (var i = 0; i < dataIds.length; i++) {
-                if (dataIds[i] !== draftIds[i])
-                    return false;
-            }
-
-            return true;
+            return !dataIds.some((id, i) => id !== draftIds[i]);
         }
 
         for (const relationship of relationships) {
