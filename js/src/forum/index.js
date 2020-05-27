@@ -189,6 +189,10 @@ app.initializers.add('fof-drafts', () => {
     });
 
     override(Composer.prototype, 'preventExit', function (original) {
+        if (this.component && this.component.draft) {
+            this.component.props.confirmExit = app.translator.trans('fof-drafts.forum.composer.exit_alert');
+        }
+
         let prevented = false;
         if (this.changed()) {
             prevented = original();
@@ -196,7 +200,7 @@ app.initializers.add('fof-drafts', () => {
 
         if (prevented) return prevented;
 
-        if (!this.component) return false;
+        if (!this.component) return;
 
         const draft = this.component.draft;
         if (draft && !draft.title() && !draft.content() && confirm(app.translator.trans('fof-drafts.forum.composer.discard_empty_draft_alert'))) {
