@@ -18,7 +18,8 @@ fof-drafts:
     dropdown:
       empty_text: You haven't saved any drafts
       title: Drafts
-      button: Delete Draft
+      delete_button: Delete Draft
+      schedule_button: Schedule Draft
       tooltip: => fof-drafts.forum.dropdown.title
       alert: Are you sure you want to delete your draft?
     schedule_draft_modal:
