@@ -18,6 +18,7 @@ import addDraftsDropdown from './addDraftsDropdown';
 import addPreferences from './addPreferences';
 import Composer from 'flarum/components/Composer';
 import DiscussionComposer from 'flarum/components/DiscussionComposer';
+import ReplyComposer from 'flarum/components/ReplyComposer';
 import Button from 'flarum/components/Button';
 import DraftsList from './components/DraftsList';
 import fillRelationship from './utils/fillRelationship';
@@ -49,7 +50,7 @@ app.initializers.add('fof-drafts', () => {
                     return true;
                 }
             } else {
-                if (getData(field) != draft[field]()) {
+                if (getData(field) != draft.data.attributes[field]) {
                     return true;
                 }
             }
@@ -128,7 +129,7 @@ app.initializers.add('fof-drafts', () => {
 
     extend(Composer.prototype, 'controlItems', function (items) {
         if (
-            !(this.component instanceof DiscussionComposer) ||
+            !(this.component instanceof DiscussionComposer || this.component instanceof ReplyComposer) ||
             !app.forum.attribute('canSaveDrafts') ||
             this.position === Composer.PositionEnum.MINIMIZED
         )
@@ -158,7 +159,7 @@ app.initializers.add('fof-drafts', () => {
         );
     });
 
-    extend(Composer.prototype, 'init', function () {
+    extend(Composer.prototype, 'show', function () {
         if (!app.forum.attribute('canSaveDrafts')) return;
 
         if (app.session.user.preferences().draftAutosaveEnable) {
@@ -196,7 +197,7 @@ app.initializers.add('fof-drafts', () => {
         return prevented;
     });
 
-    extend(DiscussionComposer.prototype, 'init', function () {
+    function initComposerBody() {
         Object.keys(this.props).forEach((key) => {
             if (!['originalContent', 'title', 'user'].includes(key)) {
                 this[key] = this.props[key];
@@ -204,13 +205,19 @@ app.initializers.add('fof-drafts', () => {
                 this.title = m.prop(this.props.title);
             }
         });
-    });
+    }
 
-    extend(DiscussionComposer.prototype, 'onsubmit', function () {
+    extend(DiscussionComposer.prototype, 'init', initComposerBody);
+    extend(ReplyComposer.prototype, 'init', initComposerBody);
+
+    function deleteDraftsOnSubmit() {
         if (this.draft) {
             this.draft.delete();
         }
-    });
+    }
+
+    extend(DiscussionComposer.prototype, 'onsubmit', deleteDraftsOnSubmit);
+    extend(ReplyComposer.prototype, 'onsubmit', deleteDraftsOnSubmit);
 
     addDraftsDropdown();
     addPreferences();

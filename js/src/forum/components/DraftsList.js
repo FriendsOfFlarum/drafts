@@ -12,6 +12,7 @@
 import Component from 'flarum/Component';
 import LoadingIndicator from 'flarum/components/LoadingIndicator';
 import DiscussionComposer from 'flarum/components/DiscussionComposer';
+import ReplyComposer from 'flarum/components/ReplyComposer';
 import avatar from 'flarum/helpers/avatar';
 import icon from 'flarum/helpers/icon';
 import humanTime from 'flarum/helpers/humanTime';
@@ -47,13 +48,15 @@ export default class DraftsList extends Component {
                                           <li>
                                               <a onclick={this.showComposer.bind(this, draft)} className="Notification draft--item">
                                                   {avatar(draft.user())}
-                                                  {icon('fas fa-edit', { className: 'Notification-icon' })}
-                                                  <span className="Notification-content">{draft.title()}</span>
+                                                  {icon(draft.icon(), { className: 'Notification-icon' })}
+                                                  <span className="Notification-content">
+                                                      {draft.type() === 'reply' ? draft.loadRelationships().discussion.title() : draft.title()}
+                                                  </span>
                                                   {humanTime(draft.updatedAt())}
                                                   {Button.component({
                                                       icon: 'fas fa-times',
                                                       style: 'float: right; z-index: 20;',
-                                                      className: 'Button Button--icon Button--link draft--delete',
+                                                      className: 'Button Button--icon Button--link draft--delete draft--delete',
                                                       title: app.translator.trans('fof-drafts.forum.dropdown.delete_button'),
                                                       onclick: (e) => {
                                                           this.deleteDraft(draft);
@@ -110,6 +113,7 @@ export default class DraftsList extends Component {
             }
 
             this.loading = false;
+            m.redraw();
         });
     }
 
@@ -124,25 +128,20 @@ export default class DraftsList extends Component {
 
         const deferred = m.deferred();
 
-        const data = {
-            originalContent: draft.content(),
-            title: draft.title(),
-            user: app.session.user,
-            confirmExit: app.translator.trans('fof-drafts.forum.composer.exit_alert'),
-            draft,
-        };
+        let componentClass;
 
-        const relationships = draft.relationships();
-
-        if (relationships) {
-            Object.keys(relationships).forEach((relationshipName) => {
-                const relationship = relationships[relationshipName];
-
-                data[relationshipName] = fillRelationship(relationship.data, (model) => app.store.getById(model.type, model.id));
-            });
+        switch (draft.type()) {
+            case 'privateDiscussion':
+                componentClass = require('@fof-byobu').components['PrivateDiscussionComposer'];
+                break;
+            case 'reply':
+                componentClass = ReplyComposer;
+                break;
+            default:
+                componentClass = DiscussionComposer;
         }
 
-        const component = new DiscussionComposer(data);
+        const component = new componentClass(draft.compileData());
 
         app.composer.load(component);
         app.composer.show();
