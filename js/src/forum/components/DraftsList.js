@@ -48,7 +48,7 @@ export default class DraftsList extends Component {
                                         <li>
                                             <a onclick={this.showComposer.bind(this, draft)} className="Notification draft--item">
                                                 {avatar(draft.user())}
-                                                {icon('fas fa-edit', { className: 'Notification-icon' })}
+                                                {icon(draft.icon(), { className: 'Notification-icon' })}
                                                 <span className="Notification-content">
                                                     {draft.type() === 'reply' ? draft.loadRelationships().discussion.title() : draft.title()}
                                                 </span>
