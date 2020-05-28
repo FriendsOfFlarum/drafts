@@ -108,6 +108,7 @@ export default class DraftsList extends Component {
             }
 
             this.loading = false;
+            m.redraw();
         });
     }
 
