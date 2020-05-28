@@ -69,7 +69,7 @@ export default class Draft extends mixin(Model, {
                 (this.loadedRelationships['recipientUsers'] || []).forEach((user) => {
                     if (user) recipients.add('users:' + user.id(), user);
                 });
-                (this.loadedRelationships['recipienGroups'] || []).forEach((group) => {
+                (this.loadedRelationships['recipientGroups'] || []).forEach((group) => {
                     if (group) recipients.add('groups:' + group.id(), group);
                 });
 
