@@ -50,7 +50,7 @@ app.initializers.add('fof-drafts', () => {
                     return true;
                 }
             } else {
-                if (getData(field) != draft[field]()) {
+                if (getData(field) != draft.data.attributes[field]) {
                     return true;
                 }
             }
