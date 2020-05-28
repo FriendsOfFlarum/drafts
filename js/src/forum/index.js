@@ -198,7 +198,7 @@ app.initializers.add('fof-drafts', () => {
     });
 
     function initComposerBody() {
-        Object.keys(this.props).forEach(key => {
+        Object.keys(this.props).forEach((key) => {
             if (!['originalContent', 'title', 'user'].includes(key)) {
                 this[key] = this.props[key];
             } else if (key === 'title') {

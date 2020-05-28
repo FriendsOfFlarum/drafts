@@ -42,55 +42,60 @@ export default class DraftsList extends Component {
                     <ul className="NotificationGroup-content">
                         {drafts.length
                             ? drafts
-                                .sort((a, b) => b.updatedAt() - a.updatedAt())
-                                .map((draft) => {
-                                    return (
-                                        <li>
-                                            <a onclick={this.showComposer.bind(this, draft)} className="Notification draft--item">
-                                                {avatar(draft.user())}
-                                                {icon(draft.icon(), { className: 'Notification-icon' })}
-                                                <span className="Notification-content">
-                                                    {draft.type() === 'reply' ? draft.loadRelationships().discussion.title() : draft.title()}
-                                                </span>
-                                                {humanTime(draft.updatedAt())}
-                                                {Button.component({
-                                                    icon: 'fas fa-times',
-                                                    style: 'float: right; z-index: 20;',
-                                                    className: 'Button Button--icon Button--link draft--delete draft--delete',
-                                                    title: app.translator.trans('fof-drafts.forum.dropdown.delete_button'),
-                                                    onclick: (e) => {
-                                                        this.deleteDraft(draft);
-                                                        e.stopPropagation();
-                                                    },
-                                                })}
-                                                {app.forum.attribute('canScheduleDrafts') && app.forum.attribute('drafts.enableScheduledDrafts')
-                                                    ? Button.component({
-                                                        icon: draft.scheduledValidationError()
-                                                            ? 'fas fa-calendar-times'
-                                                            : draft.scheduledFor()
+                                  .sort((a, b) => b.updatedAt() - a.updatedAt())
+                                  .map((draft) => {
+                                      return (
+                                          <li>
+                                              <a onclick={this.showComposer.bind(this, draft)} className="Notification draft--item">
+                                                  {avatar(draft.user())}
+                                                  {icon(draft.icon(), { className: 'Notification-icon' })}
+                                                  <span className="Notification-content">
+                                                      {draft.type() === 'reply' ? draft.loadRelationships().discussion.title() : draft.title()}
+                                                  </span>
+                                                  {humanTime(draft.updatedAt())}
+                                                  {Button.component({
+                                                      icon: 'fas fa-times',
+                                                      style: 'float: right; z-index: 20;',
+                                                      className: 'Button Button--icon Button--link draft--delete draft--delete',
+                                                      title: app.translator.trans('fof-drafts.forum.dropdown.delete_button'),
+                                                      onclick: (e) => {
+                                                          this.deleteDraft(draft);
+                                                          e.stopPropagation();
+                                                      },
+                                                  })}
+                                                  {app.forum.attribute('canScheduleDrafts') && app.forum.attribute('drafts.enableScheduledDrafts')
+                                                      ? Button.component({
+                                                            icon: draft.scheduledValidationError()
+                                                                ? 'fas fa-calendar-times'
+                                                                : draft.scheduledFor()
                                                                 ? 'fas fa-calendar-check'
                                                                 : 'fas fa-calendar-plus',
-                                                        style: 'float: right; z-index: 20;',
-                                                        className: 'Button Button--icon Button--link draft--schedule',
-                                                        title: app.translator.trans('fof-drafts.forum.dropdown.schedule_button'),
-                                                        onclick: (e) => {
-                                                            this.scheduleDraft(draft);
-                                                            e.stopPropagation();
-                                                        },
-                                                    }) : ''}
-                                                <div className="Notification-excerpt">{truncate(draft.content(), 200)}</div>
-                                                {draft.scheduledValidationError() ? <p className="scheduledValidationError">{draft.scheduledValidationError()}</p> : ''}
-                                            </a>
-                                        </li>
-                                    );
-                                })
+                                                            style: 'float: right; z-index: 20;',
+                                                            className: 'Button Button--icon Button--link draft--schedule',
+                                                            title: app.translator.trans('fof-drafts.forum.dropdown.schedule_button'),
+                                                            onclick: (e) => {
+                                                                this.scheduleDraft(draft);
+                                                                e.stopPropagation();
+                                                            },
+                                                        })
+                                                      : ''}
+                                                  <div className="Notification-excerpt">{truncate(draft.content(), 200)}</div>
+                                                  {draft.scheduledValidationError() ? (
+                                                      <p className="scheduledValidationError">{draft.scheduledValidationError()}</p>
+                                                  ) : (
+                                                      ''
+                                                  )}
+                                              </a>
+                                          </li>
+                                      );
+                                  })
                             : ''}
 
                         {this.loading
                             ? LoadingIndicator.component({ className: 'LoadingIndicator--block' })
                             : !drafts.length && (
-                                <div className="NotificationList-empty">{app.translator.trans('fof-drafts.forum.dropdown.empty_text')}</div>
-                            )}
+                                  <div className="NotificationList-empty">{app.translator.trans('fof-drafts.forum.dropdown.empty_text')}</div>
+                              )}
                     </ul>
                 </div>
             </div>
@@ -158,7 +163,7 @@ export default class DraftsList extends Component {
             .find('drafts')
             .then(
                 () => (app.cache.draftsLoaded = true),
-                () => { }
+                () => {}
             )
             .then(() => {
                 this.loading = false;

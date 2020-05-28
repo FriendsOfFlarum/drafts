@@ -9,7 +9,7 @@
  *
  */
 import Model from 'flarum/Model';
-import ItemList from "flarum/utils/ItemList";
+import ItemList from 'flarum/utils/ItemList';
 import mixin from 'flarum/utils/mixin';
 
 export default class Draft extends mixin(Model, {
@@ -50,7 +50,7 @@ export default class Draft extends mixin(Model, {
             const relationships = this.relationships();
 
             if (relationships) {
-                Object.keys(relationships).forEach(relationshipName => {
+                Object.keys(relationships).forEach((relationshipName) => {
                     const relationship = relationships[relationshipName];
                     let relationshipData;
                     if (Array.isArray(relationship.data)) {
@@ -64,14 +64,14 @@ export default class Draft extends mixin(Model, {
             }
 
             if ('recipientUsers' in this.loadedRelationships || 'recipientGroups' in this.loadedRelationships) {
-                const recipients = new ItemList;
+                const recipients = new ItemList();
 
-                (this.loadedRelationships['recipientUsers'] || []).forEach(user => {
-                    recipients.add("users:" + user.id(), user);
+                (this.loadedRelationships['recipientUsers'] || []).forEach((user) => {
+                    recipients.add('users:' + user.id(), user);
                 });
-                (this.loadedRelationships['recipienGroups'] || []).forEach(group => {
-                    recipients.add("groups:" + group.id(), group);
-                })
+                (this.loadedRelationships['recipienGroups'] || []).forEach((group) => {
+                    recipients.add('groups:' + group.id(), group);
+                });
 
                 this.loadedRelationships['recipients'] = recipients;
             }
@@ -92,5 +92,5 @@ export default class Draft extends mixin(Model, {
         Object.assign(data, this.loadRelationships());
 
         return data;
-    }
-}) { }
+    },
+}) {}
