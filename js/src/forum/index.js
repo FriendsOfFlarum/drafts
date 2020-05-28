@@ -159,7 +159,7 @@ app.initializers.add('fof-drafts', () => {
         );
     });
 
-    extend(Composer.prototype, 'init', function () {
+    extend(Composer.prototype, 'show', function () {
         if (!app.forum.attribute('canSaveDrafts')) return;
 
         if (app.session.user.preferences().draftAutosaveEnable) {
