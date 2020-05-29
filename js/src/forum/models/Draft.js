@@ -26,7 +26,7 @@ export default class Draft extends mixin(Model, {
 
     type() {
         const relationships = this.loadRelationships();
-        if ('discussion' in relationships) {
+        if ('discussion' in relationships && relationships.discussion) {
             return 'reply';
         } else if (
             flarum.extensions['fof-byobu'] &&
