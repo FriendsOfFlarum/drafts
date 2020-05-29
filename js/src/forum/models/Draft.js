@@ -28,7 +28,11 @@ export default class Draft extends mixin(Model, {
         const relationships = this.loadRelationships();
         if ('discussion' in relationships) {
             return 'reply';
-        } else if (app.initializers.has('fof-byobu') && ('recipientGroups' in relationships || 'recipientUsers' in relationships)) {
+        } else if (
+            flarum.extensions['fof-byobu'] &&
+            flarum.extensions['fof-byobu'].components && // If private discussion composer is not exported, we can't support PM drafts.
+            ('recipientGroups' in relationships || 'recipientUsers' in relationships)
+        ) {
             return 'privateDiscussion';
         } else {
             return 'discussion';
