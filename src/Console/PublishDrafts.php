@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Fof\Drafts\Console;
+namespace FoF\Drafts\Console;
 
 use Carbon\Carbon;
 use Flarum\Console\AbstractCommand;
