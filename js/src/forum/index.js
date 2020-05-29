@@ -154,10 +154,10 @@ app.initializers.add('fof-drafts', () => {
         );
     });
 
-    extend(Composer.prototype, 'show', function () {
+    extend(Composer.prototype, 'load', function () {
         if (!app.forum.attribute('canSaveDrafts')) return;
 
-        if (app.session.user.preferences().draftAutosaveEnable) {
+        if (app.session.user.preferences().draftAutosaveEnable && (this.component instanceof DiscussionComposer || this.component instanceof ReplyComposer)) {
             this.autosaveInterval = setInterval(() => {
                 if (this.changed() && !this.saving) {
                     this.saveDraft();
