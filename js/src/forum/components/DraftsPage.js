@@ -20,6 +20,7 @@ export default class DraftsPage extends Page {
         app.history.push('drafts');
 
         this.list = new DraftsList();
+        this.list.load();
 
         this.bodyClass = 'App--drafts';
     }
