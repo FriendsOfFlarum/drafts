@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Fof\Drafts\Providers;
+namespace FoF\Drafts\Providers;
 
 use Flarum\Foundation\AbstractServiceProvider;
 use Illuminate\Console\Scheduling\Schedule;
