@@ -48,7 +48,7 @@ export default class Draft extends mixin(Model, {
 
     loadRelationships(force) {
         if (!force && this.loadedRelationships) {
-          return this.loadedRelationships;
+            return this.loadedRelationships;
         }
 
         this.loadedRelationships = {};
