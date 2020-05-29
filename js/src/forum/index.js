@@ -45,7 +45,7 @@ app.initializers.add('fof-drafts', () => {
         const getData = (field) => (field === 'content' ? this.component.editor.value() : data[field]) || '';
 
         for (const field of fields) {
-            if ((!draft && getData(field)) || getData(field) != draft.data.attributes[field]) {
+            if ((!draft && getData(field)) || (draft && getData(field) != draft.data.attributes[field])) {
                 return true;
             }
         }
