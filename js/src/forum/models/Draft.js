@@ -11,6 +11,7 @@
 import Model from 'flarum/Model';
 import ItemList from 'flarum/utils/ItemList';
 import mixin from 'flarum/utils/mixin';
+import fillRelationship from '../utils/fillRelationship';
 
 export default class Draft extends mixin(Model, {
     user: Model.hasOne('user'),
@@ -20,6 +21,8 @@ export default class Draft extends mixin(Model, {
     relationships: Model.attribute('relationships'),
     scheduledFor: Model.attribute('scheduledFor', Model.transformDate),
     updatedAt: Model.attribute('updatedAt', Model.transformDate),
+
+    loadedRelationships: null,
 
     type() {
         const relationships = this.loadRelationships();
@@ -43,38 +46,36 @@ export default class Draft extends mixin(Model, {
         }
     },
 
-    loadRelationships() {
-        if (!this.loadedRelationships) {
-            this.loadedRelationships = {};
+    loadRelationships(force) {
+        if (!force && this.loadedRelationships) {
+          return this.loadedRelationships;
+        }
 
-            const relationships = this.relationships();
+        this.loadedRelationships = {};
 
-            if (relationships) {
-                Object.keys(relationships).forEach((relationshipName) => {
-                    const relationship = relationships[relationshipName];
-                    let relationshipData;
-                    if (Array.isArray(relationship.data)) {
-                        relationshipData = relationship.data.map((model, i) => app.store.getById(model.type, model.id));
-                    } else {
-                        relationshipData = app.store.getById(relationship.data.type, relationship.data.id);
-                    }
+        const relationships = this.relationships();
 
-                    this.loadedRelationships[relationshipName] = relationshipData;
-                });
-            }
+        if (relationships) {
+            Object.keys(relationships).forEach((relationshipName) => {
+                const relationship = relationships[relationshipName];
 
-            if ('recipientUsers' in this.loadedRelationships || 'recipientGroups' in this.loadedRelationships) {
-                const recipients = new ItemList();
+                if (!relationship || !relationship.data) return;
 
-                (this.loadedRelationships['recipientUsers'] || []).forEach((user) => {
-                    if (user) recipients.add('users:' + user.id(), user);
-                });
-                (this.loadedRelationships['recipientGroups'] || []).forEach((group) => {
-                    if (group) recipients.add('groups:' + group.id(), group);
-                });
+                this.loadedRelationships[relationshipName] = fillRelationship(relationship.data, (model) => app.store.getById(model.type, model.id));
+            });
+        }
 
-                this.loadedRelationships['recipients'] = recipients;
-            }
+        if ('recipientUsers' in this.loadedRelationships || 'recipientGroups' in this.loadedRelationships) {
+            const recipients = new ItemList();
+
+            (this.loadedRelationships['recipientUsers'] || []).forEach((user) => {
+                if (user) recipients.add('users:' + user.id(), user);
+            });
+            (this.loadedRelationships['recipientGroups'] || []).forEach((group) => {
+                if (group) recipients.add('groups:' + group.id(), group);
+            });
+
+            this.loadedRelationships['recipients'] = recipients;
         }
 
         return this.loadedRelationships;

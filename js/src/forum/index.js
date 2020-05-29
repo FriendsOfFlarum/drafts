@@ -45,15 +45,9 @@ app.initializers.add('fof-drafts', () => {
         const getData = (field) => (field === 'content' ? this.component.editor.value() : data[field]) || '';
 
         for (const field of fields) {
-            if (!draft) {
-                if (getData(field)) {
-                    return true;
-                }
-            } else {
-                if (getData(field) != draft.data.attributes[field]) {
-                    return true;
-                }
-            }
+          if ((!draft && getData(field)) || getData(field) != draft.data.attributes[field]) {
+            return true;
+          }
         }
 
         if (!data.relationships) {
@@ -121,6 +115,7 @@ app.initializers.add('fof-drafts', () => {
                 .createRecord('drafts')
                 .save(this.component.data())
                 .then((draft) => {
+                    draft.loadRelationships(true);
                     this.component.draft = draft;
                     afterSave();
                 });
