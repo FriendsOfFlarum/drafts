@@ -147,7 +147,7 @@ app.initializers.add('fof-drafts', () => {
                 className: classNames.join(' '),
                 itemClassName: 'App-backControl',
                 title: app.translator.trans('fof-drafts.forum.composer.title'),
-                disabled: this.saving || this.justSaved,
+                disabled: this.saving || this.justSaved || this.loading,
                 onclick: this.saveDraft.bind(this),
             }),
             20
@@ -159,7 +159,7 @@ app.initializers.add('fof-drafts', () => {
 
         if (app.session.user.preferences().draftAutosaveEnable && (this.component instanceof DiscussionComposer || this.component instanceof ReplyComposer)) {
             this.autosaveInterval = setInterval(() => {
-                if (this.changed() && !this.saving) {
+                if (this.changed() && !this.saving && !this.loading) {
                     this.saveDraft();
                 }
             }, 1000 * app.session.user.preferences().draftAutosaveInterval);
