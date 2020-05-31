@@ -50,7 +50,7 @@ app.initializers.add('fof-drafts', () => {
             }
         }
 
-        if (!data.relationships) {
+        if (!data.relationships && !draft.relationships()) {
             return false;
         }
 
