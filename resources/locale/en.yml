@@ -4,8 +4,10 @@ fof-drafts:
       start: Create drafts
       schedule: Schedule drafts
     settings:
-      title: Drafts Settings
+      title: FoF Drafts
       enable_scheduled_drafts: Enable Scheduled Drafts
+      schedule_on_one_server: Use 'onOneServer()' directive for the task scheduler (requires Redis/Memcache)
+      schedule_log_output: Append scheduler output to log storage
   console:
     scheduled_drafts_disabled: Scheduled drafts are currently disabled in settings.
   forum:

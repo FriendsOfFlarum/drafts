@@ -29,6 +29,12 @@ app.initializers.add('fof-drafts', (app) => {
                     <BooleanItem key="fof-drafts.enable_scheduled_drafts">
                         {app.translator.trans('fof-drafts.admin.settings.enable_scheduled_drafts')}
                     </BooleanItem>,
+                    <BooleanItem key="fof-drafts.schedule_on_one_server">
+                        {app.translator.trans('fof-drafts.admin.settings.schedule_on_one_server')}
+                    </BooleanItem>,
+                    <BooleanItem key="fof-drafts.store_log_output">
+                        {app.translator.trans('fof-drafts.admin.settings.schedule_log_output')}
+                    </BooleanItem>,
                 ],
             })
         );

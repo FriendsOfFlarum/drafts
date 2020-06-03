@@ -12,6 +12,8 @@
 namespace FoF\Drafts\Providers;
 
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Settings\SettingsRepositoryInterface;
+use FoF\Drafts\Console\PublishDrafts;
 use Illuminate\Console\Scheduling\Schedule;
 
 class ConsoleProvider extends AbstractServiceProvider
@@ -23,10 +25,19 @@ class ConsoleProvider extends AbstractServiceProvider
         }
 
         $this->app->resolving(Schedule::class, function (Schedule $schedule) {
-            $schedule->command('drafts:publish')
+            $settings = $this->app->make(SettingsRepositoryInterface::class);
+
+            $build = $schedule->command(PublishDrafts::class)
                 ->everyMinute()
-                ->withoutOverlapping()
-                ->appendOutputTo(storage_path('logs/drafts-publish.log'));
+                ->withoutOverlapping();
+
+            if ((bool) $settings->get('fof-drafts.schedule_on_one_server')) {
+                $build->onOneServer();
+            }
+
+            if ((bool) $settings->get('fof-best-answer.store_log_output')) {
+                $build->appendOutputTo(storage_path('logs'.DIRECTORY_SEPARATOR.'drafts-publish.log'));
+            }
         });
     }
 }
