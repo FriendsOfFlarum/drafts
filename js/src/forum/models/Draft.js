@@ -51,7 +51,7 @@ export default class Draft extends mixin(Model, {
     },
 
     loadRelationships(force) {
-        if (!force && this.loadedRelationships) {
+        if (!force && this.loadedRelationships && (Object.keys(this.loadedRelationships).length > 0 || Object.keys(this.loadedRelationships).length === 0 && Object.keys(this.relationships).length === 0)) {
             return this.loadedRelationships;
         }
 
