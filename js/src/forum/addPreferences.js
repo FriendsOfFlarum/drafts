@@ -11,14 +11,16 @@ export default function () {
     });
 
     extend(SettingsPage.prototype, 'settingsItems', function (items) {
-        items.add(
-            'drafts',
-            FieldSet.component({
-                label: app.translator.trans('fof-drafts.forum.user.settings.drafts_heading'),
-                className: 'Settings-drafts',
-                children: this.draftsItems().toArray(),
-            })
-        );
+        if (app.forum.data.attributes.canSaveDrafts) {
+            items.add(
+                'drafts',
+                FieldSet.component({
+                    label: app.translator.trans('fof-drafts.forum.user.settings.drafts_heading'),
+                    className: 'Settings-drafts',
+                    children: this.draftsItems().toArray(),
+                })
+            );
+        }
     });
 
     SettingsPage.prototype['draftsItems'] = function () {
