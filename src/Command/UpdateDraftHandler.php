@@ -34,7 +34,7 @@ class UpdateDraftHandler
 
         $draft = Draft::findOrFail($command->draftId);
 
-        if ($actor->id !== $draft->user_id) {
+        if (intval($actor->id) !== intval($draft->user_id)) {
             throw new PermissionDeniedException();
         }
 
