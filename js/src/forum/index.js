@@ -23,6 +23,10 @@ import Button from 'flarum/components/Button';
 import DraftsList from './components/DraftsList';
 import fillRelationship from './utils/fillRelationship';
 
+export * from './components';
+export * from './models';
+export * from './utils';
+
 app.initializers.add('fof-drafts', () => {
     app.store.models.drafts = Draft;
     User.prototype.drafts = Model.hasMany('drafts');
