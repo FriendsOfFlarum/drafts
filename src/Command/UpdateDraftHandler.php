@@ -48,6 +48,10 @@ class UpdateDraftHandler
             $draft->content = $data['attributes']['content'];
         }
 
+        if (count($data['attributes']) > 0) {
+            $draft->extra = json_encode($data['attributes']['extra']);
+        }
+
         if (isset($data['relationships'])) {
             $draft->relationships = json_encode($data['relationships']);
         }

@@ -19,6 +19,7 @@ export default class Draft extends mixin(Model, {
     title: Model.attribute('title'),
     scheduledValidationError: Model.attribute('scheduledValidationError'),
     relationships: Model.attribute('relationships'),
+    extra: Model.attribute('extra'),
     scheduledFor: Model.attribute('scheduledFor', Model.transformDate),
     updatedAt: Model.attribute('updatedAt', Model.transformDate),
 
@@ -100,6 +101,7 @@ export default class Draft extends mixin(Model, {
         };
 
         Object.assign(data, this.loadRelationships());
+        Object.assign(data, this.extra());
 
         return data;
     },
