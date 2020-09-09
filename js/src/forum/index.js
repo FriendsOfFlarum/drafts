@@ -158,7 +158,7 @@ app.initializers.add('fof-drafts', () => {
         );
     });
 
-    extend(Composer.prototype, 'load', function () {
+    extend(ComposerState.prototype, 'load', function () {
         if (!app.forum.attribute('canSaveDrafts')) return;
 
         if (
@@ -166,8 +166,8 @@ app.initializers.add('fof-drafts', () => {
             (app.composer.bodyMatches(DiscussionComposer) || app.composer.bodyMatches(ReplyComposer))
         ) {
             this.autosaveInterval = setInterval(() => {
-                if (this.state.changed() && !this.state.saving && !this.loading) {
-                    this.state.saveDraft();
+                if (this.changed() && !this.saving && !this.loading) {
+                    this.saveDraft();
                 }
             }, 1000 * app.session.user.preferences().draftAutosaveInterval);
         }
