@@ -14,21 +14,23 @@ import NotificationsDropdown from 'flarum/components/NotificationsDropdown';
 import DraftsList from './DraftsList';
 
 export default class DraftsDropdown extends NotificationsDropdown {
-    static initProps(props) {
-        props.label = props.label || app.translator.trans('fof-drafts.forum.dropdown.tooltip');
-        props.icon = props.icon || 'fas fa-edit';
+    static initAttrs(attrs) {
+        attrs.label = attrs.label || app.translator.trans('fof-drafts.forum.dropdown.tooltip');
+        attrs.icon = attrs.icon || 'fas fa-edit';
 
-        super.initProps(props);
+        super.initAttrs(attrs);
     }
 
-    init() {
-        super.init();
-
-        this.list = new DraftsList();
+    getMenu() {
+        return (
+            <div className={'Dropdown-menu ' + this.attrs.menuClassName} onclick={this.menuClick.bind(this)}>
+                {this.showing ? DraftsList.component({ state: this.attrs.state }) : ''}
+            </div>
+        );
     }
 
     goToRoute() {
-        m.route(app.route('drafts'));
+        m.route.set(app.route('drafts'));
     }
 
     getUnreadCount() {

@@ -6,8 +6,8 @@ import Switch from 'flarum/components/Switch';
 import ItemList from 'flarum/utils/ItemList';
 
 export default function () {
-    extend(SettingsPage.prototype, 'init', function () {
-        this.draftAutosaveInterval = m.prop(this.user.preferences().draftAutosaveInterval);
+    extend(SettingsPage.prototype, 'oninit', function () {
+        this.draftAutosaveInterval = m.stream(this.user.preferences().draftAutosaveInterval);
     });
 
     extend(SettingsPage.prototype, 'settingsItems', function (items) {
@@ -17,8 +17,7 @@ export default function () {
                 FieldSet.component({
                     label: app.translator.trans('fof-drafts.forum.user.settings.drafts_heading'),
                     className: 'Settings-drafts',
-                    children: this.draftsItems().toArray(),
-                })
+                }, this.draftsItems().toArray())
             );
         }
     });
@@ -29,27 +28,32 @@ export default function () {
         items.add(
             'draft-autosave-enable',
             Switch.component({
-                children: app.translator.trans('fof-drafts.forum.user.settings.draft_autosave_enable'),
                 state: this.user.preferences().draftAutosaveEnable,
-                onchange: (value, component) => this.preferenceSaver('draftAutosaveEnable')(value, component),
-            })
+                onchange: (value) => {
+                    this.draftAutosaveEnableLoading = true;
+
+                    this.user.savePreferences({ draftAutosaveEnable: value }).then(() => {
+                        this.draftAutosaveEnableLoading = false;
+                        m.redraw();
+                    });
+                },
+                loading: this.draftAutosaveEnableLoading
+            }, app.translator.trans('fof-drafts.forum.user.settings.draft_autosave_enable'))
         );
 
         items.add(
             'draft-autosave-interval',
-            this.user.preferences().draftAutosaveEnable ? (
+            this.user.preferences().draftAutosaveEnable ?
                 <label>
                     <p>{app.translator.trans('fof-drafts.forum.user.settings.draft_autosave_interval_label')}</p>
                     <input
                         className="FormControl"
                         type="number"
                         min="0"
-                        value={this.draftAutosaveInterval()}
-                        onchange={m.withAttr('value', this.draftAutosaveInterval)}
+                        bidi={this.draftAutosaveInterval}
                     />
                     {Button.component({
                         className: 'Button Button--primary',
-                        children: app.translator.trans('fof-drafts.forum.user.settings.draft_autosave_interval_button'),
                         onclick: () => {
                             const isInt = (str) => str == Math.round(str);
                             if (this.draftAutosaveInterval() < 0 || !isInt(this.draftAutosaveInterval())) {
@@ -58,21 +62,21 @@ export default function () {
                                 m.redraw();
                             } else {
                                 this.draftAutosaveIntervalInvalid = false;
-                                this.preferenceSaver('draftAutosaveInterval')(this.draftAutosaveInterval());
+                                this.user.savePreferences({ draftAutosaveInterval: this.draftAutosaveInterval() }).then(() => {
+                                    m.redraw();
+                                });
                             }
                         },
-                    })}
+                    }, app.translator.trans('fof-drafts.forum.user.settings.draft_autosave_interval_button'))}
                     {this.draftAutosaveIntervalInvalid ? (
                         <p class="invalidInterval">
                             <small>{app.translator.trans('fof-drafts.forum.user.settings.draft_autosave_interval_invalid')}</small>
                         </p>
                     ) : (
-                        ''
-                    )}
+                            ''
+                        )}
                 </label>
-            ) : (
-                ''
-            )
+                : <p></p>
         );
 
         return items;
