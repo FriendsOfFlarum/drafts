@@ -178,7 +178,7 @@ app.initializers.add('fof-drafts', () => {
     });
 
     override(ComposerState.prototype, 'preventExit', function (original) {
-        if (app.composer.body && app.composer.body.attrs.draft) {
+        if (app.composer.body && app.composer.body.componentClass && app.composer.body.attrs.draft) {
             app.composer.body.attrs.confirmExit = app.translator.trans('fof-drafts.forum.composer.exit_alert');
         }
 
@@ -189,7 +189,7 @@ app.initializers.add('fof-drafts', () => {
 
         if (prevented) return prevented;
 
-        if (!app.composer.body) return;
+        if (!app.composer.body || !app.composer.body.componentClass) return;
 
         const draft = app.composer.body.attrs.draft;
         if (draft && !draft.title() && !draft.content() && confirm(app.translator.trans('fof-drafts.forum.composer.discard_empty_draft_alert'))) {
