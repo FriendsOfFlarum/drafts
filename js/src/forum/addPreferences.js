@@ -4,10 +4,11 @@ import FieldSet from 'flarum/components/FieldSet';
 import SettingsPage from 'flarum/components/SettingsPage';
 import Switch from 'flarum/components/Switch';
 import ItemList from 'flarum/utils/ItemList';
+import Stream from 'flarum/utils/Stream';
 
 export default function () {
     extend(SettingsPage.prototype, 'oninit', function () {
-        this.draftAutosaveInterval = m.stream(this.user.preferences().draftAutosaveInterval);
+        this.draftAutosaveInterval = Stream(this.user.preferences().draftAutosaveInterval);
     });
 
     extend(SettingsPage.prototype, 'settingsItems', function (items) {

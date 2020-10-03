@@ -12,12 +12,12 @@
 import { extend, override } from 'flarum/extend';
 import User from 'flarum/models/User';
 import Model from 'flarum/Model';
+import Stream from 'flarum/utils/Stream';
 import Draft from './models/Draft';
 import DraftsPage from './components/DraftsPage';
 import addDraftsDropdown from './addDraftsDropdown';
 import addPreferences from './addPreferences';
 import Composer from 'flarum/components/Composer';
-import ComposerBody from 'flarum/components/ComposerBody';
 import DiscussionComposer from 'flarum/components/DiscussionComposer';
 import ReplyComposer from 'flarum/components/ReplyComposer';
 import Button from 'flarum/components/Button';
@@ -204,7 +204,7 @@ app.initializers.add('fof-drafts', () => {
             if (!['originalContent', 'title', 'user'].includes(key)) {
                 this[key] = this.attrs[key];
             } else if (key === 'title') {
-                this.title = m.stream(this.attrs.title);
+                this.title = Stream(this.attrs.title);
             }
         });
 
