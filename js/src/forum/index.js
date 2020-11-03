@@ -12,6 +12,7 @@
 import { extend, override } from 'flarum/extend';
 import User from 'flarum/models/User';
 import Model from 'flarum/Model';
+import Stream from 'flarum/utils/Stream';
 import Draft from './models/Draft';
 import DraftsPage from './components/DraftsPage';
 import addDraftsDropdown from './addDraftsDropdown';
@@ -20,21 +21,24 @@ import Composer from 'flarum/components/Composer';
 import DiscussionComposer from 'flarum/components/DiscussionComposer';
 import ReplyComposer from 'flarum/components/ReplyComposer';
 import Button from 'flarum/components/Button';
-import DraftsList from './components/DraftsList';
+import ComposerState from 'flarum/states/ComposerState';
 import fillRelationship from './utils/fillRelationship';
+import DraftsListState from './states/DraftsListState';
 
 app.initializers.add('fof-drafts', () => {
     app.store.models.drafts = Draft;
     User.prototype.drafts = Model.hasMany('drafts');
     User.prototype.draftCount = Model.attribute('draftCount');
 
-    app.routes.drafts = { path: '/drafts', component: <DraftsPage /> };
+    app.routes.drafts = { path: '/drafts', component: DraftsPage };
 
-    Composer.prototype['changed'] = function () {
-        if (!this.component) return false;
+    app.drafts = new DraftsListState(app);
 
-        const data = this.component.data();
-        const draft = this.component.draft;
+    ComposerState.prototype['changed'] = function () {
+        if (!app.composer.body || !app.composer.data) return false;
+
+        const data = app.composer.data();
+        const draft = app.composer.body.attrs.draft;
 
         const fields = Object.keys(data).filter((element) => element !== 'relationships');
 
@@ -42,7 +46,7 @@ app.initializers.add('fof-drafts', () => {
             return false;
         }
 
-        const getData = (field) => (field === 'content' ? this.component.editor.value() : data[field]) || '';
+        const getData = (field) => (field === 'content' ? app.composer.fields.content() : data[field]) || '';
 
         for (const field of fields) {
             if ((!draft && getData(field)) || (draft && getData(field) != draft.data.attributes[field])) {
@@ -58,7 +62,7 @@ app.initializers.add('fof-drafts', () => {
 
         const equalRelationships = (data, draft, relationship) => {
             if (
-                !data.relationships[relationship].length &&
+                (!data.relationships[relationship] || !data.relationships[relationship].length) &&
                 (!(relationship in draft.relationships()) || !draft.relationships()[relationship].data.length)
             ) {
                 return true;
@@ -92,7 +96,7 @@ app.initializers.add('fof-drafts', () => {
         return false;
     };
 
-    Composer.prototype['saveDraft'] = function () {
+    ComposerState.prototype['saveDraft'] = function () {
         this.saving = true;
         m.redraw();
 
@@ -106,17 +110,17 @@ app.initializers.add('fof-drafts', () => {
             m.redraw();
         };
 
-        if (this.component.draft) {
-            delete this.component.draft.data.attributes.relationships;
+        if (app.composer.body.attrs.draft) {
+            delete app.composer.body.attrs.draft.data.attributes.relationships;
 
-            this.component.draft.save(Object.assign(this.component.draft.data.attributes, this.component.data())).then(() => afterSave());
+            app.composer.body.attrs.draft.save(Object.assign(app.composer.body.attrs.draft.data.attributes, app.composer.data())).then(() => afterSave());
         } else {
             app.store
                 .createRecord('drafts')
-                .save(this.component.data())
+                .save(app.composer.data())
                 .then((draft) => {
                     draft.loadRelationships(true);
-                    this.component.draft = draft;
+                    app.composer.body.attrs.draft = draft;
                     afterSave();
                 });
         }
@@ -124,42 +128,42 @@ app.initializers.add('fof-drafts', () => {
 
     extend(Composer.prototype, 'controlItems', function (items) {
         if (
-            !(this.component instanceof DiscussionComposer || this.component instanceof ReplyComposer) ||
+            !(app.composer.bodyMatches(DiscussionComposer) || app.composer.bodyMatches(ReplyComposer)) ||
             !app.forum.attribute('canSaveDrafts') ||
-            this.position === Composer.PositionEnum.MINIMIZED
+            this.state.position === 'minimized'
         )
             return;
 
         const classNames = ['Button', 'Button--icon', 'Button--link'];
 
-        if (this.saving) {
+        if (this.state.saving) {
             classNames.push('saving');
         }
 
-        if (this.justSaved) {
+        if (this.state.justSaved) {
             classNames.push('justSaved');
         }
 
         items.add(
             'save-draft',
             Button.component({
-                icon: this.justSaved ? 'fas fa-check' : this.saving ? 'fas fa-spinner fa-spin' : 'fas fa-save',
+                icon: this.state.justSaved ? 'fas fa-check' : this.state.saving ? 'fas fa-spinner fa-spin' : 'fas fa-save',
                 className: classNames.join(' '),
                 itemClassName: 'App-backControl',
                 title: app.translator.trans('fof-drafts.forum.composer.title'),
-                disabled: this.saving || this.justSaved || this.loading,
-                onclick: this.saveDraft.bind(this),
+                disabled: this.state.saving || this.state.justSaved || this.loading,
+                onclick: this.state.saveDraft.bind(this.state),
             }),
             20
         );
     });
 
-    extend(Composer.prototype, 'load', function () {
+    extend(ComposerState.prototype, 'load', function () {
         if (!app.forum.attribute('canSaveDrafts')) return;
 
         if (
             app.session.user.preferences().draftAutosaveEnable &&
-            (this.component instanceof DiscussionComposer || this.component instanceof ReplyComposer)
+            (app.composer.bodyMatches(DiscussionComposer) || app.composer.bodyMatches(ReplyComposer))
         ) {
             this.autosaveInterval = setInterval(() => {
                 if (this.changed() && !this.saving && !this.loading) {
@@ -173,9 +177,9 @@ app.initializers.add('fof-drafts', () => {
         if (this.autosaveInterval) clearInterval(this.autosaveInterval);
     });
 
-    override(Composer.prototype, 'preventExit', function (original) {
-        if (this.component && this.component.draft) {
-            this.component.props.confirmExit = app.translator.trans('fof-drafts.forum.composer.exit_alert');
+    override(ComposerState.prototype, 'preventExit', function (original) {
+        if (app.composer.body && app.composer.body.componentClass && app.composer.body.attrs.draft) {
+            app.composer.body.attrs.confirmExit = app.translator.trans('fof-drafts.forum.composer.exit_alert');
         }
 
         let prevented = false;
@@ -185,9 +189,9 @@ app.initializers.add('fof-drafts', () => {
 
         if (prevented) return prevented;
 
-        if (!this.component) return;
+        if (!app.composer.body || !app.composer.body.componentClass) return;
 
-        const draft = this.component.draft;
+        const draft = app.composer.body.attrs.draft;
         if (draft && !draft.title() && !draft.content() && confirm(app.translator.trans('fof-drafts.forum.composer.discard_empty_draft_alert'))) {
             draft.delete();
         }
@@ -196,17 +200,21 @@ app.initializers.add('fof-drafts', () => {
     });
 
     function initComposerBody() {
-        Object.keys(this.props).forEach((key) => {
+        Object.keys(this.attrs).forEach((key) => {
             if (!['originalContent', 'title', 'user'].includes(key)) {
-                this[key] = this.props[key];
+                this[key] = this.attrs[key];
             } else if (key === 'title') {
-                this.title = m.prop(this.props.title);
+                this.title = Stream(this.attrs.title);
             }
         });
+
+        if (this.data) {
+            app.composer.data = this.data.bind(this);
+        }
     }
 
-    extend(DiscussionComposer.prototype, 'init', initComposerBody);
-    extend(ReplyComposer.prototype, 'init', initComposerBody);
+    extend(DiscussionComposer.prototype, 'oninit', initComposerBody);
+    extend(ReplyComposer.prototype, 'oninit', initComposerBody);
 
     function deleteDraftsOnSubmit() {
         if (this.draft) {

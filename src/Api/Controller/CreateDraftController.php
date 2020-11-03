@@ -56,7 +56,7 @@ class CreateDraftController extends AbstractCreateController
         $ipAddress = Arr::get($request->getServerParams(), 'REMOTE_ADDR', '127.0.0.1');
 
         return $this->bus->dispatch(
-            new CreateDraft($actor, array_get($request->getParsedBody(), 'data', []), $ipAddress)
+            new CreateDraft($actor, Arr::get($request->getParsedBody(), 'data', []), $ipAddress)
         );
     }
 }

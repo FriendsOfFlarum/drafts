@@ -48,7 +48,7 @@ class UpdateDraftHandler
             $draft->content = $data['attributes']['content'];
         }
 
-        if (count($data['attributes']) > 0) {
+        if (isset($data['attributes']['content']['extra'])) {
             $draft->extra = json_encode($data['attributes']['extra']);
         }
 

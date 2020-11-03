@@ -11,19 +11,15 @@
 
 import Component from 'flarum/Component';
 import LoadingIndicator from 'flarum/components/LoadingIndicator';
-import DiscussionComposer from 'flarum/components/DiscussionComposer';
-import ReplyComposer from 'flarum/components/ReplyComposer';
 import avatar from 'flarum/helpers/avatar';
 import icon from 'flarum/helpers/icon';
 import humanTime from 'flarum/helpers/humanTime';
 import { truncate } from 'flarum/utils/string';
 import Button from 'flarum/components/Button';
-import ScheduleDraftModal from './ScheduleDraftModal';
-import fillRelationship from '../utils/fillRelationship';
 
 export default class DraftsList extends Component {
-    config(isInitialized) {
-        if (!isInitialized) return;
+    oncreate(vnode) {
+        super.oncreate(vnode);
 
         $('.draft--delete').on('click tap', function (event) {
             event.stopPropagation();
@@ -32,6 +28,7 @@ export default class DraftsList extends Component {
 
     view() {
         const drafts = app.store.all('drafts');
+        const state = this.attrs.state;
 
         return (
             <div className="NotificationList DraftsList">
@@ -46,7 +43,7 @@ export default class DraftsList extends Component {
                                   .map((draft) => {
                                       return (
                                           <li>
-                                              <a onclick={this.showComposer.bind(this, draft)} className="Notification draft--item">
+                                              <a onclick={state.showComposer.bind(state, draft)} className="Notification draft--item">
                                                   {avatar(draft.user())}
                                                   {icon(draft.icon(), { className: 'Notification-icon' })}
                                                   <span className="Notification-content">
@@ -59,7 +56,7 @@ export default class DraftsList extends Component {
                                                       className: 'Button Button--icon Button--link draft--delete draft--delete',
                                                       title: app.translator.trans('fof-drafts.forum.dropdown.delete_button'),
                                                       onclick: (e) => {
-                                                          this.deleteDraft(draft);
+                                                          state.deleteDraft(draft);
                                                           e.stopPropagation();
                                                       },
                                                   })}
@@ -74,7 +71,7 @@ export default class DraftsList extends Component {
                                                             className: 'Button Button--icon Button--link draft--schedule',
                                                             title: app.translator.trans('fof-drafts.forum.dropdown.schedule_button'),
                                                             onclick: (e) => {
-                                                                this.scheduleDraft(draft);
+                                                                state.scheduleDraft(draft);
                                                                 e.stopPropagation();
                                                             },
                                                         })
@@ -91,7 +88,7 @@ export default class DraftsList extends Component {
                                   })
                             : ''}
 
-                        {this.loading
+                        {state.loading
                             ? LoadingIndicator.component({ className: 'LoadingIndicator--block' })
                             : !drafts.length && (
                                   <div className="NotificationList-empty">{app.translator.trans('fof-drafts.forum.dropdown.empty_text')}</div>
@@ -100,74 +97,5 @@ export default class DraftsList extends Component {
                 </div>
             </div>
         );
-    }
-
-    deleteDraft(draft) {
-        this.loading = true;
-
-        if (!window.confirm(app.translator.trans('fof-drafts.forum.dropdown.alert'))) return;
-
-        draft.delete().then(() => {
-            if (app.composer.component && app.composer.component.draft.id() === draft.id() && !app.composer.changed()) {
-                app.composer.hide();
-            }
-
-            this.loading = false;
-            m.redraw();
-        });
-    }
-
-    scheduleDraft(draft) {
-        if (!app.forum.attribute('canScheduleDrafts') || !app.forum.attribute('drafts.enableScheduledDrafts')) return;
-
-        app.modal.show(new ScheduleDraftModal({ draft }));
-    }
-
-    showComposer(draft) {
-        if (this.loading) return;
-
-        const deferred = m.deferred();
-
-        let componentClass;
-
-        switch (draft.type()) {
-            case 'privateDiscussion':
-                componentClass = require('@fof-byobu').components['PrivateDiscussionComposer'];
-                break;
-            case 'reply':
-                componentClass = ReplyComposer;
-                break;
-            default:
-                componentClass = DiscussionComposer;
-        }
-
-        const component = new componentClass(draft.compileData());
-
-        app.composer.load(component);
-        app.composer.show();
-
-        deferred.resolve(component);
-
-        return deferred.promise;
-    }
-
-    load() {
-        if (app.cache.draftsLoaded) {
-            return;
-        }
-
-        this.loading = true;
-        m.redraw();
-
-        app.store
-            .find('drafts')
-            .then(
-                () => (app.cache.draftsLoaded = true),
-                () => {}
-            )
-            .then(() => {
-                this.loading = false;
-                m.redraw();
-            });
     }
 }

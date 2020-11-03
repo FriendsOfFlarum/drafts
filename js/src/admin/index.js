@@ -21,22 +21,21 @@ const {
 
 app.initializers.add('fof-drafts', (app) => {
     app.extensionSettings['fof-drafts'] = () =>
-        app.modal.show(
-            new SettingsModal({
-                title: app.translator.trans('fof-drafts.admin.settings.title'),
-                type: 'small',
-                items: [
-                    <BooleanItem key="fof-drafts.enable_scheduled_drafts">
-                        {app.translator.trans('fof-drafts.admin.settings.enable_scheduled_drafts')}
-                    </BooleanItem>,
-                    <BooleanItem key="fof-drafts.schedule_on_one_server">
-                        {app.translator.trans('fof-drafts.admin.settings.schedule_on_one_server')}
-                    </BooleanItem>,
-                    <BooleanItem key="fof-drafts.store_log_output">
-                        {app.translator.trans('fof-drafts.admin.settings.schedule_log_output')}
-                    </BooleanItem>,
-                ],
-            })
+        app.modal.show(SettingsModal, {
+            title: app.translator.trans('fof-drafts.admin.settings.title'),
+            type: 'small',
+            items: s => [
+                <BooleanItem setting={s} name="fof-drafts.enable_scheduled_drafts">
+                    {app.translator.trans('fof-drafts.admin.settings.enable_scheduled_drafts')}
+                </BooleanItem>,
+                <BooleanItem setting={s} name="fof-drafts.schedule_on_one_server">
+                    {app.translator.trans('fof-drafts.admin.settings.schedule_on_one_server')}
+                </BooleanItem>,
+                <BooleanItem setting={s} name="fof-drafts.store_log_output">
+                    {app.translator.trans('fof-drafts.admin.settings.schedule_log_output')}
+                </BooleanItem>,
+            ],
+        }
         );
 
     extend(app, 'getRequiredPermissions', function (required, permission) {
