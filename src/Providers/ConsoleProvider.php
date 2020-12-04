@@ -12,6 +12,7 @@
 namespace FoF\Drafts\Providers;
 
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Drafts\Console\PublishDrafts;
 use Illuminate\Console\Scheduling\Schedule;
@@ -35,8 +36,9 @@ class ConsoleProvider extends AbstractServiceProvider
                 $build->onOneServer();
             }
 
-            if ((bool) $settings->get('fof-best-answer.store_log_output')) {
-                $build->appendOutputTo(storage_path('logs'.DIRECTORY_SEPARATOR.'drafts-publish.log'));
+            if ((bool) $settings->get('fof-drafts.store_log_output')) {
+                $paths = $this->app->make(Paths::class);
+                $build->appendOutputTo($paths->storage.('logs'.DIRECTORY_SEPARATOR.'drafts-publish.log'));
             }
         });
     }

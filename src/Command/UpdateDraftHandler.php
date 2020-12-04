@@ -12,14 +12,11 @@
 namespace FoF\Drafts\Command;
 
 use Carbon\Carbon;
-use Flarum\User\AssertPermissionTrait;
 use Flarum\User\Exception\PermissionDeniedException;
 use FoF\Drafts\Draft;
 
 class UpdateDraftHandler
 {
-    use AssertPermissionTrait;
-
     /**
      * @param UpdateDraft $command
      *
@@ -38,7 +35,7 @@ class UpdateDraftHandler
             throw new PermissionDeniedException();
         }
 
-        $this->assertCan($actor, 'user.saveDrafts');
+        $actor->assertCan('user.saveDrafts');
 
         if (isset($data['attributes']['title'])) {
             $draft->title = $data['attributes']['title'];
