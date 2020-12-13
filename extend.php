@@ -46,6 +46,7 @@ return [
     (new Extend\ApiSerializer(CurrentUserSerializer::class))
         ->mutate(function (CurrentUserSerializer $serializer) {
             $attributes['draftCount'] = (int) Draft::where('user_id', $serializer->getActor()->id)->count();
+
             return $attributes;
         }),
 
@@ -53,6 +54,7 @@ return [
         ->mutate(function (ForumSerializer $serializer) {
             $attributes['canSaveDrafts'] = $serializer->getActor()->hasPermissionLike('user.saveDrafts');
             $attributes['canScheduleDrafts'] = $serializer->getActor()->hasPermissionLike('user.scheduleDrafts');
+
             return $attributes;
         }),
 
