@@ -11,15 +11,13 @@
 
 namespace FoF\Drafts;
 
-use Flarum\Api\Event\Serializing;
+use Flarum\Api\Serializer\CurrentUserSerializer;
+use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Extend;
-use Flarum\Foundation\Application;
 use Flarum\User\User;
 use FoF\Drafts\Api\Controller;
-use Illuminate\Contracts\Events\Dispatcher;
 
 return [
-    new \FoF\Components\Extend\AddFofComponents(),
     new \FoF\Console\Extend\EnableConsole(),
 
     (new Extend\Frontend('forum'))
@@ -45,18 +43,33 @@ return [
 
     (new Extend\Console())->command(Console\PublishDrafts::class),
 
-    function (Application $app, Dispatcher $events) {
-        $events->listen(Serializing::class, Listeners\AddApiAttributes::class);
+    (new Extend\ApiSerializer(CurrentUserSerializer::class))
+        ->mutate(function (CurrentUserSerializer $serializer) {
+            $attributes['draftCount'] = (int) Draft::where('user_id', $serializer->getActor()->id)->count();
 
-        $events->subscribe(Listeners\AddSettings::class);
+            return $attributes;
+        }),
 
-        $app->register(Providers\ConsoleProvider::class);
+    (new Extend\ApiSerializer(ForumSerializer::class))
+        ->mutate(function (ForumSerializer $serializer) {
+            $attributes['canSaveDrafts'] = $serializer->getActor()->hasPermissionLike('user.saveDrafts');
+            $attributes['canScheduleDrafts'] = $serializer->getActor()->hasPermissionLike('user.scheduleDrafts');
 
-        User::addPreference('draftAutosaveEnable', function ($value) {
+            return $attributes;
+        }),
+
+    (new Extend\Settings())
+        ->serializeToForum('drafts.enableScheduledDrafts', 'fof-drafts.enable_scheduled_drafts', function ($value) {
             return boolval($value);
-        }, true);
-        User::addPreference('draftAutosaveInterval', function ($value) {
+        }),
+
+    (new Extend\User())
+        ->registerPreference('draftAutosaveEnable', function ($value) {
+            return boolval($value);
+        }, false)
+        ->registerPreference('draftAutosaveInterval', function ($value) {
             return intval($value);
-        }, 6);
-    },
+        }, 6),
+
+    (new \FoF\Console\Extend\ScheduleCommand(new Console\PublishSchedule())),
 ];
