@@ -25,6 +25,10 @@ import ComposerState from 'flarum/states/ComposerState';
 import fillRelationship from './utils/fillRelationship';
 import DraftsListState from './states/DraftsListState';
 
+export * from './components';
+export * from './models';
+export * from './utils';
+
 app.initializers.add('fof-drafts', () => {
     app.store.models.drafts = Draft;
     User.prototype.drafts = Model.hasMany('drafts');
