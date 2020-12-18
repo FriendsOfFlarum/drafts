@@ -11,14 +11,11 @@
 
 namespace FoF\Drafts\Command;
 
-use Flarum\User\AssertPermissionTrait;
 use Flarum\User\Exception\PermissionDeniedException;
 use FoF\Drafts\Draft;
 
 class DeleteDraftHandler
 {
-    use AssertPermissionTrait;
-
     /**
      * @param DeleteDraft $command
      *

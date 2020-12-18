@@ -44,7 +44,7 @@ class UpdateDraftController extends AbstractShowController
         $ipAddress = Arr::get($request->getServerParams(), 'REMOTE_ADDR', '127.0.0.1');
 
         return $this->bus->dispatch(
-            new UpdateDraft(array_get($request->getQueryParams(), 'id'), $request->getAttribute('actor'), array_get($request->getParsedBody(), 'data', []), $ipAddress)
+            new UpdateDraft(Arr::get($request->getQueryParams(), 'id'), $request->getAttribute('actor'), Arr::get($request->getParsedBody(), 'data', []), $ipAddress)
         );
     }
 }

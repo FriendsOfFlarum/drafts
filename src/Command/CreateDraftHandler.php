@@ -12,13 +12,10 @@
 namespace FoF\Drafts\Command;
 
 use Carbon\Carbon;
-use Flarum\User\AssertPermissionTrait;
 use FoF\Drafts\Draft;
 
 class CreateDraftHandler
 {
-    use AssertPermissionTrait;
-
     /**
      * @param CreateDraft $command
      *
@@ -31,13 +28,15 @@ class CreateDraftHandler
         $actor = $command->actor;
         $data = $command->data;
 
-        $this->assertCan($actor, 'user.saveDrafts');
+        $actor->assertCan('user.saveDrafts');
 
         $draft = new Draft();
 
         $draft->user_id = $actor->id;
         $draft->title = isset($data['attributes']['title']) ? $data['attributes']['title'] : '';
         $draft->content = isset($data['attributes']['content']) ? $data['attributes']['content'] : '';
+        unset($data['attributes']['content']);
+        $draft->extra = count($data['attributes']) > 0 ? json_encode($data['attributes']) : '';
         $draft->relationships = isset($data['relationships']) ? json_encode($data['relationships']) : json_encode('');
         $draft->scheduled_for = isset($data['attributes']['scheduledFor']) && $actor->can('user.scheduleDrafts') ? Carbon::parse($data['attributes']['scheduledFor']) : null;
         $draft->updated_at = Carbon::now();

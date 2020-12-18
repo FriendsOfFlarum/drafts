@@ -18,6 +18,6 @@ export default function () {
     extend(HeaderSecondary.prototype, 'items', function (items) {
         if (!app.session.user || !app.forum.attribute('canSaveDrafts')) return;
 
-        items.add('Drafts', <DraftsDropdown />, 20);
+        items.add('Drafts', <DraftsDropdown state={app.drafts} />, 20);
     });
 }

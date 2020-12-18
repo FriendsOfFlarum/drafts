@@ -19,6 +19,7 @@ export default class Draft extends mixin(Model, {
     title: Model.attribute('title'),
     scheduledValidationError: Model.attribute('scheduledValidationError'),
     relationships: Model.attribute('relationships'),
+    extra: Model.attribute('extra'),
     scheduledFor: Model.attribute('scheduledFor', Model.transformDate),
     updatedAt: Model.attribute('updatedAt', Model.transformDate),
 
@@ -97,9 +98,10 @@ export default class Draft extends mixin(Model, {
             user: app.session.user,
             confirmExit: app.translator.trans('fof-drafts.forum.composer.exit_alert'),
             draft: this,
+            fields: Object.assign({}, this.loadRelationships(), this.extra()),
         };
 
-        Object.assign(data, this.loadRelationships());
+        Object.assign(data, data.fields);
 
         return data;
     },
