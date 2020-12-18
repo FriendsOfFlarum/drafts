@@ -30,7 +30,7 @@ export default class ScheduleDraftModal extends Modal {
                 <div className="Modal-alert">
                     <Alert type="success" dismissible={false}>
                         {app.translator.trans('fof-drafts.forum.schedule_draft_modal.scheduled_text', {
-                            datetime: moment(this.attrs.draft.scheduledFor()).format('LLLL'),
+                            datetime: dayjs(this.attrs.draft.scheduledFor()).format('LLLL'),
                         })}
                     </Alert>
                 </div>
@@ -53,18 +53,27 @@ export default class ScheduleDraftModal extends Modal {
                 <div className="Form Form--centered">
                     <p className="helpText">{app.translator.trans('fof-drafts.forum.schedule_draft_modal.text')}</p>
                     <div className="Form-group flatpickr">
-                        <input name="scheduledFor" className="FormControl flatpickr-input" data-input oncreate={this.initFlatpickr.bind(this)} onchange={m.redraw} />
+                        <input
+                            name="scheduledFor"
+                            className="FormControl flatpickr-input"
+                            data-input
+                            oncreate={this.initFlatpickr.bind(this)}
+                            onchange={m.redraw}
+                        />
                     </div>
                     <div className="Form-group">
-                        {Button.component({
-                            className: 'Button Button--block' + (this.unscheduleMode() ? ' Button--danger' : ' Button--primary'),
-                            type: 'submit',
-                            loading: this.loading,
-                        }, this.unscheduleMode()
-                            ? app.translator.trans('fof-drafts.forum.schedule_draft_modal.unschedule_button')
-                            : this.rescheduleMode()
+                        {Button.component(
+                            {
+                                className: 'Button Button--block' + (this.unscheduleMode() ? ' Button--danger' : ' Button--primary'),
+                                type: 'submit',
+                                loading: this.loading,
+                            },
+                            this.unscheduleMode()
+                                ? app.translator.trans('fof-drafts.forum.schedule_draft_modal.unschedule_button')
+                                : this.rescheduleMode()
                                 ? app.translator.trans('fof-drafts.forum.schedule_draft_modal.reschedule_button')
-                                : app.translator.trans('fof-drafts.forum.schedule_draft_modal.schedule_button'))}
+                                : app.translator.trans('fof-drafts.forum.schedule_draft_modal.schedule_button')
+                        )}
                     </div>
                 </div>
             </div>,
@@ -72,7 +81,6 @@ export default class ScheduleDraftModal extends Modal {
     }
 
     initFlatpickr(vnode) {
-
         const url = app.forum.attribute('baseUrl') + '/assets/extensions/fof-drafts/flatpickr';
 
         this.loading = true;

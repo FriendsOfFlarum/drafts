@@ -25,6 +25,10 @@ export default class DraftsPage extends Page {
     }
 
     view() {
-        return <div className="DraftsPage"><DraftsList state={app.drafts}></DraftsList></div>;
+        return (
+            <div className="DraftsPage">
+                <DraftsList state={app.drafts}></DraftsList>
+            </div>
+        );
     }
 }

@@ -40,7 +40,7 @@ export default class DraftsListState {
     showComposer(draft) {
         if (this.loading) return;
 
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             let componentClass;
 
             switch (draft.type()) {
@@ -77,7 +77,7 @@ export default class DraftsListState {
             .find('drafts')
             .then(
                 () => (app.cache.draftsLoaded = true),
-                () => { }
+                () => {}
             )
             .then(() => {
                 this.loading = false;

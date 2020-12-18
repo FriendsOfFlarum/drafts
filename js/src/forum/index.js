@@ -113,7 +113,9 @@ app.initializers.add('fof-drafts', () => {
         if (app.composer.body.attrs.draft) {
             delete app.composer.body.attrs.draft.data.attributes.relationships;
 
-            app.composer.body.attrs.draft.save(Object.assign(app.composer.body.attrs.draft.data.attributes, app.composer.data())).then(() => afterSave());
+            app.composer.body.attrs.draft
+                .save(Object.assign(app.composer.body.attrs.draft.data.attributes, app.composer.data()))
+                .then(() => afterSave());
         } else {
             app.store
                 .createRecord('drafts')
