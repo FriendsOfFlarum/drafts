@@ -31,7 +31,7 @@ export default class Draft extends mixin(Model, {
             return 'reply';
         } else if (
             flarum.extensions['fof-byobu'] &&
-            flarum.extensions['fof-byobu'].components && // If private discussion composer is not exported, we can't support PM drafts.
+            flarum.extensions['fof-byobu'].discussions && // If private discussion composer is not exported, we can't support PM drafts.
             ('recipientGroups' in relationships || 'recipientUsers' in relationships)
         ) {
             return 'privateDiscussion';
@@ -47,7 +47,8 @@ export default class Draft extends mixin(Model, {
             case 'reply':
                 return 'fas fa-reply';
             case 'privateDiscussion':
-                return 'fas fa-eye-slash';
+                const customIcon = app.forum.data.attributes['byobu.icon-badge'];
+                return customIcon ? customIcon : 'fas fa-eye-slash';
         }
     },
 

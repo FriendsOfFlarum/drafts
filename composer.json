@@ -21,7 +21,7 @@
     ],
     "require": {
         "flarum/core": "^0.1.0-beta.15",
-        "fof/console": "^0.6.1"
+        "fof/console": "^0.6.2"
     },
     "authors": [
         {
