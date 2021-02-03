@@ -50,6 +50,12 @@ app.initializers.add('fof-drafts', () => {
             return false;
         }
 
+        // If there's no content, we don't want to save this draft
+        // regardless of whether other attributes have changed.
+        if (!app.composer.fields.content()) {
+            return false;
+        }
+
         const getData = (field) => (field === 'content' ? app.composer.fields.content() : data[field]) || '';
 
         for (const field of fields) {
