@@ -24,6 +24,7 @@ fof-drafts:
       schedule_button: Schedule Draft
       tooltip: => fof-drafts.forum.dropdown.title
       alert: Are you sure you want to delete your draft?
+      delete_all_alert: Are you sure you want to delete all your drafts?
     schedule_draft_modal:
       title: Schedule Draft
       text: Schedule your draft to automatically post at a later time!

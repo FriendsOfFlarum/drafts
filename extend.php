@@ -32,7 +32,8 @@ return [
         ->get('/drafts', 'fof.drafts.index', Controller\ListDraftsController::class)
         ->post('/drafts', 'fof.drafts.create', Controller\CreateDraftController::class)
         ->patch('/drafts/{id}', 'fof.drafts.update', Controller\UpdateDraftController::class)
-        ->delete('/drafts/{id}', 'fof.drafts.delete', Controller\DeleteDraftController::class),
+        ->delete('/drafts/{id}', 'fof.drafts.delete', Controller\DeleteDraftController::class)
+        ->delete('/my_drafts', 'fof.my_drafts.delete', Controller\DeleteMyDraftsController::class),
 
     new Extend\Locales(__DIR__.'/resources/locale'),
 
