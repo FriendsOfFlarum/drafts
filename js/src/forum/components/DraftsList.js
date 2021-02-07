@@ -31,7 +31,7 @@ export default class DraftsList extends Component {
 
         app.request({
             method: 'DELETE',
-            url: app.forum.attribute('apiUrl') + "/my_drafts"
+            url: app.forum.attribute('apiUrl') + "/drafts/all"
         }).then(() => {
             app.store.data.drafts = [];
             m.redraw();
