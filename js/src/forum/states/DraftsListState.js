@@ -22,7 +22,7 @@ export default class DraftsListState {
         this.loading = true;
 
         draft.delete().then(() => {
-            if (app.composer.body && app.composer.body.attrs.draft && app.composer.body.attrs.draft.id() === draft.id() && !app.composer.changed()) {
+            if (app.composer.body && app.composer.draft && app.composer.draft.id() === draft.id() && !app.composer.changed()) {
                 app.composer.hide();
             }
 

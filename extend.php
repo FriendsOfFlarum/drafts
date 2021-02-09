@@ -31,6 +31,7 @@ return [
     (new Extend\Routes('api'))
         ->get('/drafts', 'fof.drafts.index', Controller\ListDraftsController::class)
         ->post('/drafts', 'fof.drafts.create', Controller\CreateDraftController::class)
+        ->delete('/drafts/all', 'fof.drafts.delete', Controller\DeleteMyDraftsController::class)
         ->patch('/drafts/{id}', 'fof.drafts.update', Controller\UpdateDraftController::class)
         ->delete('/drafts/{id}', 'fof.drafts.delete', Controller\DeleteDraftController::class),
 

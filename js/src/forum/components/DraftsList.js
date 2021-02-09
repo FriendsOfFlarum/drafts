@@ -26,6 +26,18 @@ export default class DraftsList extends Component {
         });
     }
 
+    deleteAll() {
+        if (!confirm(app.translator.trans("fof-drafts.forum.dropdown.delete_all_alert"))) return;
+
+        app.request({
+            method: 'DELETE',
+            url: app.forum.attribute('apiUrl') + "/drafts/all"
+        }).then(() => {
+            app.store.data.drafts = [];
+            m.redraw();
+        });
+    }
+
     view() {
         const drafts = app.store.all('drafts');
         const state = this.attrs.state;
@@ -34,6 +46,7 @@ export default class DraftsList extends Component {
             <div className="NotificationList DraftsList">
                 <div className="NotificationList-header">
                     <h4 className="App-titleControl App-titleControl--text">{app.translator.trans('fof-drafts.forum.dropdown.title')}</h4>
+                    <Button icon="fas fa-trash-alt" className="Button Button--link Button--icon Alert-dismiss" onclick={this.deleteAll.bind(this)}></Button>
                 </div>
                 <div className="NotificationList-content">
                     <ul className="NotificationGroup-content">
