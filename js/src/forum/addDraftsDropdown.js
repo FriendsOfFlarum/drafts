@@ -9,9 +9,9 @@
  *
  */
 
-import { extend } from 'flarum/extend';
-import app from 'flarum/app';
-import HeaderSecondary from 'flarum/components/HeaderSecondary';
+import { extend } from 'flarum/common/extend';
+import app from 'flarum/common/app';
+import HeaderSecondary from 'flarum/common/components/HeaderSecondary';
 import DraftsDropdown from './components/DraftsDropdown';
 
 export default function () {

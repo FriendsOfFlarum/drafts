@@ -9,13 +9,13 @@
  *
  */
 
-import Component from 'flarum/Component';
-import LoadingIndicator from 'flarum/components/LoadingIndicator';
-import avatar from 'flarum/helpers/avatar';
-import icon from 'flarum/helpers/icon';
-import humanTime from 'flarum/helpers/humanTime';
-import { truncate } from 'flarum/utils/string';
-import Button from 'flarum/components/Button';
+import Component from 'flarum/common/Component';
+import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
+import avatar from 'flarum/common/helpers/avatar';
+import icon from 'flarum/common/helpers/icon';
+import humanTime from 'flarum/common/helpers/humanTime';
+import { truncate } from 'flarum/common/utils/string';
+import Button from 'flarum/common/components/Button';
 
 export default class DraftsList extends Component {
     oncreate(vnode) {
@@ -27,11 +27,11 @@ export default class DraftsList extends Component {
     }
 
     deleteAll() {
-        if (!confirm(app.translator.trans("fof-drafts.forum.dropdown.delete_all_alert"))) return;
+        if (!confirm(app.translator.trans('fof-drafts.forum.dropdown.delete_all_alert'))) return;
 
         app.request({
             method: 'DELETE',
-            url: app.forum.attribute('apiUrl') + "/drafts/all"
+            url: app.forum.attribute('apiUrl') + '/drafts/all',
         }).then(() => {
             app.store.data.drafts = [];
             m.redraw();
@@ -46,7 +46,11 @@ export default class DraftsList extends Component {
             <div className="NotificationList DraftsList">
                 <div className="NotificationList-header">
                     <h4 className="App-titleControl App-titleControl--text">{app.translator.trans('fof-drafts.forum.dropdown.title')}</h4>
-                    <Button icon="fas fa-trash-alt" className="Button Button--link Button--icon Alert-dismiss" onclick={this.deleteAll.bind(this)}></Button>
+                    <Button
+                        icon="fas fa-trash-alt"
+                        className="Button Button--link Button--icon Alert-dismiss"
+                        onclick={this.deleteAll.bind(this)}
+                    ></Button>
                 </div>
                 <div className="NotificationList-content">
                     <ul className="NotificationGroup-content">

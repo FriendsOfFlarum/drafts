@@ -1,7 +1,7 @@
-import Alert from 'flarum/components/Alert';
-import Button from 'flarum/components/Button';
-import Modal from 'flarum/components/Modal';
-import LoadingIndicator from 'flarum/components/LoadingIndicator';
+import Alert from 'flarum/common/components/Alert';
+import Button from 'flarum/common/components/Button';
+import Modal from 'flarum/common/components/Modal';
+import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 
 import load from 'external-load';
 

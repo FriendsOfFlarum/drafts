@@ -8,9 +8,9 @@
  *  file that was distributed with this source code.
  *
  */
-import Model from 'flarum/Model';
-import ItemList from 'flarum/utils/ItemList';
-import mixin from 'flarum/utils/mixin';
+import Model from 'flarum/common/Model';
+import ItemList from 'flarum/common/utils/ItemList';
+import mixin from 'flarum/common/utils/mixin';
 import fillRelationship from '../utils/fillRelationship';
 
 export default class Draft extends mixin(Model, {

@@ -9,8 +9,8 @@
  *
  */
 
-import app from 'flarum/app';
-import { extend } from 'flarum/extend';
+import app from 'flarum/common/app';
+import { extend } from 'flarum/common/extend';
 
 app.initializers.add('fof-drafts', (app) => {
     app.extensionData

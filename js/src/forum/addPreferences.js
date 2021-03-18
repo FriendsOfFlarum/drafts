@@ -1,10 +1,10 @@
-import { extend, override } from 'flarum/extend';
-import Button from 'flarum/components/Button';
-import FieldSet from 'flarum/components/FieldSet';
-import SettingsPage from 'flarum/components/SettingsPage';
-import Switch from 'flarum/components/Switch';
-import ItemList from 'flarum/utils/ItemList';
-import Stream from 'flarum/utils/Stream';
+import { extend, override } from 'flarum/common/extend';
+import Button from 'flarum/common/components/Button';
+import FieldSet from 'flarum/common/components/FieldSet';
+import SettingsPage from 'flarum/common/components/SettingsPage';
+import Switch from 'flarum/common/components/Switch';
+import ItemList from 'flarum/common/utils/ItemList';
+import Stream from 'flarum/common/utils/Stream';
 
 export default function () {
     extend(SettingsPage.prototype, 'oninit', function () {

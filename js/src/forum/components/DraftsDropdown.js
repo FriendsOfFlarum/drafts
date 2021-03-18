@@ -9,7 +9,7 @@
  *
  */
 
-import NotificationsDropdown from 'flarum/components/NotificationsDropdown';
+import NotificationsDropdown from 'flarum/common/components/NotificationsDropdown';
 
 import DraftsList from './DraftsList';
 

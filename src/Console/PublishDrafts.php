@@ -19,7 +19,7 @@ use Flarum\Post\Command\PostReply;
 use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Drafts\Draft;
 use Illuminate\Contracts\Bus\Dispatcher;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PublishDrafts extends AbstractCommand
 {

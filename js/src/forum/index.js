@@ -9,19 +9,19 @@
  *
  */
 
-import { extend, override } from 'flarum/extend';
-import User from 'flarum/models/User';
-import Model from 'flarum/Model';
-import Stream from 'flarum/utils/Stream';
+import { extend, override } from 'flarum/common/extend';
+import User from 'flarum/common/models/User';
+import Model from 'flarum/common/Model';
+import Stream from 'flarum/common/utils/Stream';
 import Draft from './models/Draft';
 import DraftsPage from './components/DraftsPage';
 import addDraftsDropdown from './addDraftsDropdown';
 import addPreferences from './addPreferences';
-import Composer from 'flarum/components/Composer';
+import Composer from 'flarum/common/components/Composer';
 import DiscussionComposer from 'flarum/components/DiscussionComposer';
-import ReplyComposer from 'flarum/components/ReplyComposer';
-import Button from 'flarum/components/Button';
-import ComposerState from 'flarum/states/ComposerState';
+import ReplyComposer from 'flarum/common/components/ReplyComposer';
+import Button from 'flarum/common/components/Button';
+import ComposerState from 'flarum/common/states/ComposerState';
 import fillRelationship from './utils/fillRelationship';
 import DraftsListState from './states/DraftsListState';
 
@@ -123,9 +123,7 @@ app.initializers.add('fof-drafts', () => {
         if (app.composer.draft) {
             delete app.composer.draft.data.attributes.relationships;
 
-            app.composer.draft
-                .save(Object.assign(app.composer.draft.data.attributes, app.composer.data()))
-                .then(() => afterSave());
+            app.composer.draft.save(Object.assign(app.composer.draft.data.attributes, app.composer.data())).then(() => afterSave());
         } else {
             app.store
                 .createRecord('drafts')

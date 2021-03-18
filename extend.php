@@ -31,7 +31,7 @@ return [
     (new Extend\Routes('api'))
         ->get('/drafts', 'fof.drafts.index', Controller\ListDraftsController::class)
         ->post('/drafts', 'fof.drafts.create', Controller\CreateDraftController::class)
-        ->delete('/drafts/all', 'fof.drafts.delete', Controller\DeleteMyDraftsController::class)
+        ->delete('/drafts/all', 'fof.drafts.delete.all', Controller\DeleteMyDraftsController::class)
         ->patch('/drafts/{id}', 'fof.drafts.update', Controller\UpdateDraftController::class)
         ->delete('/drafts/{id}', 'fof.drafts.delete', Controller\DeleteDraftController::class),
 
@@ -45,14 +45,14 @@ return [
     (new Extend\Console())->command(Console\PublishDrafts::class),
 
     (new Extend\ApiSerializer(CurrentUserSerializer::class))
-        ->mutate(function (CurrentUserSerializer $serializer) {
+        ->attributes(function (CurrentUserSerializer $serializer) {
             $attributes['draftCount'] = (int) Draft::where('user_id', $serializer->getActor()->id)->count();
 
             return $attributes;
         }),
 
     (new Extend\ApiSerializer(ForumSerializer::class))
-        ->mutate(function (ForumSerializer $serializer) {
+        ->attributes(function (ForumSerializer $serializer) {
             $attributes['canSaveDrafts'] = $serializer->getActor()->hasPermissionLike('user.saveDrafts');
             $attributes['canScheduleDrafts'] = $serializer->getActor()->hasPermissionLike('user.scheduleDrafts');
 
@@ -60,9 +60,7 @@ return [
         }),
 
     (new Extend\Settings())
-        ->serializeToForum('drafts.enableScheduledDrafts', 'fof-drafts.enable_scheduled_drafts', function ($value) {
-            return boolval($value);
-        }),
+        ->serializeToForum('drafts.enableScheduledDrafts', 'fof-drafts.enable_scheduled_drafts', 'boolVal'),
 
     (new Extend\User())
         ->registerPreference('draftAutosaveEnable', function ($value) {
