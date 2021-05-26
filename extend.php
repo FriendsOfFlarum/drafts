@@ -14,7 +14,6 @@ namespace FoF\Drafts;
 use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Extend;
-use Flarum\Extend\Console;
 use Flarum\User\User;
 use FoF\Drafts\Api\Controller;
 use FoF\Drafts\Console\PublishDrafts;
