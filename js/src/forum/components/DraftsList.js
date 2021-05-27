@@ -16,6 +16,7 @@ import icon from 'flarum/common/helpers/icon';
 import humanTime from 'flarum/common/helpers/humanTime';
 import { truncate } from 'flarum/common/utils/string';
 import Button from 'flarum/common/components/Button';
+import Tooltip from 'flarum/common/components/Tooltip';
 
 export default class DraftsList extends Component {
     oncreate(vnode) {
@@ -46,11 +47,14 @@ export default class DraftsList extends Component {
             <div className="NotificationList DraftsList">
                 <div className="NotificationList-header">
                     <h4 className="App-titleControl App-titleControl--text">{app.translator.trans('fof-drafts.forum.dropdown.title')}</h4>
-                    <Button
-                        icon="fas fa-trash-alt"
-                        className="Button Button--link Button--icon Alert-dismiss"
-                        onclick={this.deleteAll.bind(this)}
-                    ></Button>
+                    <Tooltip text={app.translator.trans("fof-drafts.forum.dropdown.delete_all_button")}>
+                      <Button
+                          data-container="body"
+                          icon="fas fa-trash-alt"
+                          className="Button Button--link Button--icon Alert-dismiss"
+                          onclick={this.deleteAll.bind(this)}
+                      />
+                    </Tooltip>
                 </div>
                 <div className="NotificationList-content">
                     <ul className="NotificationGroup-content">

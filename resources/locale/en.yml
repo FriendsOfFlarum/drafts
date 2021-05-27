@@ -10,6 +10,8 @@ fof-drafts:
       schedule_log_output: Append scheduler output to log storage
   console:
     scheduled_drafts_disabled: Scheduled drafts are currently disabled in settings.
+  ref:
+    schedule_draft: Schedule draft
   forum:
     composer:
       title: Save Draft
@@ -20,13 +22,14 @@ fof-drafts:
     dropdown:
       empty_text: You haven't saved any drafts
       title: Drafts
-      delete_button: Delete Draft
-      schedule_button: Schedule Draft
+      delete_all_button: Delete all drafts
+      delete_button: Delete draft
+      schedule_button: => fof-drafts.ref.schedule_draft
       tooltip: => fof-drafts.forum.dropdown.title
       alert: Are you sure you want to delete your draft?
       delete_all_alert: Are you sure you want to delete all your drafts?
     schedule_draft_modal:
-      title: Schedule Draft
+      title: => fof-drafts.ref.schedule_draft
       text: Schedule your draft to automatically post at a later time!
       scheduled_text: Scheduled to post on {datetime}.
       scheduled_error: "Unable to post because: {error}."
