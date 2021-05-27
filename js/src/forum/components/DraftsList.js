@@ -110,7 +110,7 @@ export default class DraftsList extends Component {
                             : ''}
 
                         {state.loading
-                            ? LoadingIndicator.component({ className: 'LoadingIndicator--block' })
+                            ? <LoadingIndicator display="block" />
                             : !drafts.length && (
                                   <div className="NotificationList-empty">{app.translator.trans('fof-drafts.forum.dropdown.empty_text')}</div>
                               )}
