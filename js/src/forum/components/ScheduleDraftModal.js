@@ -5,6 +5,9 @@ import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 
 import load from 'external-load';
 
+const CurrentDate = dayjs().format("YYYY-MM-DD")
+const CurrentTime = dayjs().format("HH:mm")
+
 export default class ScheduleDraftModal extends Modal {
     oninit(vnode) {
         super.oninit(vnode);
@@ -48,17 +51,27 @@ export default class ScheduleDraftModal extends Modal {
             ) : (
                 ''
             ),
+
             <input style="display: none"></input>,
+
             <div className="Modal-body">
                 <div className="Form Form--centered">
                     <p className="helpText">{app.translator.trans('fof-drafts.forum.schedule_draft_modal.text')}</p>
-                    <div className="Form-group flatpickr">
+                    <div className="Form-group ScheduleDraftModal-timeDateGroup">
                         <input
-                            name="scheduledFor"
-                            className="FormControl flatpickr-input"
-                            data-input
-                            oncreate={this.initFlatpickr.bind(this)}
-                            onchange={m.redraw}
+                            name="scheduledForDate"
+                            className="FormControl"
+                            type="date"
+                            min={CurrentDate}
+                            value={this.unscheduleMode() ? dayjs(this.attrs.draft.scheduledFor()).format("YYYY-MM-DD") : CurrentDate}
+                            // onchange={()=>m.redraw()}
+                        />
+                        <input
+                            name="scheduledForTime"
+                            className="FormControl"
+                            type="time"
+                            value={this.unscheduleMode() ? dayjs(this.attrs.draft.scheduledFor()).format("HH:mm") : CurrentTime}
+                            // onchange={()=>m.redraw}
                         />
                     </div>
                     <div className="Form-group">
@@ -80,32 +93,14 @@ export default class ScheduleDraftModal extends Modal {
         ];
     }
 
-    initFlatpickr(vnode) {
-        const url = app.forum.attribute('baseUrl') + '/assets/extensions/fof-drafts/flatpickr';
-
-        this.loading = true;
-
-        Promise.all(typeof flatpickr === 'undefined' ? [load.js(`${url}.js`), load.css(`${url}.css`)] : []).then(() => {
-            this.loading = false;
-
-            m.redraw();
-
-            window.flatpickrElement = flatpickr('.flatpickr-input', {
-                enableTime: true,
-                enableSeconds: false,
-                minDate: Date.now(),
-                maxDate: new Date(9999, 12, 31),
-                defaultDate: this.attrs.draft.scheduledFor(),
-            });
-        });
-    }
-
     scheduledFor() {
-        return new Date($('input[name=scheduledFor]').val());
+        const date = new Date(`${$('input[name=scheduledForDate]').val()} ${$('input[name=scheduledForTime]').val()}`);
+        console.log(date);
+        return date;
     }
 
     changed() {
-        const getTimeOrNull = (date) => (date ? date.getTime() : null);
+        const getTimeOrNull = (date) => (date?.getTime());
 
         return getTimeOrNull(this.scheduledFor()) !== getTimeOrNull(this.attrs.draft.scheduledFor());
     }
