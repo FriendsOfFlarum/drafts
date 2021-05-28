@@ -25,6 +25,9 @@ fof-drafts:
       delete_all_button: Delete all drafts
       delete_button: Delete draft
       schedule_button: => fof-drafts.ref.schedule_draft
+      scheduled_icon_tooltip: Scheduled for {datetime}
+      # String passed to dayjs.format() to generate the tooltip date-time
+      scheduled_icon_tooltip_formatter: L [at] LT
       tooltip: => fof-drafts.forum.dropdown.title
       alert: Are you sure you want to delete your draft?
       delete_all_alert: Are you sure you want to delete all your drafts?
@@ -34,8 +37,13 @@ fof-drafts:
       scheduled_text: Currently scheduled to post on {datetime}.
       scheduled_error: "Unable to schedule draft: {error}."
       unschedule_button: Unschedule
+      unschedule_warning: Are you sure you want to unschedule this draft?
       reschedule_button: Reschedule
       schedule_button: Schedule
+      schedule_time_preview: This draft will be automatically published on <b>{datetime}</b>.
+      # String passed to dayjs.format() to generate the preview
+      schedule_time_preview_formatter: LLLL
+      schedule_time_preview_invalid: Invalid date and/or time
     user:
       settings:
         drafts_heading: Drafts
