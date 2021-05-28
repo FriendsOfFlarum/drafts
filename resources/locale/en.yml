@@ -31,8 +31,8 @@ fof-drafts:
     schedule_draft_modal:
       title: => fof-drafts.ref.schedule_draft
       text: Schedule your draft to automatically post at a later time!
-      scheduled_text: Scheduled to post on {datetime}.
-      scheduled_error: "Unable to post because: {error}."
+      scheduled_text: Currently scheduled to post on {datetime}.
+      scheduled_error: "Unable to schedule draft: {error}."
       unschedule_button: Unschedule
       reschedule_button: Reschedule
       schedule_button: Schedule
