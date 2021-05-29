@@ -3,13 +3,24 @@ import Button from 'flarum/common/components/Button';
 import Modal from 'flarum/common/components/Modal';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 
-import load from 'external-load';
+const CurrentDate = dayjs().format('YYYY-MM-DD');
+const CurrentTime = dayjs().format('HH:mm');
 
 export default class ScheduleDraftModal extends Modal {
+    loading = false;
+
+    date;
+    time;
+
+    previewFormatString;
+
     oninit(vnode) {
         super.oninit(vnode);
 
-        this.loading = false;
+        this.date = this.isScheduled() ? dayjs(this.attrs.draft.scheduledFor()).format('YYYY-MM-DD') : CurrentDate;
+        this.time = this.isScheduled() ? dayjs(this.attrs.draft.scheduledFor()).format('HH:mm') : CurrentTime;
+
+        this.previewFormatString = app.translator.trans('fof-drafts.forum.schedule_draft_modal.schedule_time_preview_formatter')[0];
     }
 
     className() {
@@ -30,7 +41,7 @@ export default class ScheduleDraftModal extends Modal {
                 <div className="Modal-alert">
                     <Alert type="success" dismissible={false}>
                         {app.translator.trans('fof-drafts.forum.schedule_draft_modal.scheduled_text', {
-                            datetime: dayjs(this.attrs.draft.scheduledFor()).format('LLLL'),
+                            datetime: this.formattedDateTime(),
                         })}
                     </Alert>
                 </div>
@@ -48,74 +59,116 @@ export default class ScheduleDraftModal extends Modal {
             ) : (
                 ''
             ),
+
             <input style="display: none"></input>,
+
             <div className="Modal-body">
                 <div className="Form Form--centered">
                     <p className="helpText">{app.translator.trans('fof-drafts.forum.schedule_draft_modal.text')}</p>
-                    <div className="Form-group flatpickr">
+                    <div className="Form-group ScheduleDraftModal-timeDateGroup">
                         <input
-                            name="scheduledFor"
-                            className="FormControl flatpickr-input"
-                            data-input
-                            oncreate={this.initFlatpickr.bind(this)}
-                            onchange={m.redraw}
+                            name="scheduledForDate"
+                            className="FormControl"
+                            type="date"
+                            min={CurrentDate}
+                            value={this.date}
+                            onchange={(e) => (this.date = e.target.value)}
+                        />
+                        <input
+                            name="scheduledForTime"
+                            className="FormControl"
+                            type="time"
+                            value={this.time}
+                            onchange={(e) => (this.time = e.target.value)}
                         />
                     </div>
-                    <div className="Form-group">
-                        {Button.component(
-                            {
-                                className: 'Button Button--block' + (this.unscheduleMode() ? ' Button--danger' : ' Button--primary'),
-                                type: 'submit',
-                                loading: this.loading,
-                            },
-                            this.unscheduleMode()
-                                ? app.translator.trans('fof-drafts.forum.schedule_draft_modal.unschedule_button')
-                                : this.rescheduleMode()
-                                ? app.translator.trans('fof-drafts.forum.schedule_draft_modal.reschedule_button')
-                                : app.translator.trans('fof-drafts.forum.schedule_draft_modal.schedule_button')
+
+                    {/* Date time preview */}
+                    <div class="Form-group ScheduleDraftModal-datePreview">
+                        {app.translator.trans('fof-drafts.forum.schedule_draft_modal.schedule_time_preview', {
+                            datetime: this.formattedDateTime(),
+                        })}
+                    </div>
+
+                    <div className="Form-group ScheduleDraftModal-submitButtons">
+                        {/* Unschedule button */}
+                        {this.isScheduled() && (
+                            <Button
+                                className="ScheduleDraftModal-unscheduleBtn Button Button--block Button--danger"
+                                loading={this.loading}
+                                onclick={this.unschedule.bind(this)}
+                            >
+                                {app.translator.trans('fof-drafts.forum.schedule_draft_modal.unschedule_button')}
+                            </Button>
                         )}
+
+                        {/* Schedule/reschedule button */}
+                        <Button
+                            className="ScheduleDraftModal-scheduleBtn Button Button--block Button--primary"
+                            type="submit"
+                            loading={this.loading}
+                            disabled={!this.changed()}
+                        >
+                            {this.isScheduled()
+                                ? app.translator.trans('fof-drafts.forum.schedule_draft_modal.reschedule_button')
+                                : app.translator.trans('fof-drafts.forum.schedule_draft_modal.schedule_button')}
+                        </Button>
                     </div>
                 </div>
             </div>,
         ];
     }
 
-    initFlatpickr(vnode) {
-        const url = app.forum.attribute('baseUrl') + '/assets/extensions/fof-drafts/flatpickr';
-
-        this.loading = true;
-
-        Promise.all(typeof flatpickr === 'undefined' ? [load.js(`${url}.js`), load.css(`${url}.css`)] : []).then(() => {
-            this.loading = false;
-
-            m.redraw();
-
-            window.flatpickrElement = flatpickr('.flatpickr-input', {
-                enableTime: true,
-                enableSeconds: false,
-                minDate: Date.now(),
-                maxDate: new Date(9999, 12, 31),
-                defaultDate: this.attrs.draft.scheduledFor(),
-            });
-        });
-    }
-
+    /**
+     * Returns a Date object for currently entered values in the modal.
+     */
     scheduledFor() {
-        return new Date($('input[name=scheduledFor]').val());
+        const date = new Date(`${this.date} ${this.time}`);
+
+        return date || null;
     }
 
+    /**
+     * Whether the modal's details have been modified.
+     */
     changed() {
-        const getTimeOrNull = (date) => (date ? date.getTime() : null);
+        const getTimeOrNull = (date) => (date ? date.getTime() || null : null);
 
         return getTimeOrNull(this.scheduledFor()) !== getTimeOrNull(this.attrs.draft.scheduledFor());
     }
 
-    unscheduleMode() {
-        return !this.changed() && this.attrs.draft.scheduledFor();
+    isScheduled() {
+        return !!this.attrs.draft.scheduledFor();
     }
 
-    rescheduleMode() {
-        return this.changed() && this.attrs.draft.scheduledFor();
+    formattedDateTime() {
+        const date = dayjs(this.scheduledFor());
+
+        // if (!date) {
+        //     return app.translator.trans('fof-drafts.forum.schedule_draft_modal.schedule_time_preview_invalid');
+        // }
+
+        const formatted = date.format(this.previewFormatString);
+
+        return formatted;
+    }
+
+    unschedule(e) {
+        e.preventDefault();
+
+        this.loading = true;
+
+        // Save draft with no scheduled post time
+        if (confirm(app.translator.trans('fof-drafts.forum.schedule_draft_modal.unschedule_warning'))) {
+            this.attrs.draft
+                .save({ scheduledFor: null, clearValidationError: true, scheduledValidationError: '' })
+                .then(() => {
+                    this.success = true;
+                    this.hide.call(this);
+                })
+                .catch(() => {})
+                .then(this.loaded.bind(this));
+        }
     }
 
     onsubmit(e) {
@@ -124,7 +177,7 @@ export default class ScheduleDraftModal extends Modal {
         this.loading = true;
 
         this.attrs.draft
-            .save({ scheduledFor: this.unscheduleMode() ? null : this.scheduledFor(), clearValidationError: true, scheduledValidationError: '' })
+            .save({ scheduledFor: this.scheduledFor(), clearValidationError: true, scheduledValidationError: '' })
             .then(() => (this.success = true))
             .catch(() => {})
             .then(this.loaded.bind(this));

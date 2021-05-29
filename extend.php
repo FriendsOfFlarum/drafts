@@ -16,10 +16,10 @@ use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Extend;
 use Flarum\User\User;
 use FoF\Drafts\Api\Controller;
+use FoF\Drafts\Console\PublishDrafts;
+use FoF\Drafts\Console\PublishSchedule;
 
 return [
-    new \FoF\Console\Extend\EnableConsole(),
-
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
         ->css(__DIR__.'/resources/less/forum.less')
@@ -42,7 +42,9 @@ return [
             return $model->hasMany(Draft::class, 'user_id');
         }),
 
-    (new Extend\Console())->command(Console\PublishDrafts::class),
+    (new Extend\Console())
+        ->command(PublishDrafts::class)
+        ->schedule(PublishDrafts::class, new PublishSchedule()),
 
     (new Extend\ApiSerializer(CurrentUserSerializer::class))
         ->attributes(function (CurrentUserSerializer $serializer) {
@@ -63,12 +65,6 @@ return [
         ->serializeToForum('drafts.enableScheduledDrafts', 'fof-drafts.enable_scheduled_drafts', 'boolVal'),
 
     (new Extend\User())
-        ->registerPreference('draftAutosaveEnable', function ($value) {
-            return boolval($value);
-        }, false)
-        ->registerPreference('draftAutosaveInterval', function ($value) {
-            return intval($value);
-        }, 6),
-
-    (new \FoF\Console\Extend\ScheduleCommand(new Console\PublishSchedule())),
+        ->registerPreference('draftAutosaveEnable', 'boolVal', false)
+        ->registerPreference('draftAutosaveInterval', 'intVal', 6),
 ];

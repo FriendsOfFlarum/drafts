@@ -32,3 +32,56 @@
     display: inline;
   }
 }
+
+// Spacing between action buttons
+.Notification-action .draft--delete + .draft--schedule {
+  margin-left: 8px;
+}
+
+.draft--scheduledIcon {
+  margin-right: 4px;
+}
+
+.ScheduleDraftModal {
+  &-timeDateGroup {
+    display: flex;
+    flex-direction: column;
+    // gap: 4px;
+
+    // We should replace this with `gap` when Safari actually follows standards
+    :not(:first-child) {
+      margin-top: 4px;
+    }
+  }
+
+  &-datePreview {
+    background: @control-bg;
+    color: @control-color;
+    padding: 8px;
+  }
+
+  // Show buttons next to each other on tablet+,
+  // otherwise below one another
+  &-submitButtons {
+    display: grid;
+    grid-template-rows: auto auto;
+    gap: 8px;
+
+    @media @tablet-up {
+      grid-template-rows: auto;
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  // If this is the only button, make it take up
+  // the entire grid view
+  &-scheduleBtn {
+    &:first-child {
+      grid-column-start: 1;
+      grid-column-end: 3;
+
+      grid-row-start: 1;
+      grid-row-end: 3;
+    }
+  }
+}

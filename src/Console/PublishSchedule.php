@@ -13,28 +13,25 @@ namespace FoF\Drafts\Console;
 
 use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Console\Scheduling\Event;
 
 class PublishSchedule
 {
-    public function __invoke()
+    public function __invoke(Event $event)
     {
-        $schedule = resolve(Schedule::class);
         $settings = resolve(SettingsRepositoryInterface::class);
 
-        $build = $schedule->command(PublishDrafts::class)
+        $event
             ->everyMinute()
             ->withoutOverlapping();
 
         if ((bool) $settings->get('fof-drafts.schedule_on_one_server')) {
-            $build->onOneServer();
+            $event->onOneServer();
         }
 
         if ((bool) $settings->get('fof-drafts.store_log_output')) {
             $paths = resolve(Paths::class);
-            $build->appendOutputTo($paths->storage.(DIRECTORY_SEPARATOR.'logs'.DIRECTORY_SEPARATOR.'drafts-publish.log'));
+            $event->appendOutputTo($paths->storage.(DIRECTORY_SEPARATOR.'logs'.DIRECTORY_SEPARATOR.'drafts-publish.log'));
         }
-
-        return $schedule;
     }
 }

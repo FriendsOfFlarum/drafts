@@ -11,11 +11,9 @@
 
 import Component from 'flarum/common/Component';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
-import avatar from 'flarum/common/helpers/avatar';
-import icon from 'flarum/common/helpers/icon';
-import humanTime from 'flarum/common/helpers/humanTime';
-import { truncate } from 'flarum/common/utils/string';
 import Button from 'flarum/common/components/Button';
+import DraftsListItem from './DraftsListItem';
+import Tooltip from 'flarum/common/components/Tooltip';
 
 export default class DraftsList extends Component {
     oncreate(vnode) {
@@ -46,11 +44,16 @@ export default class DraftsList extends Component {
             <div className="NotificationList DraftsList">
                 <div className="NotificationList-header">
                     <h4 className="App-titleControl App-titleControl--text">{app.translator.trans('fof-drafts.forum.dropdown.title')}</h4>
-                    <Button
-                        icon="fas fa-trash-alt"
-                        className="Button Button--link Button--icon Alert-dismiss"
-                        onclick={this.deleteAll.bind(this)}
-                    ></Button>
+                    <div class="App-primaryControl">
+                        <Tooltip text={app.translator.trans('fof-drafts.forum.dropdown.delete_all_button')}>
+                            <Button
+                                data-container="body"
+                                icon="fas fa-trash-alt"
+                                className="Button Button--link Button--icon Alert-dismiss"
+                                onclick={this.deleteAll.bind(this)}
+                            />
+                        </Tooltip>
+                    </div>
                 </div>
                 <div className="NotificationList-content">
                     <ul className="NotificationGroup-content">
@@ -58,58 +61,17 @@ export default class DraftsList extends Component {
                             ? drafts
                                   .sort((a, b) => b.updatedAt() - a.updatedAt())
                                   .map((draft) => {
-                                      return (
-                                          <li>
-                                              <a onclick={state.showComposer.bind(state, draft)} className="Notification draft--item">
-                                                  {avatar(draft.user())}
-                                                  {icon(draft.icon(), { className: 'Notification-icon' })}
-                                                  <span className="Notification-content">
-                                                      {draft.type() === 'reply' ? draft.loadRelationships().discussion.title() : draft.title()}
-                                                  </span>
-                                                  {humanTime(draft.updatedAt())}
-                                                  {Button.component({
-                                                      icon: 'fas fa-times',
-                                                      style: 'float: right; z-index: 20;',
-                                                      className: 'Button Button--icon Button--link draft--delete draft--delete',
-                                                      title: app.translator.trans('fof-drafts.forum.dropdown.delete_button'),
-                                                      onclick: (e) => {
-                                                          state.deleteDraft(draft);
-                                                          e.stopPropagation();
-                                                      },
-                                                  })}
-                                                  {app.forum.attribute('canScheduleDrafts') && app.forum.attribute('drafts.enableScheduledDrafts')
-                                                      ? Button.component({
-                                                            icon: draft.scheduledValidationError()
-                                                                ? 'fas fa-calendar-times'
-                                                                : draft.scheduledFor()
-                                                                ? 'fas fa-calendar-check'
-                                                                : 'fas fa-calendar-plus',
-                                                            style: 'float: right; z-index: 20;',
-                                                            className: 'Button Button--icon Button--link draft--schedule',
-                                                            title: app.translator.trans('fof-drafts.forum.dropdown.schedule_button'),
-                                                            onclick: (e) => {
-                                                                state.scheduleDraft(draft);
-                                                                e.stopPropagation();
-                                                            },
-                                                        })
-                                                      : ''}
-                                                  <div className="Notification-excerpt">{truncate(draft.content(), 200)}</div>
-                                                  {draft.scheduledValidationError() ? (
-                                                      <p className="scheduledValidationError">{draft.scheduledValidationError()}</p>
-                                                  ) : (
-                                                      ''
-                                                  )}
-                                              </a>
-                                          </li>
-                                      );
+                                      return <DraftsListItem draft={draft} state={state} />;
                                   })
-                            : ''}
+                            : null}
 
-                        {state.loading
-                            ? LoadingIndicator.component({ className: 'LoadingIndicator--block' })
-                            : !drafts.length && (
-                                  <div className="NotificationList-empty">{app.translator.trans('fof-drafts.forum.dropdown.empty_text')}</div>
-                              )}
+                        {state.loading ? (
+                            <LoadingIndicator display="block" />
+                        ) : (
+                            !drafts.length && (
+                                <div className="NotificationList-empty">{app.translator.trans('fof-drafts.forum.dropdown.empty_text')}</div>
+                            )
+                        )}
                     </ul>
                 </div>
             </div>
