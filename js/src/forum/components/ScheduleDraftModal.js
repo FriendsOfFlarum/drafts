@@ -123,8 +123,6 @@ export default class ScheduleDraftModal extends Modal {
      * Returns a Date object for currently entered values in the modal.
      */
     scheduledFor() {
-        console.log(this.date, this.time);
-
         const date = new Date(`${this.date} ${this.time}`);
 
         return date || null;
@@ -144,18 +142,13 @@ export default class ScheduleDraftModal extends Modal {
     }
 
     formattedDateTime() {
-        // debugger;
         const date = dayjs(this.scheduledFor());
-        console.log(date);
-        console.log(this.previewFormatString);
 
         // if (!date) {
         //     return app.translator.trans('fof-drafts.forum.schedule_draft_modal.schedule_time_preview_invalid');
         // }
 
         const formatted = date.format(this.previewFormatString);
-
-        console.log(formatted);
 
         return formatted;
     }
