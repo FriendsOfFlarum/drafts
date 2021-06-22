@@ -45,7 +45,7 @@ export default class DraftsList extends Component {
                 <div className="NotificationList-header">
                     <h4 className="App-titleControl App-titleControl--text">{app.translator.trans('fof-drafts.forum.dropdown.title')}</h4>
                     <div class="App-primaryControl">
-                        <Tooltip text={app.translator.trans('fof-drafts.forum.dropdown.delete_all_button')}>
+                        <Tooltip showOnFocus={false} text={app.translator.trans('fof-drafts.forum.dropdown.delete_all_button')}>
                             <Button
                                 data-container="body"
                                 icon="fas fa-trash-alt"
