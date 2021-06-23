@@ -37,6 +37,7 @@ export default class DraftsList extends Component {
                         <span className="Notification-content">
                             {draft.scheduledFor() && (
                                 <Tooltip
+                                    showOnFocus={false}
                                     text={app.translator.trans('fof-drafts.forum.dropdown.scheduled_icon_tooltip', {
                                         datetime: dayjs(draft.scheduledFor()).format(
                                             app.translator.trans('fof-drafts.forum.dropdown.scheduled_icon_tooltip_formatter')[0]
@@ -54,7 +55,7 @@ export default class DraftsList extends Component {
 
                     <div class="Notification-action">
                         {/* Delete draft icon */}
-                        <Tooltip text={app.translator.trans('fof-drafts.forum.dropdown.delete_button')}>
+                        <Tooltip showOnFocus={false} text={app.translator.trans('fof-drafts.forum.dropdown.delete_button')}>
                             <Button
                                 data-container="body"
                                 icon="fas fa-trash-alt"
@@ -67,7 +68,7 @@ export default class DraftsList extends Component {
                         </Tooltip>
 
                         {this.canSchedule ? (
-                            <Tooltip text={app.translator.trans('fof-drafts.forum.dropdown.schedule_button')}>
+                            <Tooltip showOnFocus={false} text={app.translator.trans('fof-drafts.forum.dropdown.schedule_button')}>
                                 <Button
                                     data-container="body"
                                     icon={scheduledDraftIcon}
