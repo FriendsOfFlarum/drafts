@@ -12,6 +12,20 @@ Install with composer:
 composer require fof/drafts:"*"
 ```
 
+#### To enable the Scheduler, be sure to add the job to your crontab:
+
+```sh
+crontab -e
+```
+
+Then add
+
+```sh
+* * * * * cd /path-to-your-project && php flarum schedule:run
+```
+
+For more info, see [this blog post](https://discuss.flarum.org/d/24118-setup-the-flarum-scheduler-using-cron)
+
 ### Updating
 
 ```sh
