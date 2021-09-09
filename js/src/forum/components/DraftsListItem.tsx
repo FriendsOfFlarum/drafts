@@ -9,7 +9,7 @@ import Tooltip from 'flarum/common/components/Tooltip';
 
 import type * as Mithril from 'mithril';
 
-export default class DraftsList extends Component {
+export default class DraftsListItem extends Component {
     private canSchedule: boolean = app.forum.attribute('canScheduleDrafts') && app.forum.attribute('drafts.enableScheduledDrafts');
 
     oncreate(vnode: Mithril.Vnode) {
