@@ -11,6 +11,6 @@
 
 import DraftsListState from './DraftsListState';
 
-export const models = {
+export const states = {
     DraftsListState: DraftsListState,
 };
