@@ -144,9 +144,9 @@ export default class ScheduleDraftModal extends Modal {
     formattedDateTime() {
         const date = dayjs(this.scheduledFor());
 
-        // if (!date) {
-        //     return app.translator.trans('fof-drafts.forum.schedule_draft_modal.schedule_time_preview_invalid');
-        // }
+         if (!date) {
+             return app.translator.trans('fof-drafts.forum.schedule_draft_modal.schedule_time_preview_invalid');
+         }
 
         const formatted = date.format(this.previewFormatString);
 
