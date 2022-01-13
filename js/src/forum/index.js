@@ -123,6 +123,11 @@ app.initializers.add('fof-drafts', () => {
 
         const draft = this.draft;
 
+        if (draft && draft.id() && !draft.exists) {
+          // Draft was deleted before autosave, no need to save.
+          return;
+        }
+
         if (draft) {
             delete draft.data.attributes.relationships;
 
