@@ -100,6 +100,6 @@ class PublishDrafts extends AbstractCommand
             }
         }
 
-        $this->info("Done.");
+        $this->info('Done.');
     }
 }
