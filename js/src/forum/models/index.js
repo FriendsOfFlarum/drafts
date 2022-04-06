@@ -12,5 +12,5 @@
 import Draft from './Draft';
 
 export const models = {
-    Draft: Draft,
+  Draft: Draft,
 };

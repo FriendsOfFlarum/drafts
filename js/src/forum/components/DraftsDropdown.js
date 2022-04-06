@@ -14,34 +14,34 @@ import NotificationsDropdown from 'flarum/common/components/NotificationsDropdow
 import DraftsList from './DraftsList';
 
 export default class DraftsDropdown extends NotificationsDropdown {
-    static initAttrs(attrs) {
-        attrs.label = attrs.label || app.translator.trans('fof-drafts.forum.dropdown.tooltip');
-        attrs.icon = attrs.icon || 'fas fa-edit';
+  static initAttrs(attrs) {
+    attrs.label = attrs.label || app.translator.trans('fof-drafts.forum.dropdown.tooltip');
+    attrs.icon = attrs.icon || 'fas fa-edit';
 
-        super.initAttrs(attrs);
+    super.initAttrs(attrs);
+  }
+
+  getMenu() {
+    return (
+      <div className={'Dropdown-menu ' + this.attrs.menuClassName} onclick={this.menuClick.bind(this)}>
+        {this.showing ? DraftsList.component({ state: this.attrs.state }) : ''}
+      </div>
+    );
+  }
+
+  goToRoute() {
+    m.route.set(app.route('drafts'));
+  }
+
+  getUnreadCount() {
+    if (app.cache.draftsLoaded) {
+      return app.store.all('drafts').length;
     }
 
-    getMenu() {
-        return (
-            <div className={'Dropdown-menu ' + this.attrs.menuClassName} onclick={this.menuClick.bind(this)}>
-                {this.showing ? DraftsList.component({ state: this.attrs.state }) : ''}
-            </div>
-        );
-    }
+    return app.store.all('drafts').length + app.session.user.draftCount();
+  }
 
-    goToRoute() {
-        m.route.set(app.route('drafts'));
-    }
-
-    getUnreadCount() {
-        if (app.cache.draftsLoaded) {
-            return app.store.all('drafts').length;
-        }
-
-        return app.store.all('drafts').length + app.session.user.draftCount();
-    }
-
-    getNewCount() {
-        return this.getUnreadCount();
-    }
+  getNewCount() {
+    return this.getUnreadCount();
+  }
 }
