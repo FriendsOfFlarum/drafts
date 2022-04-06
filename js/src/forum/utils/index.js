@@ -11,5 +11,5 @@
 import fillRelationship from './fillRelationship';
 
 export const utils = {
-    fillRelationship: fillRelationship,
+  fillRelationship: fillRelationship,
 };

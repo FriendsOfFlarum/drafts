@@ -14,21 +14,21 @@ import Page from 'flarum/common/components/Page';
 import DraftsList from './DraftsList';
 
 export default class DraftsPage extends Page {
-    oninit(vnode) {
-        super.oninit(vnode);
+  oninit(vnode) {
+    super.oninit(vnode);
 
-        app.history.push('drafts');
+    app.history.push('drafts');
 
-        app.drafts.load();
+    app.drafts.load();
 
-        this.bodyClass = 'App--drafts';
-    }
+    this.bodyClass = 'App--drafts';
+  }
 
-    view() {
-        return (
-            <div className="DraftsPage">
-                <DraftsList state={app.drafts}></DraftsList>
-            </div>
-        );
-    }
+  view() {
+    return (
+      <div className="DraftsPage">
+        <DraftsList state={app.drafts}></DraftsList>
+      </div>
+    );
+  }
 }

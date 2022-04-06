@@ -12,5 +12,5 @@
 import DraftsListState from './DraftsListState';
 
 export const states = {
-    DraftsListState: DraftsListState,
+  DraftsListState: DraftsListState,
 };
