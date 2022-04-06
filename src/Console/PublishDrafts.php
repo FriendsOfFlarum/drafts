@@ -61,10 +61,13 @@ class PublishDrafts extends AbstractCommand
         foreach (Draft::where('scheduled_for', '<=', Carbon::now())->with('user')->get() as $draft) {
             try {
                 $relationships = json_decode($draft->relationships, true);
+                $discussionId = $relationships['discussion']['data']['id'];
+
+                $this->info("Publishing draft reply for discussion {$discussionId}");
 
                 if (array_key_exists('discussion', $relationships)) {
                     $post = $this->bus->dispatch(
-                        new PostReply($relationships['discussion']['id'], $draft->user, [
+                        new PostReply($discussionId, $draft->user, [
                             'attributes' => [
                                 'content' => $draft->content,
                             ],
@@ -86,6 +89,8 @@ class PublishDrafts extends AbstractCommand
                     $discussion->firstPost->created_at = $draft->scheduled_for;
                     $discussion->save();
                     $discussion->firstPost->save();
+
+                    $this->info("Published draft discussion: $discussion->id");
                 }
                 $draft->delete();
             } catch (ValidationException $e) {
@@ -94,5 +99,7 @@ class PublishDrafts extends AbstractCommand
                 echo $e->getMessage();
             }
         }
+
+        $this->info('Done.');
     }
 }
