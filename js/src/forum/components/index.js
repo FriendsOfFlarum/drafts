@@ -16,9 +16,9 @@ import DraftsPage from './DraftsPage';
 import ScheduleDraftModal from './ScheduleDraftModal';
 
 export const components = {
-    DraftsDropdown: DraftsDropdown,
-    DraftsList: DraftsList,
-    DraftsListItem: DraftsListItem,
-    DraftsPage: DraftsPage,
-    ScheduleDraftModal: ScheduleDraftModal,
+  DraftsDropdown: DraftsDropdown,
+  DraftsList: DraftsList,
+  DraftsListItem: DraftsListItem,
+  DraftsPage: DraftsPage,
+  ScheduleDraftModal: ScheduleDraftModal,
 };

@@ -10,82 +10,82 @@ import Tooltip from 'flarum/common/components/Tooltip';
 import type * as Mithril from 'mithril';
 
 export default class DraftsListItem extends Component {
-    private canSchedule: boolean = app.forum.attribute('canScheduleDrafts') && app.forum.attribute('drafts.enableScheduledDrafts');
+  private canSchedule: boolean = app.forum.attribute('canScheduleDrafts') && app.forum.attribute('drafts.enableScheduledDrafts');
 
-    oncreate(vnode: Mithril.Vnode) {
-        super.oncreate(vnode);
-    }
+  oncreate(vnode: Mithril.Vnode) {
+    super.oncreate(vnode);
+  }
 
-    view() {
-        const { draft, state } = this.attrs;
+  view() {
+    const { draft, state } = this.attrs;
 
-        let scheduledDraftIcon = 'far fa-calendar-plus';
-        if (draft.scheduledValidationError()) scheduledDraftIcon = 'far fa-calendar-times';
-        else if (draft.scheduledFor()) scheduledDraftIcon = 'far fa-calendar-check';
+    let scheduledDraftIcon = 'far fa-calendar-plus';
+    if (draft.scheduledValidationError()) scheduledDraftIcon = 'far fa-calendar-times';
+    else if (draft.scheduledFor()) scheduledDraftIcon = 'far fa-calendar-check';
 
-        return (
-            <li>
-                <a onclick={state.showComposer.bind(state, draft)} className="Notification draft--item">
-                    {/* Avatar */}
-                    {avatar(draft.user())}
+    return (
+      <li>
+        <a onclick={state.showComposer.bind(state, draft)} className="Notification draft--item">
+          {/* Avatar */}
+          {avatar(draft.user())}
 
-                    {/* Draft icon */}
-                    {icon(draft.icon(), { className: 'Notification-icon' })}
+          {/* Draft icon */}
+          {icon(draft.icon(), { className: 'Notification-icon' })}
 
-                    {/* Draft title + last edited time */}
-                    <span class="Notification-title">
-                        <span className="Notification-content">
-                            {draft.scheduledFor() && (
-                                <Tooltip
-                                    showOnFocus={false}
-                                    text={app.translator.trans('fof-drafts.forum.dropdown.scheduled_icon_tooltip', {
-                                        datetime: dayjs(draft.scheduledFor()).format(
-                                            app.translator.trans('fof-drafts.forum.dropdown.scheduled_icon_tooltip_formatter')[0]
-                                        ),
-                                    })}
-                                >
-                                    {icon('far fa-clock', { className: 'draft--scheduledIcon' })}
-                                </Tooltip>
-                            )}
-                            {draft.type() === 'reply' ? draft.loadRelationships().discussion.title() : draft.title()}
-                        </span>
-                        <span class="Notification-title-spring" />
-                        {humanTime(draft.updatedAt())}
-                    </span>
+          {/* Draft title + last edited time */}
+          <span class="Notification-title">
+            <span className="Notification-content">
+              {draft.scheduledFor() && (
+                <Tooltip
+                  showOnFocus={false}
+                  text={app.translator.trans('fof-drafts.forum.dropdown.scheduled_icon_tooltip', {
+                    datetime: dayjs(draft.scheduledFor()).format(
+                      app.translator.trans('fof-drafts.forum.dropdown.scheduled_icon_tooltip_formatter')[0]
+                    ),
+                  })}
+                >
+                  {icon('far fa-clock', { className: 'draft--scheduledIcon' })}
+                </Tooltip>
+              )}
+              {draft.type() === 'reply' ? draft.loadRelationships().discussion.title() : draft.title()}
+            </span>
+            <span class="Notification-title-spring" />
+            {humanTime(draft.updatedAt())}
+          </span>
 
-                    <div class="Notification-action">
-                        {/* Delete draft icon */}
-                        <Tooltip showOnFocus={false} text={app.translator.trans('fof-drafts.forum.dropdown.delete_button')}>
-                            <Button
-                                data-container="body"
-                                icon="fas fa-trash-alt"
-                                className="Notification-action Button Button--link hasIcon draft--delete"
-                                onclick={(e: MouseEvent) => {
-                                    state.deleteDraft(draft);
-                                    e.stopPropagation();
-                                }}
-                            />
-                        </Tooltip>
+          <div class="Notification-action">
+            {/* Delete draft icon */}
+            <Tooltip showOnFocus={false} text={app.translator.trans('fof-drafts.forum.dropdown.delete_button')}>
+              <Button
+                data-container="body"
+                icon="fas fa-trash-alt"
+                className="Notification-action Button Button--link hasIcon draft--delete"
+                onclick={(e: MouseEvent) => {
+                  state.deleteDraft(draft);
+                  e.stopPropagation();
+                }}
+              />
+            </Tooltip>
 
-                        {this.canSchedule ? (
-                            <Tooltip showOnFocus={false} text={app.translator.trans('fof-drafts.forum.dropdown.schedule_button')}>
-                                <Button
-                                    data-container="body"
-                                    icon={scheduledDraftIcon}
-                                    className="Notification-action Button Button--link hasIcon draft--schedule"
-                                    onclick={(e: MouseEvent) => {
-                                        state.scheduleDraft(draft);
-                                        e.stopPropagation();
-                                    }}
-                                />
-                            </Tooltip>
-                        ) : null}
-                    </div>
+            {this.canSchedule ? (
+              <Tooltip showOnFocus={false} text={app.translator.trans('fof-drafts.forum.dropdown.schedule_button')}>
+                <Button
+                  data-container="body"
+                  icon={scheduledDraftIcon}
+                  className="Notification-action Button Button--link hasIcon draft--schedule"
+                  onclick={(e: MouseEvent) => {
+                    state.scheduleDraft(draft);
+                    e.stopPropagation();
+                  }}
+                />
+              </Tooltip>
+            ) : null}
+          </div>
 
-                    <div className="Notification-excerpt">{truncate(draft.content(), 200)}</div>
-                    {draft.scheduledValidationError() ? <p className="scheduledValidationError">{draft.scheduledValidationError()}</p> : ''}
-                </a>
-            </li>
-        );
-    }
+          <div className="Notification-excerpt">{truncate(draft.content(), 200)}</div>
+          {draft.scheduledValidationError() ? <p className="scheduledValidationError">{draft.scheduledValidationError()}</p> : ''}
+        </a>
+      </li>
+    );
+  }
 }
