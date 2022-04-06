@@ -40,10 +40,10 @@ app.initializers.add('fof-drafts', () => {
     app.drafts = new DraftsListState(app);
 
     ComposerState.prototype['changed'] = function () {
-        if (!app.composer.body || !app.composer.data) return false;
+        if (!this.body || !this.data) return false;
 
-        const data = app.composer.data();
-        const draft = app.composer.draft;
+        const data = this.data();
+        const draft = this.draft;
 
         const fields = Object.keys(data).filter((element) => element !== 'relationships');
 
@@ -53,11 +53,11 @@ app.initializers.add('fof-drafts', () => {
 
         // If there's no content, we don't want to save this draft
         // regardless of whether other attributes have changed.
-        if (!app.composer.fields.content()) {
+        if (!this.fields.content()) {
             return false;
         }
 
-        const getData = (field) => (field === 'content' ? app.composer.fields.content() : data[field]) || '';
+        const getData = (field) => (field === 'content' ? this.fields.content() : data[field]) || '';
 
         for (const field of fields) {
             if ((!draft && getData(field)) || (draft && getData(field) != draft.data.attributes[field])) {
@@ -121,17 +121,24 @@ app.initializers.add('fof-drafts', () => {
             m.redraw();
         };
 
-        if (app.composer.draft) {
-            delete app.composer.draft.data.attributes.relationships;
+        const draft = this.draft;
 
-            app.composer.draft.save(Object.assign(app.composer.draft.data.attributes, app.composer.data())).then(() => afterSave());
+        if (draft && draft.id() && !draft.exists) {
+          // Draft was deleted before autosave, no need to save.
+          return;
+        }
+
+        if (draft) {
+            delete draft.data.attributes.relationships;
+
+            draft.save(Object.assign(draft.data.attributes, this.data())).then(() => afterSave());
         } else {
             app.store
                 .createRecord('drafts')
-                .save(app.composer.data())
+                .save(this.data())
                 .then((draft) => {
                     draft.loadRelationships(true);
-                    app.composer.draft = draft;
+                    this.draft = draft;
                     afterSave();
                 });
         }
@@ -139,7 +146,7 @@ app.initializers.add('fof-drafts', () => {
 
     extend(Composer.prototype, 'controlItems', function (items) {
         if (
-            !(app.composer.bodyMatches(DiscussionComposer) || app.composer.bodyMatches(ReplyComposer)) ||
+            !(this.state.bodyMatches(DiscussionComposer) || this.state.bodyMatches(ReplyComposer)) ||
             !app.forum.attribute('canSaveDrafts') ||
             this.state.position === 'minimized'
         )
@@ -174,7 +181,7 @@ app.initializers.add('fof-drafts', () => {
 
         if (
             app.session.user.preferences().draftAutosaveEnable &&
-            (app.composer.bodyMatches(DiscussionComposer) || app.composer.bodyMatches(ReplyComposer))
+            (this.bodyMatches(DiscussionComposer) || this.bodyMatches(ReplyComposer))
         ) {
             this.autosaveInterval = setInterval(() => {
                 if (this.changed() && !this.saving && !this.loading) {
@@ -190,8 +197,8 @@ app.initializers.add('fof-drafts', () => {
     });
 
     override(ComposerState.prototype, 'preventExit', function (original) {
-        if (app.composer.body && app.composer.body.componentClass && app.composer.draft) {
-            app.composer.body.attrs.confirmExit = app.translator.trans('fof-drafts.forum.composer.exit_alert');
+        if (this.body && this.body.componentClass && this.draft) {
+            this.body.attrs.confirmExit = app.translator.trans('fof-drafts.forum.composer.exit_alert');
         }
 
         let prevented = false;
@@ -201,9 +208,9 @@ app.initializers.add('fof-drafts', () => {
 
         if (prevented) return prevented;
 
-        if (!app.composer.body || !app.composer.body.componentClass) return;
+        if (!this.body || !this.body.componentClass) return;
 
-        const draft = app.composer.draft;
+        const draft = this.draft;
         if (draft && !draft.title() && !draft.content() && confirm(app.translator.trans('fof-drafts.forum.composer.discard_empty_draft_alert'))) {
             draft.delete();
         }
@@ -221,11 +228,11 @@ app.initializers.add('fof-drafts', () => {
         });
 
         if (this.data) {
-            app.composer.data = this.data.bind(this);
+            this.composer.data = this.data.bind(this);
         }
 
         if (this.attrs.draft) {
-            app.composer.draft = this.attrs.draft;
+            this.composer.draft = this.attrs.draft;
         }
     }
 
@@ -233,8 +240,8 @@ app.initializers.add('fof-drafts', () => {
     extend(ReplyComposer.prototype, 'oninit', initComposerBody);
 
     function deleteDraftsOnSubmit() {
-        if (app.composer.draft) {
-            app.composer.draft.delete();
+        if (this.composer.draft) {
+            this.composer.draft.delete();
         }
     }
 
