@@ -17,13 +17,15 @@ import Draft from './models/Draft';
 import DraftsPage from './components/DraftsPage';
 import addDraftsDropdown from './addDraftsDropdown';
 import addPreferences from './addPreferences';
-import Composer from 'flarum/common/components/Composer';
-import DiscussionComposer from 'flarum/components/DiscussionComposer';
-import ReplyComposer from 'flarum/common/components/ReplyComposer';
+import Composer from 'flarum/forum/components/Composer';
+import DiscussionComposer from 'flarum/forum/components/DiscussionComposer';
+import ReplyComposer from 'flarum/forum/components/ReplyComposer';
 import Button from 'flarum/common/components/Button';
-import ComposerState from 'flarum/common/states/ComposerState';
+import ComposerState from 'flarum/forum/states/ComposerState';
 import fillRelationship from './utils/fillRelationship';
 import DraftsListState from './states/DraftsListState';
+//import PrivateDiscussionComposer from '@fof-byobu/discussions/PrivateDiscussionComposer'
+import app from 'flarum/forum/app';
 
 export * from './components';
 export * from './models';
@@ -244,6 +246,12 @@ app.initializers.add('fof-drafts', () => {
 
   extend(DiscussionComposer.prototype, 'onsubmit', deleteDraftsOnSubmit);
   extend(ReplyComposer.prototype, 'onsubmit', deleteDraftsOnSubmit);
+  
+  if (app.initializers.has('fof-byobu')) {
+    const PrivateDiscussionComposer = flarum.extensions['fof-byobu'].discussions.PrivateDiscussionComposer
+    extend(PrivateDiscussionComposer.prototype, 'onsubmit', deleteDraftsOnSubmit);
+  }
+  
 
   addDraftsDropdown();
   addPreferences();
