@@ -42,7 +42,10 @@
                 "name": "fas fa-edit",
                 "backgroundColor": "#e74c3c",
                 "color": "#fff"
-            }
+            },
+            "optional-dependencies": [
+                "fof/byobu"
+            ]
         },
         "flagrow": {
             "discuss": "https://discuss.flarum.org/d/20957"
