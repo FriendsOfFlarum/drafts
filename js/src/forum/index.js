@@ -75,12 +75,12 @@ app.initializers.add('fof-drafts', () => {
     const equalRelationships = (data, draft, relationship) => {
       if (
         (!data.relationships[relationship] || !data.relationships[relationship].length) &&
-        (!(relationship in draft.relationships()) || !draft.relationships()[relationship].data.length)
+        (!(relationship in draft.relationships()) || !draft.relationships()[relationship].data?.length)
       ) {
         return true;
       } else if (
         !(relationship in draft.relationships()) ||
-        data.relationships[relationship].length !== draft.relationships()[relationship].data.length
+        data.relationships[relationship].length !== draft.relationships()[relationship].data?.length
       ) {
         return false;
       }
