@@ -14,9 +14,12 @@ namespace FoF\Drafts\Command;
 use Carbon\Carbon;
 use Flarum\User\Exception\PermissionDeniedException;
 use FoF\Drafts\Draft;
+use Illuminate\Support\Arr;
 
 class UpdateDraftHandler
 {
+    use Scheduled;
+
     /**
      * @param UpdateDraft $command
      *
@@ -37,27 +40,29 @@ class UpdateDraftHandler
 
         $actor->assertCan('user.saveDrafts');
 
-        if (isset($data['attributes']['title'])) {
-            $draft->title = $data['attributes']['title'];
+        $attributes = Arr::get($data, 'attributes', []);
+
+        if ($title = Arr::get($attributes, 'title')) {
+            $draft->title = $title;
         }
 
-        if (isset($data['attributes']['content'])) {
-            $draft->content = $data['attributes']['content'];
+        if ($content = Arr::get($attributes, 'content')) {
+            $draft->content = $content;
         }
 
-        if (isset($data['attributes']['content']['extra'])) {
-            $draft->extra = json_encode($data['attributes']['extra']);
+        if ($extra = Arr::get($attributes, 'content.extra')) {
+            $draft->extra = json_encode($extra);
         }
 
-        if (isset($data['relationships'])) {
-            $draft->relationships = json_encode($data['relationships']);
+        if ($relationships = Arr::get($data, 'relationships')) {
+            $draft->relationships = json_encode($relationships);
         }
 
-        if (array_key_exists('clearValidationError', $data['attributes'])) {
+        if (Arr::has($attributes, 'clearValidationError')) {
             $draft->scheduled_validation_error = '';
         }
 
-        $draft->scheduled_for = isset($data['attributes']['scheduledFor']) && $actor->can('user.scheduleDrafts') ? Carbon::parse($data['attributes']['scheduledFor']) : null;
+        $draft->scheduled_for = $this->getScheduledFor($attributes, $actor);
         $draft->ip_address = $command->ipAddress;
         $draft->updated_at = Carbon::now();
 
