@@ -12,7 +12,6 @@
 namespace FoF\Drafts\Command;
 
 use Carbon\Carbon;
-use Flarum\User\User;
 use FoF\Drafts\Draft;
 use Illuminate\Support\Arr;
 
