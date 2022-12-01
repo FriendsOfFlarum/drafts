@@ -9,6 +9,7 @@
  *
  */
 
+import app from 'flarum/forum/app';
 import Page from 'flarum/common/components/Page';
 
 import DraftsList from './DraftsList';

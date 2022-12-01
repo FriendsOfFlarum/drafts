@@ -9,6 +9,7 @@
  *
  */
 
+import app from 'flarum/forum/app';
 import NotificationsDropdown from 'flarum/common/components/NotificationsDropdown';
 
 import DraftsList from './DraftsList';

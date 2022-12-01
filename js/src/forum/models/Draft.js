@@ -8,6 +8,8 @@
  *  file that was distributed with this source code.
  *
  */
+
+import app from 'flarum/forum/app';
 import Model from 'flarum/common/Model';
 import ItemList from 'flarum/common/utils/ItemList';
 import mixin from 'flarum/common/utils/mixin';

@@ -1,3 +1,4 @@
+import app from 'flarum/forum/app';
 import DiscussionComposer from 'flarum/components/DiscussionComposer';
 import ReplyComposer from 'flarum/components/ReplyComposer';
 import ScheduleDraftModal from '../components/ScheduleDraftModal';

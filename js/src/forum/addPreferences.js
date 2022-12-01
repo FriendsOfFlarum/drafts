@@ -1,3 +1,4 @@
+import app from 'flarum/forum/app';
 import { extend, override } from 'flarum/common/extend';
 import Button from 'flarum/common/components/Button';
 import FieldSet from 'flarum/common/components/FieldSet';

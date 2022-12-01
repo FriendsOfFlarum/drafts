@@ -9,10 +9,10 @@
  *
  */
 
-import app from 'flarum/common/app';
+import app from 'flarum/admin/app';
 import { extend } from 'flarum/common/extend';
 
-app.initializers.add('fof-drafts', (app) => {
+app.initializers.add('fof-drafts', () => {
   app.extensionData
     .for('fof-drafts')
     .registerSetting({
