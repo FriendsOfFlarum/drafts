@@ -104,7 +104,7 @@ export default class Draft extends mixin(Model, {
       fields: Object.assign({}, this.loadRelationships(), this.extra()),
     };
 
-    Object.assign(data, data.fields);
+    Object.assign(data.fields, data);
 
     return data;
   },

@@ -6,11 +6,19 @@ import humanTime from 'flarum/common/helpers/humanTime';
 import { truncate } from 'flarum/common/utils/string';
 import Button from 'flarum/common/components/Button';
 import Tooltip from 'flarum/common/components/Tooltip';
+import dayjs from 'dayjs';
 
-import type * as Mithril from 'mithril';
+import type Mithril from 'mithril';
+import Draft from '../models/Draft';
+import DraftsListState from '../states/DraftsListState';
 
-export default class DraftsListItem extends Component {
-  private canSchedule: boolean = app.forum.attribute('canScheduleDrafts') && app.forum.attribute('drafts.enableScheduledDrafts');
+export interface IAttrs {
+  draft: Draft;
+  state: DraftsListState;
+}
+
+export default class DraftsListItem extends Component<IAttrs> {
+  private canSchedule: boolean = app.forum.attribute<boolean>('canScheduleDrafts') && app.forum.attribute<boolean>('drafts.enableScheduledDrafts');
 
   oncreate(vnode: Mithril.Vnode) {
     super.oncreate(vnode);
