@@ -1,12 +1,10 @@
 import app from 'flarum/forum/app';
-import DiscussionComposer from 'flarum/components/DiscussionComposer';
-import ReplyComposer from 'flarum/components/ReplyComposer';
+import DiscussionComposer from 'flarum/forum/components/DiscussionComposer';
+import ReplyComposer from 'flarum/forum/components/ReplyComposer';
 import ScheduleDraftModal from '../components/ScheduleDraftModal';
 
 export default class DraftsListState {
-  constructor(app) {
-    this.app = app;
-
+  constructor() {
     /**
      * Whether or not the flags are loading.
      *
