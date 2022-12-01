@@ -62,6 +62,7 @@ return [
         }),
 
     (new Extend\Settings())
+        ->default('fof-drafts.enable_scheduled_drafts', true)
         ->serializeToForum('drafts.enableScheduledDrafts', 'fof-drafts.enable_scheduled_drafts', 'boolVal'),
 
     (new Extend\User())

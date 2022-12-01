@@ -13,9 +13,12 @@ namespace FoF\Drafts\Command;
 
 use Carbon\Carbon;
 use FoF\Drafts\Draft;
+use Illuminate\Support\Arr;
 
 class CreateDraftHandler
 {
+    use Scheduled;
+
     /**
      * @param CreateDraft $command
      *
@@ -27,22 +30,23 @@ class CreateDraftHandler
     {
         $actor = $command->actor;
         $data = $command->data;
+        $attributes = Arr::get($data, 'attributes', []);
 
         $actor->assertCan('user.saveDrafts');
 
         $draft = new Draft();
 
         $draft->user_id = $actor->id;
-        $draft->title = isset($data['attributes']['title']) ? $data['attributes']['title'] : '';
-        $draft->content = isset($data['attributes']['content']) ? $data['attributes']['content'] : '';
-        unset($data['attributes']['content']);
-        $draft->extra = count($data['attributes']) > 0 ? json_encode($data['attributes']) : '';
-        $draft->relationships = isset($data['relationships']) ? json_encode($data['relationships']) : json_encode('');
-        $draft->scheduled_for = isset($data['attributes']['scheduledFor']) && $actor->can('user.scheduleDrafts') ? Carbon::parse($data['attributes']['scheduledFor']) : null;
+        $draft->title = Arr::pull($attributes, 'title');
+        $draft->content = Arr::pull($attributes, 'content');
+
+        $draft->extra = count($attributes) > 0 ? json_encode($attributes) : '';
+        $draft->relationships = json_encode(Arr::get($data, 'relationships', ''));
+        $draft->scheduled_for = $this->getScheduledFor($attributes, $actor);
         $draft->updated_at = Carbon::now();
         $draft->ip_address = $command->ipAddress;
 
-        if (array_key_exists('clearValidationError', $data['attributes'])) {
+        if (Arr::has($attributes, 'clearValidationError')) {
             $draft->scheduled_validation_error = '';
         }
 
