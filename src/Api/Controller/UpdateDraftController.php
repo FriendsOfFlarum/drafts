@@ -12,6 +12,7 @@
 namespace FoF\Drafts\Api\Controller;
 
 use Flarum\Api\Controller\AbstractShowController;
+use Flarum\Http\RequestUtil;
 use FoF\Drafts\Api\Serializer\DraftSerializer;
 use FoF\Drafts\Command\UpdateDraft;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -41,10 +42,11 @@ class UpdateDraftController extends AbstractShowController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
+        $actor = RequestUtil::getActor($request);
         $ipAddress = $request->getAttribute('ipAddress');
 
         return $this->bus->dispatch(
-            new UpdateDraft(Arr::get($request->getQueryParams(), 'id'), $request->getAttribute('actor'), Arr::get($request->getParsedBody(), 'data', []), $ipAddress)
+            new UpdateDraft(Arr::get($request->getQueryParams(), 'id'), $actor, Arr::get($request->getParsedBody(), 'data', []), $ipAddress)
         );
     }
 }

@@ -245,9 +245,9 @@ app.initializers.add('fof-drafts', () => {
 
   extend(DiscussionComposer.prototype, 'onsubmit', deleteDraftsOnSubmit);
   extend(ReplyComposer.prototype, 'onsubmit', deleteDraftsOnSubmit);
-  
+
   if (app.initializers.has('fof-byobu')) {
-    const PrivateDiscussionComposer = flarum.extensions['fof-byobu'].discussions.PrivateDiscussionComposer
+    const PrivateDiscussionComposer = flarum.extensions['fof-byobu'].discussions.PrivateDiscussionComposer;
     extend(PrivateDiscussionComposer.prototype, 'onsubmit', deleteDraftsOnSubmit);
   }
 

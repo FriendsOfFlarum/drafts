@@ -12,6 +12,7 @@
 namespace FoF\Drafts\Api\Controller;
 
 use Flarum\Api\Controller\AbstractListController;
+use Flarum\Http\RequestUtil;
 use Flarum\User\User;
 use FoF\Drafts\Api\Serializer\DraftSerializer;
 use FoF\Drafts\Draft;
@@ -40,7 +41,7 @@ class ListDraftsController extends AbstractListController
         /**
          * @var User
          */
-        $actor = $request->getAttribute('actor');
+        $actor = RequestUtil::getActor($request);
 
         $actor->assertCan('user.saveDrafts');
 

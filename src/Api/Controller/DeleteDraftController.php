@@ -12,6 +12,7 @@
 namespace FoF\Drafts\Api\Controller;
 
 use Flarum\Api\Controller\AbstractDeleteController;
+use Flarum\Http\RequestUtil;
 use FoF\Drafts\Command\DeleteDraft;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
@@ -37,7 +38,7 @@ class DeleteDraftController extends AbstractDeleteController
      */
     protected function delete(ServerRequestInterface $request)
     {
-        $actor = $request->getAttribute('actor');
+        $actor = RequestUtil::getActor($request);
 
         $this->bus->dispatch(
             new DeleteDraft(Arr::get($request->getQueryParams(), 'id'), $actor)

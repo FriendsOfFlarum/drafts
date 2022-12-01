@@ -12,6 +12,7 @@
 namespace FoF\Drafts\Api\Controller;
 
 use Flarum\Api\Controller\AbstractCreateController;
+use Flarum\Http\RequestUtil;
 use FoF\Drafts\Api\Serializer\DraftSerializer;
 use FoF\Drafts\Command\CreateDraft;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -52,7 +53,7 @@ class CreateDraftController extends AbstractCreateController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        $actor = $request->getAttribute('actor');
+        $actor = RequestUtil::getActor($request);
         $ipAddress = $request->getAttribute('ipAddress');
 
         return $this->bus->dispatch(
