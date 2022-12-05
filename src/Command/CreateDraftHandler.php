@@ -40,7 +40,7 @@ class CreateDraftHandler
         $draft->title = Arr::pull($attributes, 'title');
         $draft->content = Arr::pull($attributes, 'content');
 
-        $draft->extra = count($attributes) > 0 ? json_encode($attributes) : '';
+        $draft->extra = count($attributes) > 0 ? json_encode($attributes) : null;
         $draft->relationships = json_encode(Arr::get($data, 'relationships', ''));
         $draft->scheduled_for = $this->getScheduledFor($attributes, $actor);
         $draft->updated_at = Carbon::now();
