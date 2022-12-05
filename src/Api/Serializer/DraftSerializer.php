@@ -29,8 +29,8 @@ class DraftSerializer extends AbstractSerializer
         return [
             'title'                    => $draft->title,
             'content'                  => $draft->content,
-            'relationships'            => json_decode($draft->relationships),
-            'extra'                    => json_decode($draft->extra),
+            'relationships'            => $draft->relationships ? json_decode($draft->relationships) : null,
+            'extra'                    => $draft->extra ? json_decode($draft->extra) : null,
             'scheduledValidationError' => $draft->scheduled_validation_error,
             'scheduledFor'             => $this->formatDate($draft->scheduled_for),
             'updatedAt'                => $this->formatDate($draft->updated_at),
