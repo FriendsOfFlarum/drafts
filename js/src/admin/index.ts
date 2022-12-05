@@ -32,7 +32,7 @@ app.initializers.add('fof-drafts', () => {
     })
     .registerPermission(
       {
-        icon: 'fa fa-edit',
+        icon: 'fas fa-edit',
         label: app.translator.trans('fof-drafts.admin.permissions.start'),
         permission: 'user.saveDrafts',
       },
