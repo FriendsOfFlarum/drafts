@@ -32,7 +32,7 @@ class DeleteDraft
     /**
      * DeleteDraft constructor.
      *
-     * @param $draftId
+     * @param      $draftId
      * @param User $actor
      */
     public function __construct($draftId, User $actor)

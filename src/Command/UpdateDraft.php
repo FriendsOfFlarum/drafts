@@ -44,7 +44,7 @@ class UpdateDraft
     /**
      * UpdateDraft constructor.
      *
-     * @param $draftId
+     * @param       $draftId
      * @param User  $actor
      * @param array $data
      */
