@@ -20,7 +20,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^1.2.0"
+        "flarum/core": "^1.8.0"
     },
     "authors": [
         {
@@ -44,11 +44,15 @@
                 "color": "#fff"
             },
             "optional-dependencies": [
-                "fof/byobu"
+                "fof/byobu",
+                "blomstra/gdpr"
             ]
         },
         "flagrow": {
             "discuss": "https://discuss.flarum.org/d/20957"
         }
+    },
+    "require-dev": {
+        "blomstra/gdpr": "@beta"
     }
 }
