@@ -72,7 +72,7 @@ return [
 
     (new Extend\Conditional())
         ->whenExtensionEnabled('blomstra-gdpr', [
-            (new UserData())
-                ->addType(Data\Drafts::class),
+            class_exists(UserData::class) ? (new UserData())
+                ->addType(Data\Drafts::class) : null
         ]),
 ];
