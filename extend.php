@@ -70,9 +70,9 @@ return [
         ->registerPreference('draftAutosaveEnable', 'boolVal', false)
         ->registerPreference('draftAutosaveInterval', 'intVal', 6),
 
-    (new Extend\Conditional())
+        (new Extend\Conditional())
         ->whenExtensionEnabled('blomstra-gdpr', [
-            (new UserData())
-                ->addType(Data\Drafts::class),
+            class_exists(UserData::class) ? (new UserData())
+                ->addType(Data\Drafts::class) : null
         ]),
 ];
