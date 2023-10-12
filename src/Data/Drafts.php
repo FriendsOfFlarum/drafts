@@ -24,7 +24,7 @@ class Drafts extends Type
             ->where('user_id', $this->user->id)
             ->each(function (Draft $draft) use ($zip) {
                 $zip->addFromString(
-                    "draft-{$draft->id}.json",
+                    "drafts/draft-{$draft->id}.json",
                     json_encode(
                         $this->sanitize($draft),
                         JSON_PRETTY_PRINT
