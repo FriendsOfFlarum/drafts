@@ -71,8 +71,8 @@ return [
         ->registerPreference('draftAutosaveInterval', 'intVal', 6),
 
     (new Extend\Conditional())
-    ->whenExtensionEnabled('blomstra-gdpr', [
-        class_exists(UserData::class) ? (new UserData())
-            ->addType(Data\Drafts::class) : null,
-    ]),
+        ->whenExtensionEnabled('blomstra-gdpr', fn () => [
+            (new UserData())
+                ->addType(Data\Drafts::class),
+        ]),
 ];

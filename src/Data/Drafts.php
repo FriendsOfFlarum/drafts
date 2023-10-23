@@ -25,10 +25,7 @@ class Drafts extends Type
             ->each(function (Draft $draft) use ($zip) {
                 $zip->addFromString(
                     "drafts/draft-{$draft->id}.json",
-                    json_encode(
-                        $this->sanitize($draft),
-                        JSON_PRETTY_PRINT
-                    )
+                    $this->encodeForExport($this->sanitize($draft))
                 );
             });
     }
