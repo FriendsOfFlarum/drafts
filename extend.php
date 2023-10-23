@@ -74,5 +74,5 @@ return [
         ->whenExtensionEnabled('blomstra-gdpr', fn () => [
             (new UserData())
                 ->addType(Data\Drafts::class),
-    ]),
+        ]),
 ];
