@@ -22,7 +22,7 @@ class Drafts extends Type
     {
         return 'All drafts created by the user.';
     }
-    
+
     public function export(ZipFile $zip): void
     {
         Draft::query()
