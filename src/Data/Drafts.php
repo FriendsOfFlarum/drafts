@@ -18,6 +18,11 @@ use PhpZip\ZipFile;
 
 class Drafts extends Type
 {
+    public static function exportDescription(): string
+    {
+        return 'All drafts created by the user.';
+    }
+    
     public function export(ZipFile $zip): void
     {
         Draft::query()
@@ -37,10 +42,20 @@ class Drafts extends Type
         ]);
     }
 
+    public static function anonymizeDescription(): string
+    {
+        return self::deleteDescription();
+    }
+
     public function anonymize(): void
     {
         // In the case of drafts, it makes no sense to keep them after a user is anonymized.
         $this->delete();
+    }
+
+    public static function deleteDescription(): string
+    {
+        return 'Delete all drafts created by the user.';
     }
 
     public function delete(): void
