@@ -25,7 +25,7 @@ class Drafts extends Type
     public function export(): ?array
     {
         $dataExport = [];
-        
+
         Draft::query()
             ->where('user_id', $this->user->id)
             ->each(function (Draft $draft) use (&$dataExport) {
