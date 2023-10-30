@@ -14,7 +14,6 @@ namespace FoF\Drafts\Data;
 use Blomstra\Gdpr\Data\Type;
 use FoF\Drafts\Draft;
 use Illuminate\Support\Arr;
-use PhpZip\ZipFile;
 
 class Drafts extends Type
 {
@@ -23,16 +22,17 @@ class Drafts extends Type
         return 'All drafts created by the user.';
     }
 
-    public function export(ZipFile $zip): void
+    public function export(): ?array
     {
+        $dataExport = [];
+
         Draft::query()
             ->where('user_id', $this->user->id)
-            ->each(function (Draft $draft) use ($zip) {
-                $zip->addFromString(
-                    "drafts/draft-{$draft->id}.json",
-                    $this->encodeForExport($this->sanitize($draft))
-                );
+            ->each(function (Draft $draft) use (&$dataExport) {
+                $dataExport[] = ["drafts/draft-{$draft->id}.json" => $this->encodeForExport($this->sanitize($draft))];
             });
+
+        return $dataExport;
     }
 
     protected function sanitize(Draft $draft): array
