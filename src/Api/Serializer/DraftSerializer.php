@@ -22,7 +22,7 @@ class DraftSerializer extends AbstractSerializer
     protected $type = 'drafts';
 
     /**
-     * {@inheritdoc}
+     * @param \FoF\Drafts\Draft $draft
      */
     protected function getDefaultAttributes($draft)
     {
@@ -38,8 +38,6 @@ class DraftSerializer extends AbstractSerializer
     }
 
     /**
-     * @param $username_request
-     *
      * @return \Tobscure\JsonApi\Relationship
      */
     protected function user($draft)

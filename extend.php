@@ -45,7 +45,7 @@ return [
 
     (new Extend\Console())
         ->command(PublishDrafts::class)
-        ->schedule(PublishDrafts::class, new PublishSchedule()),
+        ->schedule(PublishDrafts::class, PublishSchedule::class),
 
     (new Extend\ApiSerializer(CurrentUserSerializer::class))
         ->attributes(function (CurrentUserSerializer $serializer) {
