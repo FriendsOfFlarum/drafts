@@ -38,6 +38,7 @@ class DeleteMyDraftsController extends AbstractDeleteController
     {
         $actor = RequestUtil::getActor($request);
 
+        /** @phpstan-ignore-next-line */
         $actor->drafts()->delete();
     }
 }
