@@ -25,6 +25,7 @@ import ComposerState from 'flarum/forum/states/ComposerState';
 import fillRelationship from './utils/fillRelationship';
 import DraftsListState from './states/DraftsListState';
 import app from 'flarum/forum/app';
+import deepEqual from './utils/deepEqual';
 
 export * from './components';
 export * from './models';
@@ -61,7 +62,10 @@ app.initializers.add('fof-drafts', () => {
     const getData = (field) => (field === 'content' ? this.fields.content() : data[field]) || '';
 
     for (const field of fields) {
-      if ((!draft && getData(field)) || (draft && getData(field) != draft.data.attributes[field])) {
+      const fieldValue = getData(field);
+      const draftFieldValue = draft && draft.data.attributes[field];
+
+      if ((!draft && fieldValue) || (draft && !deepEqual(fieldValue, draftFieldValue))) {
         return true;
       }
     }
