@@ -43,6 +43,7 @@ export default class DraftsDropdown extends NotificationsDropdown {
   }
 
   getNewCount() {
-    return this.getUnreadCount();
+    // We return 0 here so that the drafts dropdown doesn't always show a new count (usually highlighted in the forum primary color).
+    return 0;
   }
 }
