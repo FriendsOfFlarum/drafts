@@ -57,4 +57,4 @@ flarum-gdpr:
     data:
       drafts:
         export_description: "All drafts created by the user."
-        anonymize_description: "Delete all drafts created by the user."
+        delete_description: "Delete all drafts created by the user."
