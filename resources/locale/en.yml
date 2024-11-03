@@ -51,3 +51,10 @@ fof-drafts:
         draft_autosave_interval_label: Autosave Interval (seconds)
         draft_autosave_interval_button: Update Interval
         draft_autosave_interval_invalid: The interval must be an integer greater than 4.
+
+flarum-gdpr:
+  lib:
+    data:
+      drafts:
+        export_description: "All drafts created by the user."
+        anonymize_description: "Delete all drafts created by the user."

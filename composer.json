@@ -45,7 +45,7 @@
             },
             "optional-dependencies": [
                 "fof/byobu",
-                "blomstra/gdpr"
+                "flarum/gdpr"
             ]
         },
         "flagrow": {
@@ -58,7 +58,7 @@
         }
     },
     "require-dev": {
-        "blomstra/gdpr": "@beta",
+        "flarum/gdpr": "dev-main",
         "flarum/phpstan": "*"
     },
     "scripts": {
