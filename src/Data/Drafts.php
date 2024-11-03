@@ -11,17 +11,12 @@
 
 namespace FoF\Drafts\Data;
 
-use Blomstra\Gdpr\Data\Type;
+use Flarum\Gdpr\Data\Type;
 use FoF\Drafts\Draft;
 use Illuminate\Support\Arr;
 
 class Drafts extends Type
 {
-    public static function exportDescription(): string
-    {
-        return 'All drafts created by the user.';
-    }
-
     public function export(): ?array
     {
         $dataExport = [];
@@ -51,11 +46,6 @@ class Drafts extends Type
     {
         // In the case of drafts, it makes no sense to keep them after a user is anonymized.
         $this->delete();
-    }
-
-    public static function deleteDescription(): string
-    {
-        return 'Delete all drafts created by the user.';
     }
 
     public function delete(): void

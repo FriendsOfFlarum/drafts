@@ -11,10 +11,10 @@
 
 namespace FoF\Drafts;
 
-use Blomstra\Gdpr\Extend\UserData;
 use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Extend;
+use Flarum\Gdpr\Extend\UserData;
 use Flarum\User\User;
 use FoF\Drafts\Api\Controller;
 use FoF\Drafts\Console\PublishDrafts;
@@ -71,7 +71,7 @@ return [
         ->registerPreference('draftAutosaveInterval', 'intVal', 6),
 
     (new Extend\Conditional())
-        ->whenExtensionEnabled('blomstra-gdpr', fn () => [
+        ->whenExtensionEnabled('flarum-gdpr', fn () => [
             (new UserData())
                 ->addType(Data\Drafts::class),
         ]),
