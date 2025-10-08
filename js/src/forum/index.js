@@ -136,7 +136,12 @@ app.initializers.add('fof-drafts', () => {
     if (draft) {
       delete draft.data.attributes.relationships;
 
-      draft.save(Object.assign(draft.data.attributes, this.data())).then(() => afterSave());
+      draft
+        .save(Object.assign(draft.data.attributes, this.data()))
+        .catch(() => {
+          console.log('draft save failure ignored');
+        })
+        .then(() => afterSave());
     } else {
       app.store
         .createRecord('drafts')
