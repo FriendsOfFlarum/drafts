@@ -122,9 +122,9 @@ export default class DraftsListItem extends Component<IAttrs> {
           content={content as any}
           excerpt={excerpt}
           datetime={draft.updatedAt()}
-          onclick={(e: any) => {
+          onclick={(event: Event) => {
             state.showComposer(draft);
-            e.redraw = false;
+            (event as any).redraw = false;
           }}
           actions={actions}
         />
