@@ -17,9 +17,6 @@ import Draft from './models/Draft';
 import DraftsPage from './components/DraftsPage';
 import addDraftsDropdown from './addDraftsDropdown';
 import addPreferences from './addPreferences';
-import Composer from 'flarum/forum/components/Composer';
-import DiscussionComposer from 'flarum/forum/components/DiscussionComposer';
-import ReplyComposer from 'flarum/forum/components/ReplyComposer';
 import Button from 'flarum/common/components/Button';
 import ComposerState from 'flarum/forum/states/ComposerState';
 import fillRelationship from './utils/fillRelationship';
@@ -154,9 +151,9 @@ app.initializers.add('fof-drafts', () => {
     }
   };
 
-  extend(Composer.prototype, 'controlItems', function (items) {
+  extend('flarum/forum/components/Composer', 'controlItems', function (items) {
     if (
-      !(this.state.bodyMatches(DiscussionComposer) || this.state.bodyMatches(ReplyComposer)) ||
+      !(this.state.bodyMatches('flarum/forum/components/DiscussionComposer') || this.state.bodyMatches('flarum/forum/components/ReplyComposer')) ||
       !app.forum.attribute('canSaveDrafts') ||
       this.state.position === 'minimized'
     )
@@ -243,8 +240,8 @@ app.initializers.add('fof-drafts', () => {
     }
   }
 
-  extend(DiscussionComposer.prototype, 'oninit', initComposerBody);
-  extend(ReplyComposer.prototype, 'oninit', initComposerBody);
+  extend('flarum/forum/components/DiscussionComposer', 'oninit', initComposerBody);
+  extend('flarum/forum/components/ReplyComposer', 'oninit', initComposerBody);
 
   function deleteDraftsOnSubmit() {
     if (this.composer.draft) {
@@ -252,8 +249,8 @@ app.initializers.add('fof-drafts', () => {
     }
   }
 
-  extend(DiscussionComposer.prototype, 'onsubmit', deleteDraftsOnSubmit);
-  extend(ReplyComposer.prototype, 'onsubmit', deleteDraftsOnSubmit);
+  extend('flarum/forum/components/DiscussionComposer', 'onsubmit', deleteDraftsOnSubmit);
+  extend('flarum/forum/components/ReplyComposer', 'onsubmit', deleteDraftsOnSubmit);
 
   if (app.initializers.has('fof-byobu')) {
     const PrivateDiscussionComposer = flarum.extensions['fof-byobu'].discussions.PrivateDiscussionComposer;

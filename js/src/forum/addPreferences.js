@@ -2,17 +2,16 @@ import app from 'flarum/forum/app';
 import { extend, override } from 'flarum/common/extend';
 import Button from 'flarum/common/components/Button';
 import FieldSet from 'flarum/common/components/FieldSet';
-import SettingsPage from 'flarum/common/components/SettingsPage';
 import Switch from 'flarum/common/components/Switch';
 import ItemList from 'flarum/common/utils/ItemList';
 import Stream from 'flarum/common/utils/Stream';
 
 export default function () {
-  extend(SettingsPage.prototype, 'oninit', function () {
+  extend('flarum/common/components/SettingsPage', 'oninit', function () {
     this.draftAutosaveInterval = Stream(this.user.preferences().draftAutosaveInterval);
   });
 
-  extend(SettingsPage.prototype, 'settingsItems', function (items) {
+  extend('flarum/common/components/SettingsPage', 'settingsItems', function (items) {
     if (app.forum.data.attributes.canSaveDrafts) {
       items.add(
         'drafts',
@@ -27,7 +26,7 @@ export default function () {
     }
   });
 
-  SettingsPage.prototype['draftsItems'] = function () {
+  extend('flarum/common/components/SettingsPage', 'draftsItems', function () {
     const items = new ItemList();
 
     items.add(
@@ -88,5 +87,5 @@ export default function () {
     );
 
     return items;
-  };
+  });
 }

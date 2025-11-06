@@ -1,6 +1,4 @@
 import app from 'flarum/forum/app';
-import DiscussionComposer from 'flarum/forum/components/DiscussionComposer';
-import ReplyComposer from 'flarum/forum/components/ReplyComposer';
 import ScheduleDraftModal from '../components/ScheduleDraftModal';
 
 export default class DraftsListState {
@@ -54,6 +52,7 @@ export default class DraftsListState {
       }
 
       const data = draft.compileData();
+      // @TODO: Modify this to use lazy loading, checkout https://docs.flarum.org/2.x/extend/code-splitting#async-composers
       app.composer.load(componentClass, data);
 
       app.composer.show();
