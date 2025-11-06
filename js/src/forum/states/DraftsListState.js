@@ -44,7 +44,7 @@ export default class DraftsListState {
 
       switch (draft.type()) {
         case 'privateDiscussion':
-          componentClass = require('@fof-byobu').discussions['PrivateDiscussionComposer'];
+          componentClass = require('@fof-byobu').discussions['PrivateDiscussionComposer']; // @TODO: import from `ext:vendor/extension/module-path` format.
           break;
         case 'reply':
           componentClass = ReplyComposer;
