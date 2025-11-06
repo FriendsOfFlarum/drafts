@@ -7,6 +7,6 @@ export default function () {
   extend(HeaderSecondary.prototype, 'items', function (items) {
     if (!app.session.user || !app.forum.attribute<boolean>('canSaveDrafts')) return;
 
-    items.add('Drafts', <DraftsDropdown state={app.drafts} />, 20);
+    items.add('Drafts', <DraftsDropdown state={(app as any).drafts} />, 20);
   });
 }
