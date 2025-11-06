@@ -153,7 +153,9 @@ export default function () {
     };
 
     if (draft) {
-      const rawData = this.data();
+      const rawData = this.data?.();
+      if (!rawData) return;
+
       const updatePayload = serializeRelationships(rawData);
 
       draft
@@ -164,7 +166,9 @@ export default function () {
         })
         .then(() => afterSave());
     } else {
-      const rawData = this.data();
+      const rawData = this.data?.();
+      if (!rawData) return;
+
       const createPayload = serializeRelationships(rawData);
 
       app.store
@@ -257,7 +261,12 @@ export default function () {
     if (!this.body || !this.body.componentClass) return;
 
     const draft = this.draft;
-    if (draft && !draft.title() && !draft.content() && confirm(app.translator.trans('fof-drafts.forum.composer.discard_empty_draft_alert') as string)) {
+    if (
+      draft &&
+      !draft.title() &&
+      !draft.content() &&
+      confirm(app.translator.trans('fof-drafts.forum.composer.discard_empty_draft_alert') as string)
+    ) {
       draft.delete();
     }
 
