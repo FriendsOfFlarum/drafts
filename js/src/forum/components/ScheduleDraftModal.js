@@ -74,9 +74,9 @@ export default class ScheduleDraftModal extends FormModal {
               type="date"
               min={CurrentDate}
               value={this.date}
-              onchange={(e) => (this.date = e.target.value)}
+              onchange={(dateEvent) => (this.date = dateEvent.target.value)}
             />
-            <input name="scheduledForTime" className="FormControl" type="time" value={this.time} onchange={(e) => (this.time = e.target.value)} />
+            <input name="scheduledForTime" className="FormControl" type="time" value={this.time} onchange={(timeEvent) => (this.time = timeEvent.target.value)} />
           </div>
           {}
           <div class="Form-group ScheduleDraftModal-datePreview">

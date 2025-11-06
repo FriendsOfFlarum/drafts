@@ -8,13 +8,13 @@ import fillRelationship from './utils/fillRelationship';
 
 export default function () {
   // Add changed() method to ComposerState
-  ComposerState.prototype['changed'] = function () {
+  ComposerState.prototype['changed'] = function (this: ComposerState): boolean {
     if (!this.body || !this.data) return false;
 
-    const data = this.data();
+    const currentData = this.data();
     const draft = this.draft;
 
-    const fields = Object.keys(data).filter((element) => element !== 'relationships');
+    const fields = Object.keys(currentData).filter((fieldName: string) => fieldName !== 'relationships');
 
     if (!fields || fields.length === 0) {
       return false;
@@ -26,7 +26,7 @@ export default function () {
       return false;
     }
 
-    const getData = (field) => (field === 'content' ? this.fields.content() : data[field]) || '';
+    const getData = (fieldKey: string): string => (fieldKey === 'content' ? this.fields.content() : currentData[fieldKey]) || '';
 
     for (const field of fields) {
       const fieldValue = getData(field);
@@ -38,50 +38,50 @@ export default function () {
     }
 
     // Check if relationships exist and need comparison
-    if (!data.relationships && (!draft || !draft.relationships())) {
+    if (!currentData.relationships && (!draft || !draft.relationships())) {
       return false;
     }
 
     // If only data has relationships but no draft exists, consider it changed
-    if (data.relationships && !draft) {
+    if (currentData.relationships && !draft) {
       return true;
     }
 
     // If no relationships in data, no changes to check
-    if (!data.relationships) {
+    if (!currentData.relationships) {
       return false;
     }
 
-    const relationships = Object.keys(data.relationships);
+    const relationships = Object.keys(currentData.relationships);
 
-    const equalRelationships = (data, draft, relationship) => {
+    const equalRelationships = (composerData: any, draftModel: any, relName: string): boolean => {
       if (
-        (!data.relationships[relationship] || !data.relationships[relationship].length) &&
-        (!(relationship in draft.relationships()) || !draft.relationships()[relationship].data?.length)
+        (!composerData.relationships[relName] || !composerData.relationships[relName].length) &&
+        (!(relName in draftModel.relationships()) || !draftModel.relationships()[relName].data?.length)
       ) {
         return true;
       } else if (
-        !(relationship in draft.relationships()) ||
-        data.relationships[relationship].length !== draft.relationships()[relationship].data?.length
+        !(relName in draftModel.relationships()) ||
+        composerData.relationships[relName].length !== draftModel.relationships()[relName].data?.length
       ) {
         return false;
       }
 
-      const getId = (element) => (typeof element.id == 'function' ? element.id() : element.id);
+      const getId = (relItem: any): string => (typeof relItem.id == 'function' ? relItem.id() : relItem.id);
 
-      const dataIds = fillRelationship(data.relationships[relationship], getId);
-      const draftIds = fillRelationship(draft.relationships()[relationship].data, getId);
+      const dataIds = fillRelationship(composerData.relationships[relName], getId);
+      const draftIds = fillRelationship(draftModel.relationships()[relName].data, getId);
 
-      return !dataIds.some((id, i) => id !== draftIds[i]);
+      return !dataIds.some((id: string, i: number) => id !== draftIds[i]);
     };
 
     for (const relationship of relationships) {
       if (!draft) {
-        if (data.relationships[relationship]) {
+        if (currentData.relationships[relationship]) {
           return true;
         }
       } else {
-        if (!equalRelationships(data, draft, relationship)) {
+        if (!equalRelationships(currentData, draft, relationship)) {
           return true;
         }
       }
@@ -91,11 +91,11 @@ export default function () {
   };
 
   // Add saveDraft() method to ComposerState
-  ComposerState.prototype['saveDraft'] = function () {
+  ComposerState.prototype['saveDraft'] = function (this: ComposerState): void {
     this.saving = true;
     m.redraw();
 
-    const afterSave = () => {
+    const afterSave = (): void => {
       this.saving = false;
       this.justSaved = true;
       setTimeout(() => {
@@ -113,30 +113,30 @@ export default function () {
     }
 
     // Helper to serialize relationships for API and filter read-only fields
-    const serializeRelationships = (data) => {
-      const serialized = { ...data };
+    const serializeRelationships = (draftData: any): any => {
+      const serialized = { ...draftData };
 
       // Remove read-only fields that shouldn't be sent to API
       delete serialized.scheduledValidationError;
       delete serialized.updatedAt;
 
-      if (data.relationships) {
+      if (draftData.relationships) {
         serialized.relationships = {};
 
-        Object.keys(data.relationships).forEach((key) => {
-          const relationship = data.relationships[key];
+        Object.keys(draftData.relationships).forEach((relationshipKey: string) => {
+          const relationship = draftData.relationships[relationshipKey];
 
           if (Array.isArray(relationship)) {
             // Convert array of models to JSON:API format with data wrapper
-            serialized.relationships[key] = {
-              data: relationship.map((item) => ({
-                type: typeof item.data?.type === 'function' ? item.data.type() : item.data?.type || item.type?.() || 'unknown',
-                id: typeof item.id === 'function' ? item.id() : item.id,
+            serialized.relationships[relationshipKey] = {
+              data: relationship.map((relModel: any) => ({
+                type: typeof relModel.data?.type === 'function' ? relModel.data.type() : relModel.data?.type || relModel.type?.() || 'unknown',
+                id: typeof relModel.id === 'function' ? relModel.id() : relModel.id,
               })),
             };
           } else if (relationship && typeof relationship === 'object') {
             // Convert single model to JSON:API format with data wrapper
-            serialized.relationships[key] = {
+            serialized.relationships[relationshipKey] = {
               data: {
                 type:
                   typeof relationship.data?.type === 'function'
@@ -154,30 +154,30 @@ export default function () {
 
     if (draft) {
       const rawData = this.data();
-      const data = serializeRelationships(rawData);
+      const updatePayload = serializeRelationships(rawData);
 
       draft
-        .save(data)
-        .catch((error) => {
-          console.error('Draft save failed:', error);
-          console.error('Response:', error.response);
+        .save(updatePayload)
+        .catch((saveError: any) => {
+          console.error('Draft save failed:', saveError);
+          console.error('Response:', saveError.response);
         })
         .then(() => afterSave());
     } else {
       const rawData = this.data();
-      const data = serializeRelationships(rawData);
+      const createPayload = serializeRelationships(rawData);
 
       app.store
         .createRecord('drafts')
-        .save(data)
-        .then((draft) => {
-          draft.loadRelationships(true);
-          this.draft = draft;
+        .save(createPayload)
+        .then((savedDraft: any) => {
+          savedDraft.loadRelationships(true);
+          this.draft = savedDraft;
           afterSave();
         })
-        .catch((error) => {
-          console.error('New draft save failed:', error);
-          console.error('Response:', error.response);
+        .catch((createError: any) => {
+          console.error('New draft save failed:', createError);
+          console.error('Response:', createError.response);
         });
     }
   };
@@ -217,36 +217,39 @@ export default function () {
   });
 
   // Set up autosave
-  extend(ComposerState.prototype, 'load', function () {
+  extend(ComposerState.prototype, 'load', function (this: ComposerState) {
     if (!app.forum.attribute('canSaveDrafts')) return;
 
     if (
-      app.session.user.preferences().draftAutosaveEnable &&
+      // @ts-ignore - User preferences access
+      app.session.user?.preferences().draftAutosaveEnable &&
       (this.bodyMatches('flarum/forum/components/DiscussionComposer') || this.bodyMatches('flarum/forum/components/ReplyComposer'))
     ) {
       this.autosaveInterval = setInterval(() => {
-        if (this.changed() && !this.saving && !this.loading) {
-          this.saveDraft();
+        if (this.changed?.() && !this.saving && !this.loading) {
+          this.saveDraft?.();
         }
-      }, 1000 * app.session.user.preferences().draftAutosaveInterval);
+        // @ts-ignore - User preferences access
+      }, 1000 * app.session.user?.preferences().draftAutosaveInterval);
     }
   });
 
   // Clear draft on composer clear
-  extend(ComposerState.prototype, 'clear', function () {
+  extend(ComposerState.prototype, 'clear', function (this: ComposerState) {
     this.draft = null;
     if (this.autosaveInterval) clearInterval(this.autosaveInterval);
   });
 
   // Override preventExit to handle drafts
-  override(ComposerState.prototype, 'preventExit', function (original) {
+  override(ComposerState.prototype, 'preventExit', function (this: ComposerState, original: () => boolean | void) {
     if (this.body && this.body.componentClass && this.draft) {
-      this.body.attrs.confirmExit = app.translator.trans('fof-drafts.forum.composer.exit_alert');
+      this.body.attrs.confirmExit = app.translator.trans('fof-drafts.forum.composer.exit_alert') as string;
     }
 
-    let prevented = false;
-    if (this.changed()) {
-      prevented = original();
+    let prevented: boolean = false;
+    if (this.changed?.()) {
+      const result = original();
+      prevented = result === true;
     }
 
     if (prevented) return prevented;
@@ -254,7 +257,7 @@ export default function () {
     if (!this.body || !this.body.componentClass) return;
 
     const draft = this.draft;
-    if (draft && !draft.title() && !draft.content() && confirm(app.translator.trans('fof-drafts.forum.composer.discard_empty_draft_alert'))) {
+    if (draft && !draft.title() && !draft.content() && confirm(app.translator.trans('fof-drafts.forum.composer.discard_empty_draft_alert') as string)) {
       draft.delete();
     }
 
@@ -262,11 +265,11 @@ export default function () {
   });
 
   // Initialize composer body with draft data
-  function initComposerBody() {
-    Object.keys(this.attrs).forEach((key) => {
-      if (!['originalContent', 'title', 'user'].includes(key)) {
-        this[key] = this.attrs[key];
-      } else if (key === 'title') {
+  function initComposerBody(this: any): void {
+    Object.keys(this.attrs).forEach((attrKey: string) => {
+      if (!['originalContent', 'title', 'user'].includes(attrKey)) {
+        this[attrKey] = this.attrs[attrKey];
+      } else if (attrKey === 'title') {
         this.title = Stream(this.attrs.title);
       }
     });
@@ -284,7 +287,7 @@ export default function () {
   extend('flarum/forum/components/ReplyComposer', 'oninit', initComposerBody);
 
   // Delete drafts when submitted
-  function deleteDraftsOnSubmit() {
+  function deleteDraftsOnSubmit(this: any): void {
     if (this.composer.draft) {
       this.composer.draft.delete();
     }
@@ -295,6 +298,7 @@ export default function () {
 
   // Handle byobu extension if present
   if (app.initializers.has('fof-byobu')) {
+    // @ts-ignore - Optional extension integration
     const PrivateDiscussionComposer = flarum.extensions['fof-byobu'].discussions.PrivateDiscussionComposer;
     extend(PrivateDiscussionComposer.prototype, 'onsubmit', deleteDraftsOnSubmit);
   }
