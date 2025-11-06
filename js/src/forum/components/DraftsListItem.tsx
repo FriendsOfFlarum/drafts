@@ -7,6 +7,7 @@ import { truncate } from 'flarum/common/utils/string';
 import Button from 'flarum/common/components/Button';
 import Tooltip from 'flarum/common/components/Tooltip';
 import dayjs from 'dayjs';
+import tagsLabel from 'ext:flarum/tags/common/helpers/tagsLabel';
 
 import type Mithril from 'mithril';
 import Draft from '../models/Draft';
@@ -63,9 +64,12 @@ export default class DraftsListItem extends Component<IAttrs> {
       </>
     );
 
-    // Get tags for display - don't render tags for now due to TypeScript issues
-    // TODO: Re-enable tag display once TypeScript module loading is fixed
-    const tagsDisplay: Mithril.Children = null;
+    // Get tags for display
+    const tags = this.getTags();
+    let tagsDisplay: Mithril.Children = null;
+    if (tags && tags.length > 0 && tagsLabel) {
+      tagsDisplay = tagsLabel(tags);
+    }
 
     // Build the excerpt with tags and validation error if present
     const excerptText = truncate(draft.content(), 200);

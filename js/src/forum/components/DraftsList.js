@@ -63,8 +63,8 @@ export default class DraftsList extends Component {
         <ul className="HeaderListGroup-content">
           {drafts
             .sort((a, b) => b.updatedAt() - a.updatedAt())
-            .map((draft) => {
-              return <DraftsListItem draft={draft} state={state} />;
+            .map((draftItem) => {
+              return <DraftsListItem draft={draftItem} state={state} />;
             })}
         </ul>
       </HeaderList>
