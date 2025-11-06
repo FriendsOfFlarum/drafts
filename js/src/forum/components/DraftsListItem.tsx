@@ -26,15 +26,13 @@ export default class DraftsListItem extends Component<IAttrs> {
   }
 
   getTags() {
-    const { draft } = this.attrs;
-
     // Only show tags if flarum/tags is enabled
     if (!app.initializers.has('flarum-tags')) {
       return null;
     }
 
     // Get tags from relationships
-    const relationships = draft.loadRelationships();
+    const relationships = this.attrs.draft.loadRelationships();
     if (!relationships.tags || !Array.isArray(relationships.tags) || relationships.tags.length === 0) {
       return null;
     }
