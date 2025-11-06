@@ -154,7 +154,7 @@ export default class ScheduleDraftModal extends FormModal {
     // Save draft with no scheduled post time
     if (confirm(app.translator.trans('fof-drafts.forum.schedule_draft_modal.unschedule_warning'))) {
       this.attrs.draft
-        .save({ scheduledFor: null, clearValidationError: true, scheduledValidationError: '' })
+        .save({ scheduledFor: null, clearValidationError: true })
         .then(() => {
           this.success = true;
           this.hide.call(this);
@@ -170,7 +170,7 @@ export default class ScheduleDraftModal extends FormModal {
     this.loading = true;
 
     this.attrs.draft
-      .save({ scheduledFor: this.scheduledFor(), clearValidationError: true, scheduledValidationError: '' })
+      .save({ scheduledFor: this.scheduledFor(), clearValidationError: true })
       .then(() => (this.success = true))
       .catch(() => {})
       .then(this.loaded.bind(this));

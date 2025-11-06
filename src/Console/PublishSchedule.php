@@ -17,7 +17,7 @@ use Illuminate\Console\Scheduling\Event;
 
 class PublishSchedule
 {
-    public function __invoke(Event $event)
+    public function __invoke(Event $event): void
     {
         $settings = resolve(SettingsRepositoryInterface::class);
 

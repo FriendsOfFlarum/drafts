@@ -37,23 +37,35 @@ export default class DraftsListState {
   showComposer(draft) {
     if (this.loading) return;
 
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
       let componentClass;
 
       switch (draft.type()) {
         case 'privateDiscussion':
-          componentClass = require('@fof-byobu').discussions['PrivateDiscussionComposer']; // @TODO: import from `ext:vendor/extension/module-path` format.
+          // Use lazy loading for byobu extension
+          try {
+            const byobuModule = await import('ext:fof/byobu/discussions');
+            componentClass = byobuModule.PrivateDiscussionComposer;
+          } catch (e) {
+            console.error('Failed to load byobu composer:', e);
+            return;
+          }
           break;
         case 'reply':
-          componentClass = ReplyComposer;
+          // Lazy load ReplyComposer
+          const replyModule = await import('flarum/forum/components/ReplyComposer');
+          componentClass = replyModule.default;
           break;
         default:
-          componentClass = DiscussionComposer;
+          // Lazy load DiscussionComposer
+          const discussionModule = await import('flarum/forum/components/DiscussionComposer');
+          componentClass = discussionModule.default;
       }
 
       const data = draft.compileData();
-      // @TODO: Modify this to use lazy loading, checkout https://docs.flarum.org/2.x/extend/code-splitting#async-composers
-      app.composer.load(componentClass, data);
+
+      // Load composer asynchronously
+      await app.composer.load(componentClass, data);
 
       app.composer.show();
 

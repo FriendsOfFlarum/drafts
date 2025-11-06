@@ -45,11 +45,12 @@
             },
             "optional-dependencies": [
                 "fof/byobu",
-                "flarum/gdpr"
+                "flarum/gdpr",
+                "fof/default-user-preferences"
             ]
         },
-        "flagrow": {
-            "discuss": "https://discuss.flarum.org/d/20957"
+        "branch-alias": {
+            "2.x": "2.x-dev"
         },
         "flarum-cli": {
             "modules": {
@@ -59,9 +60,12 @@
         }
     },
     "require-dev": {
-        "flarum/gdpr": "dev-main",
+        "flarum/gdpr": "^2.0.0-beta",
         "flarum/phpstan": "^2.0.0-beta",
-        "flarum/testing": "^2.0.0-beta"
+        "flarum/testing": "^2.0.0-beta",
+        "flarum/tags": "^2.0.0-beta",
+        "flarum/flags": "^2.0.0-beta",
+        "fof/default-user-preferences": "^2.0.0-beta"
     },
     "scripts": {
         "analyse:phpstan": "phpstan analyse",

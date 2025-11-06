@@ -20,12 +20,12 @@ use Flarum\User\User;
  * @property int                 $user_id
  * @property string|null         $title
  * @property string|null         $content
- * @property string              $relationships
+ * @property array               $relationships
  * @property \Carbon\Carbon|null $updated_at
  * @property \Carbon\Carbon|null $scheduled_for
  * @property string              $ip_address
  * @property string              $scheduled_validation_error
- * @property string              $extra
+ * @property array               $extra
  */
 class Draft extends AbstractModel
 {
@@ -34,6 +34,8 @@ class Draft extends AbstractModel
     protected $casts = [
         'updated_at'    => 'datetime',
         'scheduled_for' => 'datetime',
+        'extra'         => 'array',
+        'relationships' => 'array',
     ];
 
     /**
