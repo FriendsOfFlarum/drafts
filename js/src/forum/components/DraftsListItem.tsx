@@ -7,11 +7,11 @@ import { truncate } from 'flarum/common/utils/string';
 import Button from 'flarum/common/components/Button';
 import Tooltip from 'flarum/common/components/Tooltip';
 import dayjs from 'dayjs';
+import tagsLabel from 'ext:flarum/tags/common/helpers/tagsLabel';
 
 import type Mithril from 'mithril';
 import Draft from '../models/Draft';
 import DraftsListState from '../states/DraftsListState';
-import tagsLabelHelper from 'ext:flarum/tags/common/helpers/tagsLabel';
 
 export interface IAttrs {
   draft: Draft;
@@ -68,20 +68,17 @@ export default class DraftsListItem extends Component<IAttrs> {
 
     // Get tags for display
     const tags = this.getTags();
-    let tagsLabel = null;
-    if (tags) {
-      try {
-        tagsLabel = tagsLabelHelper(tags);
-      } catch (e) {
-        // If flarum/tags helpers aren't available, silently skip
-      }
+    let tagsDisplay: Mithril.Children = null;
+    if (tags && tags.length > 0 && tagsLabel) {
+      // Use the tagsLabel helper from flarum/tags if available
+      tagsDisplay = tagsLabel(tags);
     }
 
     // Build the excerpt with tags and validation error if present
     const excerptText = truncate(draft.content(), 200);
     const excerpt = (
       <>
-        {tagsLabel && <div className="DraftListItem-tags">{tagsLabel}</div>}
+        {tagsDisplay && <div className="DraftListItem-tags">{tagsDisplay}</div>}
         {excerptText}
         {draft.scheduledValidationError() && <p className="scheduledValidationError">{draft.scheduledValidationError()}</p>}
       </>
