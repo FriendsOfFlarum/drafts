@@ -11,6 +11,7 @@ import dayjs from 'dayjs';
 import type Mithril from 'mithril';
 import Draft from '../models/Draft';
 import DraftsListState from '../states/DraftsListState';
+import tagsLabelHelper from 'ext:flarum/tags/common/helpers/tagsLabel';
 
 export interface IAttrs {
   draft: Draft;
@@ -22,6 +23,23 @@ export default class DraftsListItem extends Component<IAttrs> {
 
   oncreate(vnode: Mithril.Vnode) {
     super.oncreate(vnode);
+  }
+
+  getTags() {
+    const { draft } = this.attrs;
+
+    // Only show tags if flarum/tags is enabled
+    if (!app.initializers.has('flarum-tags')) {
+      return null;
+    }
+
+    // Get tags from relationships
+    const relationships = draft.loadRelationships();
+    if (!relationships.tags || !Array.isArray(relationships.tags) || relationships.tags.length === 0) {
+      return null;
+    }
+
+    return relationships.tags;
   }
 
   view() {
@@ -48,16 +66,26 @@ export default class DraftsListItem extends Component<IAttrs> {
       </>
     );
 
-    // Build the excerpt with validation error if present
-    let excerpt = truncate(draft.content(), 200);
-    if (draft.scheduledValidationError()) {
-      excerpt = (
-        <>
-          {excerpt}
-          <p className="scheduledValidationError">{draft.scheduledValidationError()}</p>
-        </>
-      ) as any;
+    // Get tags for display
+    const tags = this.getTags();
+    let tagsLabel = null;
+    if (tags) {
+      try {
+        tagsLabel = tagsLabelHelper(tags);
+      } catch (e) {
+        // If flarum/tags helpers aren't available, silently skip
+      }
     }
+
+    // Build the excerpt with tags and validation error if present
+    const excerptText = truncate(draft.content(), 200);
+    const excerpt = (
+      <>
+        {tagsLabel && <div className="DraftListItem-tags">{tagsLabel}</div>}
+        {excerptText}
+        {draft.scheduledValidationError() && <p className="scheduledValidationError">{draft.scheduledValidationError()}</p>}
+      </>
+    ) as any;
 
     // Build action buttons
     const actions = (

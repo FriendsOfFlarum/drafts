@@ -80,6 +80,7 @@ class PublishDrafts extends AbstractCommand
                         ], [], ['actor' => $draft->user]);
 
                     $post->created_at = $draft->scheduled_for;
+                    $post->ip_address = $draft->ip_address;
                     $post->save();
                 } else {
                     $this->info('Publishing draft discussion');
@@ -107,6 +108,7 @@ class PublishDrafts extends AbstractCommand
 
                     $discussion->created_at = $draft->scheduled_for;
                     $discussion->firstPost->created_at = $draft->scheduled_for;
+                    $discussion->firstPost->ip_address = $draft->ip_address;
                     $discussion->save();
                     $discussion->firstPost->save();
 
