@@ -1,33 +1,20 @@
-/*
- *
- *  This file is part of fof/drafts.
- *
- *  Copyright (c) 2019 FriendsOfFlarum.
- *
- *  For the full copyright and license information, please view the LICENSE.md
- *  file that was distributed with this source code.
- *
- */
-
 import app from 'flarum/forum/app';
-import NotificationsDropdown from 'flarum/common/components/NotificationsDropdown';
+import HeaderDropdown from 'flarum/forum/components/HeaderDropdown';
+import classList from 'flarum/common/utils/classList';
 
 import DraftsList from './DraftsList';
 
-export default class DraftsDropdown extends NotificationsDropdown {
+export default class DraftsDropdown extends HeaderDropdown {
   static initAttrs(attrs) {
+    attrs.className = classList('DraftsDropdown', attrs.className);
     attrs.label = attrs.label || app.translator.trans('fof-drafts.forum.dropdown.tooltip');
     attrs.icon = attrs.icon || 'fas fa-edit';
 
     super.initAttrs(attrs);
   }
 
-  getMenu() {
-    return (
-      <div className={'Dropdown-menu ' + this.attrs.menuClassName} onclick={this.menuClick.bind(this)}>
-        {this.showing ? DraftsList.component({ state: this.attrs.state }) : ''}
-      </div>
-    );
+  getContent() {
+    return DraftsList.component({ state: this.attrs.state });
   }
 
   goToRoute() {

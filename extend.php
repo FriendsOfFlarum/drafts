@@ -11,14 +11,15 @@
 
 namespace FoF\Drafts;
 
-use Flarum\Api\Serializer\CurrentUserSerializer;
-use Flarum\Api\Serializer\ForumSerializer;
+use Flarum\Api\Context;
+use Flarum\Api\Resource;
+use Flarum\Api\Schema;
 use Flarum\Extend;
 use Flarum\Gdpr\Extend\UserData;
 use Flarum\User\User;
-use FoF\Drafts\Api\Controller;
 use FoF\Drafts\Console\PublishDrafts;
 use FoF\Drafts\Console\PublishSchedule;
+use Illuminate\Database\Eloquent\Builder;
 
 return [
     (new Extend\Frontend('forum'))
@@ -29,13 +30,6 @@ return [
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js'),
 
-    (new Extend\Routes('api'))
-        ->get('/drafts', 'fof.drafts.index', Controller\ListDraftsController::class)
-        ->post('/drafts', 'fof.drafts.create', Controller\CreateDraftController::class)
-        ->delete('/drafts/all', 'fof.drafts.delete.all', Controller\DeleteMyDraftsController::class)
-        ->patch('/drafts/{id}', 'fof.drafts.update', Controller\UpdateDraftController::class)
-        ->delete('/drafts/{id}', 'fof.drafts.delete', Controller\DeleteDraftController::class),
-
     new Extend\Locales(__DIR__.'/resources/locale'),
 
     (new Extend\Model(User::class))
@@ -43,24 +37,35 @@ return [
             return $model->hasMany(Draft::class, 'user_id');
         }),
 
+    (new Extend\ModelVisibility(Draft::class))
+        ->scope(Access\ScopeDraftVisibility::class),
+
     (new Extend\Console())
         ->command(PublishDrafts::class)
         ->schedule(PublishDrafts::class, PublishSchedule::class),
 
-    (new Extend\ApiSerializer(CurrentUserSerializer::class))
-        ->attributes(function (CurrentUserSerializer $serializer) {
-            $attributes['draftCount'] = (int) Draft::where('user_id', $serializer->getActor()->id)->count();
+    new Extend\ApiResource(Api\Resource\DraftResource::class),
 
-            return $attributes;
-        }),
+    (new Extend\ApiResource(Resource\UserResource::class))
+        ->fields(fn () => [
+            Schema\Number::make('draftCount')
+                ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id)
+                ->countRelation('drafts', function (Builder $query, Context $context) {
+                    $query->whereVisibleTo($context->getActor());
+                }),
+        ]),
 
-    (new Extend\ApiSerializer(ForumSerializer::class))
-        ->attributes(function (ForumSerializer $serializer) {
-            $attributes['canSaveDrafts'] = $serializer->getActor()->hasPermissionLike('user.saveDrafts');
-            $attributes['canScheduleDrafts'] = $serializer->getActor()->hasPermissionLike('user.scheduleDrafts');
-
-            return $attributes;
-        }),
+    (new Extend\ApiResource(Resource\ForumResource::class))
+        ->fields(fn () => [
+            Schema\Boolean::make('canSaveDrafts')
+                ->get(function (object $forum, Context $context) {
+                    return $context->getActor()->hasPermissionLike('user.saveDrafts');
+                }),
+            Schema\Boolean::make('canScheduleDrafts')
+                ->get(function (object $forum, Context $context) {
+                    return $context->getActor()->hasPermissionLike('user.scheduleDrafts');
+                }),
+        ]),
 
     (new Extend\Settings())
         ->default('fof-drafts.enable_scheduled_drafts', true)
@@ -74,5 +79,10 @@ return [
         ->whenExtensionEnabled('flarum-gdpr', fn () => [
             (new UserData())
                 ->addType(Data\Drafts::class),
+        ])
+        ->whenExtensionEnabled('fof-default-user-preferences', fn () => [
+            (new \FoF\DefaultUserPreferences\Extend\RegisterUserPreferenceDefault())
+                ->default('draftAutosaveEnable', false, 'checkbox')
+                ->default('draftAutosaveInterval', 6, 'number'),
         ]),
 ];

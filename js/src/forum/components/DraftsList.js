@@ -1,20 +1,10 @@
-/*
- *
- *  This file is part of fof/drafts.
- *
- *  Copyright (c) 2019 FriendsOfFlarum.
- *
- *  For the full copyright and license information, please view the LICENSE.md
- *  file that was distributed with this source code.
- *
- */
-
 import app from 'flarum/forum/app';
 import Component from 'flarum/common/Component';
-import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
+import HeaderList from 'flarum/forum/components/HeaderList';
 import Button from 'flarum/common/components/Button';
 import DraftsListItem from './DraftsListItem';
 import Tooltip from 'flarum/common/components/Tooltip';
+import ItemList from 'flarum/common/utils/ItemList';
 
 export default class DraftsList extends Component {
   oncreate(vnode) {
@@ -39,43 +29,45 @@ export default class DraftsList extends Component {
       });
   }
 
+  controlItems() {
+    const items = new ItemList();
+
+    items.add(
+      'deleteAll',
+      <Tooltip showOnFocus={false} text={app.translator.trans('fof-drafts.forum.dropdown.delete_all_button')}>
+        <Button
+          data-container="body"
+          icon="fas fa-trash-alt"
+          className="Button Button--link Button--icon Alert-dismiss"
+          onclick={this.deleteAll.bind(this)}
+        />
+      </Tooltip>
+    );
+
+    return items;
+  }
+
   view() {
     const drafts = app.store.all('drafts');
     const state = this.attrs.state;
 
     return (
-      <div className="NotificationList DraftsList">
-        <div className="NotificationList-header">
-          <h4 className="App-titleControl App-titleControl--text">{app.translator.trans('fof-drafts.forum.dropdown.title')}</h4>
-          <div class="App-primaryControl">
-            <Tooltip showOnFocus={false} text={app.translator.trans('fof-drafts.forum.dropdown.delete_all_button')}>
-              <Button
-                data-container="body"
-                icon="fas fa-trash-alt"
-                className="Button Button--link Button--icon Alert-dismiss"
-                onclick={this.deleteAll.bind(this)}
-              />
-            </Tooltip>
-          </div>
-        </div>
-        <div className="NotificationList-content">
-          <ul className="NotificationGroup-content">
-            {drafts.length
-              ? drafts
-                  .sort((a, b) => b.updatedAt() - a.updatedAt())
-                  .map((draft) => {
-                    return <DraftsListItem draft={draft} state={state} />;
-                  })
-              : null}
-
-            {state.loading ? (
-              <LoadingIndicator display="block" />
-            ) : (
-              !drafts.length && <div className="NotificationList-empty">{app.translator.trans('fof-drafts.forum.dropdown.empty_text')}</div>
-            )}
-          </ul>
-        </div>
-      </div>
+      <HeaderList
+        className="DraftsList"
+        title={app.translator.trans('fof-drafts.forum.dropdown.title')}
+        controls={this.controlItems()}
+        hasItems={drafts.length > 0}
+        loading={state.loading}
+        emptyText={app.translator.trans('fof-drafts.forum.dropdown.empty_text')}
+      >
+        <ul className="HeaderListGroup-content">
+          {drafts
+            .sort((a, b) => b.updatedAt() - a.updatedAt())
+            .map((draftItem) => {
+              return <DraftsListItem draft={draftItem} state={state} />;
+            })}
+        </ul>
+      </HeaderList>
     );
   }
 }

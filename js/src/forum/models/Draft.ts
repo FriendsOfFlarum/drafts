@@ -1,33 +1,47 @@
-/*
- *
- *  This file is part of fof/drafts.
- *
- *  Copyright (c) 2019 FriendsOfFlarum.
- *
- *  For the full copyright and license information, please view the LICENSE.md
- *  file that was distributed with this source code.
- *
- */
-
 import app from 'flarum/forum/app';
 import Model from 'flarum/common/Model';
 import ItemList from 'flarum/common/utils/ItemList';
-import mixin from 'flarum/common/utils/mixin';
+import computed from 'flarum/common/utils/computed';
 import fillRelationship from '../utils/fillRelationship';
+import type User from 'flarum/common/models/User';
+import type Discussion from 'flarum/common/models/Discussion';
 
-export default class Draft extends mixin(Model, {
-  user: Model.hasOne('user'),
-  content: Model.attribute('content'),
-  title: Model.attribute('title'),
-  scheduledValidationError: Model.attribute('scheduledValidationError'),
-  relationships: Model.attribute('relationships'),
-  extra: Model.attribute('extra'),
-  scheduledFor: Model.attribute('scheduledFor', Model.transformDate),
-  updatedAt: Model.attribute('updatedAt', Model.transformDate),
+export default class Draft extends Model {
+  user() {
+    return Model.hasOne<User>('user').call(this);
+  }
 
-  loadedRelationships: null,
+  content() {
+    return Model.attribute<string>('content').call(this);
+  }
 
-  type() {
+  title() {
+    return Model.attribute<string>('title').call(this);
+  }
+
+  scheduledValidationError() {
+    return Model.attribute<string | null>('scheduledValidationError').call(this);
+  }
+
+  relationships() {
+    return Model.attribute<Record<string, any>>('relationships').call(this);
+  }
+
+  extra() {
+    return Model.attribute<Record<string, any>>('extra').call(this);
+  }
+
+  scheduledFor() {
+    return Model.attribute('scheduledFor', Model.transformDate).call(this);
+  }
+
+  updatedAt() {
+    return Model.attribute('updatedAt', Model.transformDate).call(this);
+  }
+
+  private loadedRelationships: Record<string, any> | null = null;
+
+  type(): 'reply' | 'privateDiscussion' | 'discussion' {
     const relationships = this.loadRelationships();
     if (relationships.discussion) {
       return 'reply';
@@ -40,26 +54,26 @@ export default class Draft extends mixin(Model, {
     } else {
       return 'discussion';
     }
-  },
+  }
 
-  icon() {
+  icon(): string {
     switch (this.type()) {
       case 'discussion':
         return 'fas fa-edit';
       case 'reply':
         return 'fas fa-reply';
       case 'privateDiscussion':
-        const customIcon = app.forum.data.attributes['byobu.icon-badge'];
+        const customIcon = app.forum.attribute<string | undefined>('byobu.icon-badge');
         return customIcon ? customIcon : 'fas fa-eye-slash';
     }
-  },
+  }
 
-  loadRelationships(force) {
+  loadRelationships(force: boolean = false): Record<string, any> {
     if (
       !force &&
       this.loadedRelationships &&
       (Object.keys(this.loadedRelationships).length > 0 ||
-        (Object.keys(this.loadedRelationships).length === 0 && Object.keys(this.relationships).length === 0))
+        (Object.keys(this.loadedRelationships).length === 0 && Object.keys(this.relationships() || {}).length === 0))
     ) {
       return this.loadedRelationships;
     }
@@ -74,17 +88,17 @@ export default class Draft extends mixin(Model, {
 
         if (!relationship || !relationship.data) return;
 
-        this.loadedRelationships[relationshipName] = fillRelationship(relationship.data, (model) => app.store.getById(model.type, model.id));
+        this.loadedRelationships![relationshipName] = fillRelationship(relationship.data, (model: any) => app.store.getById(model.type, model.id));
       });
     }
 
     if ('recipientUsers' in this.loadedRelationships || 'recipientGroups' in this.loadedRelationships) {
-      const recipients = new ItemList();
+      const recipients = new ItemList<User>();
 
-      (this.loadedRelationships['recipientUsers'] || []).forEach((user) => {
+      (this.loadedRelationships['recipientUsers'] || []).forEach((user: User) => {
         if (user) recipients.add('users:' + user.id(), user);
       });
-      (this.loadedRelationships['recipientGroups'] || []).forEach((group) => {
+      (this.loadedRelationships['recipientGroups'] || []).forEach((group: any) => {
         if (group) recipients.add('groups:' + group.id(), group);
       });
 
@@ -92,10 +106,10 @@ export default class Draft extends mixin(Model, {
     }
 
     return this.loadedRelationships;
-  },
+  }
 
-  compileData() {
-    const data = {
+  compileData(): Record<string, any> {
+    const data: Record<string, any> = {
       originalContent: this.content(),
       title: this.title(),
       user: app.session.user,
@@ -107,5 +121,5 @@ export default class Draft extends mixin(Model, {
     Object.assign(data, data.fields);
 
     return data;
-  },
-}) {}
+  }
+}

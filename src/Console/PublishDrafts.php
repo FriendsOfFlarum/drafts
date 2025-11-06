@@ -12,27 +12,20 @@
 namespace FoF\Drafts\Console;
 
 use Carbon\Carbon;
+use Flarum\Api\JsonApi;
+use Flarum\Api\Resource\DiscussionResource;
+use Flarum\Api\Resource\PostResource;
 use Flarum\Console\AbstractCommand;
-use Flarum\Discussion\Command\StartDiscussion;
 use Flarum\Foundation\ValidationException;
-use Flarum\Post\Command\PostReply;
 use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Drafts\Draft;
-use Illuminate\Contracts\Bus\Dispatcher;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PublishDrafts extends AbstractCommand
 {
-    protected $bus;
-    protected $settings;
-    protected $translator;
-
-    public function __construct(Dispatcher $bus, SettingsRepositoryInterface $settings, TranslatorInterface $translator)
+    public function __construct(protected JsonApi $api, protected SettingsRepositoryInterface $settings, protected TranslatorInterface $translator)
     {
         parent::__construct();
-        $this->bus = $bus;
-        $this->settings = $settings;
-        $this->translator = $translator;
     }
 
     /**
@@ -48,45 +41,74 @@ class PublishDrafts extends AbstractCommand
     /**
      * {@inheritdoc}
      */
-    protected function fire()
+    protected function fire(): int
     {
         $this->info('Starting...');
 
         if (!$this->settings->get('fof-drafts.enable_scheduled_drafts')) {
             $this->error($this->translator->trans('fof-drafts.console.scheduled_drafts_disabled'));
 
-            return;
+            return AbstractCommand::FAILURE;
         }
 
         foreach (Draft::where('scheduled_for', '<=', Carbon::now())->with('user')->get() as $draft) {
             try {
-                $relationships = json_decode($draft->relationships, true);
-                $discussionId = $relationships['discussion']['data']['id'];
+                $relationships = $draft->relationships;
 
-                $this->info("Publishing draft reply for discussion {$discussionId}");
+                if (is_array($relationships) && isset($relationships['discussion']['data']['id'])) {
+                    $discussionId = $relationships['discussion']['data']['id'];
+                    $this->info("Publishing draft reply for discussion {$discussionId}");
 
-                if (array_key_exists('discussion', $relationships)) {
-                    $post = $this->bus->dispatch(
-                        new PostReply($discussionId, $draft->user, [
-                            'attributes' => [
-                                'content' => $draft->content,
+                    // Create a post reply using JsonApi
+                    $post = $this->api->forResource(PostResource::class)
+                        ->forEndpoint('create')
+                        ->process([
+                            'data' => [
+                                'type'       => 'posts',
+                                'attributes' => [
+                                    'content' => $draft->content,
+                                ],
+                                'relationships' => [
+                                    'discussion' => [
+                                        'data' => [
+                                            'type' => 'discussions',
+                                            'id'   => (string) $discussionId,
+                                        ],
+                                    ],
+                                ],
                             ],
-                        ], $draft->ip_address)
-                    );
+                        ], [], ['actor' => $draft->user]);
+
                     $post->created_at = $draft->scheduled_for;
+                    $post->ip_address = $draft->ip_address;
                     $post->save();
                 } else {
-                    $discussion = $this->bus->dispatch(
-                        new StartDiscussion($draft->user, [
-                            'attributes' => [
-                                'title'   => $draft->title,
-                                'content' => $draft->content,
+                    $this->info('Publishing draft discussion');
+
+                    // Create a new discussion using JsonApi
+                    $attributes = [
+                        'title'   => $draft->title,
+                        'content' => $draft->content,
+                    ];
+
+                    // Merge any extra attributes (e.g., tags, etc.) stored in the draft
+                    if (is_array($draft->extra) && !empty($draft->extra)) {
+                        $attributes = array_merge($attributes, $draft->extra);
+                    }
+
+                    $discussion = $this->api->forResource(DiscussionResource::class)
+                        ->forEndpoint('create')
+                        ->process([
+                            'data' => [
+                                'type'          => 'discussions',
+                                'attributes'    => $attributes,
+                                'relationships' => $relationships,
                             ],
-                            'relationships' => $relationships,
-                        ], $draft->ip_address)
-                    );
+                        ], [], ['actor' => $draft->user]);
+
                     $discussion->created_at = $draft->scheduled_for;
                     $discussion->firstPost->created_at = $draft->scheduled_for;
+                    $discussion->firstPost->ip_address = $draft->ip_address;
                     $discussion->save();
                     $discussion->firstPost->save();
 
@@ -101,5 +123,7 @@ class PublishDrafts extends AbstractCommand
         }
 
         $this->info('Done.');
+
+        return AbstractCommand::SUCCESS;
     }
 }

@@ -1,1 +1,1 @@
-export default (data, map) => (Array.isArray(data) ? data.map(map).sort() : map(data));
+export default (items, mapFn) => (Array.isArray(items) ? items.map(mapFn).sort() : mapFn(items));

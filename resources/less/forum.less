@@ -10,7 +10,7 @@
 }
 
 .scheduledValidationError {
-  color: @control-danger-color;
+  color: var(--control-danger-color);
 }
 
 .item-draft-autosave-interval {
@@ -42,6 +42,10 @@
   margin-right: 4px;
 }
 
+.DraftListItem-tags {
+  margin-bottom: 4px;
+}
+
 .ScheduleDraftModal {
   &-timeDateGroup {
     display: flex;
@@ -55,8 +59,8 @@
   }
 
   &-datePreview {
-    background: @control-bg;
-    color: @control-color;
+    background: var(--control-bg);
+    color: var(--control-color);
     padding: 8px;
   }
 
