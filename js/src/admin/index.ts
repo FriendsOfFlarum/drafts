@@ -13,7 +13,7 @@ import app from 'flarum/admin/app';
 import { extend } from 'flarum/common/extend';
 
 app.initializers.add('fof-drafts', () => {
-  app.extensionData
+  app.registry
     .for('fof-drafts')
     .registerSetting({
       setting: 'fof-drafts.enable_scheduled_drafts',

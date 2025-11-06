@@ -44,7 +44,7 @@ export default class DraftsList extends Component {
     const state = this.attrs.state;
 
     return (
-      <div className="NotificationList DraftsList">
+      <div className="HeaderList DraftsList">
         <div className="NotificationList-header">
           <h4 className="App-titleControl App-titleControl--text">{app.translator.trans('fof-drafts.forum.dropdown.title')}</h4>
           <div class="App-primaryControl">
@@ -59,7 +59,7 @@ export default class DraftsList extends Component {
           </div>
         </div>
         <div className="NotificationList-content">
-          <ul className="NotificationGroup-content">
+          <ul className="HeaderListGroup-content">
             {drafts.length
               ? drafts
                   .sort((a, b) => b.updatedAt() - a.updatedAt())

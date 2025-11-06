@@ -1,13 +1,14 @@
+import Form from 'flarum/common/components/Form';
 import app from 'flarum/forum/app';
 import Alert from 'flarum/common/components/Alert';
 import Button from 'flarum/common/components/Button';
-import Modal from 'flarum/common/components/Modal';
+import FormModal from 'flarum/common/components/FormModal';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 
 const CurrentDate = dayjs().format('YYYY-MM-DD');
 const CurrentTime = dayjs().format('HH:mm');
 
-export default class ScheduleDraftModal extends Modal {
+export default class ScheduleDraftModal extends FormModal {
   loading = false;
 
   date;
@@ -64,7 +65,7 @@ export default class ScheduleDraftModal extends Modal {
       <input style="display: none"></input>,
 
       <div className="Modal-body">
-        <div className="Form Form--centered">
+        <Form className="Form--centered">
           <p className="helpText">{app.translator.trans('fof-drafts.forum.schedule_draft_modal.text')}</p>
           <div className="Form-group ScheduleDraftModal-timeDateGroup">
             <input
@@ -77,16 +78,14 @@ export default class ScheduleDraftModal extends Modal {
             />
             <input name="scheduledForTime" className="FormControl" type="time" value={this.time} onchange={(e) => (this.time = e.target.value)} />
           </div>
-
-          {/* Date time preview */}
+          {}
           <div class="Form-group ScheduleDraftModal-datePreview">
             {app.translator.trans('fof-drafts.forum.schedule_draft_modal.schedule_time_preview', {
               datetime: this.formattedDateTime(),
             })}
           </div>
-
           <div className="Form-group ScheduleDraftModal-submitButtons">
-            {/* Unschedule button */}
+            {}
             {this.isScheduled() && (
               <Button
                 className="ScheduleDraftModal-unscheduleBtn Button Button--block Button--danger"
@@ -96,8 +95,7 @@ export default class ScheduleDraftModal extends Modal {
                 {app.translator.trans('fof-drafts.forum.schedule_draft_modal.unschedule_button')}
               </Button>
             )}
-
-            {/* Schedule/reschedule button */}
+            {}
             <Button
               className="ScheduleDraftModal-scheduleBtn Button Button--block Button--primary"
               type="submit"
@@ -109,7 +107,7 @@ export default class ScheduleDraftModal extends Modal {
                 : app.translator.trans('fof-drafts.forum.schedule_draft_modal.schedule_button')}
             </Button>
           </div>
-        </div>
+        </Form>
       </div>,
     ];
   }

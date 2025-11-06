@@ -1,7 +1,7 @@
 import app from 'flarum/forum/app';
 import Component from 'flarum/common/Component';
-import avatar from 'flarum/common/helpers/avatar';
-import icon from 'flarum/common/helpers/icon';
+import Avatar from 'flarum/common/components/Avatar';
+import Icon from 'flarum/common/components/Icon';
 import humanTime from 'flarum/common/helpers/humanTime';
 import { truncate } from 'flarum/common/utils/string';
 import Button from 'flarum/common/components/Button';
@@ -35,10 +35,10 @@ export default class DraftsListItem extends Component<IAttrs> {
       <li>
         <a onclick={state.showComposer.bind(state, draft)} className="Notification draft--item">
           {/* Avatar */}
-          {avatar(draft.user())}
+          <Avatar user={draft.user()} />
 
           {/* Draft icon */}
-          {icon(draft.icon(), { className: 'Notification-icon' })}
+          <Icon name={draft.icon()} className="Notification-icon" />
 
           {/* Draft title + last edited time */}
           <span class="Notification-title">
@@ -52,7 +52,7 @@ export default class DraftsListItem extends Component<IAttrs> {
                     ),
                   })}
                 >
-                  {icon('far fa-clock', { className: 'draft--scheduledIcon' })}
+                  <Icon name="far fa-clock" className="draft--scheduledIcon" />
                 </Tooltip>
               )}
               {draft.type() === 'reply' ? draft.loadRelationships().discussion.title() : draft.title()}
