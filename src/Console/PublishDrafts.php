@@ -64,7 +64,7 @@ class PublishDrafts extends AbstractCommand
                         ->forEndpoint('create')
                         ->process([
                             'data' => [
-                                'type' => 'posts',
+                                'type'       => 'posts',
                                 'attributes' => [
                                     'content' => $draft->content,
                                 ],
@@ -72,7 +72,7 @@ class PublishDrafts extends AbstractCommand
                                     'discussion' => [
                                         'data' => [
                                             'type' => 'discussions',
-                                            'id' => (string) $discussionId,
+                                            'id'   => (string) $discussionId,
                                         ],
                                     ],
                                 ],
@@ -86,7 +86,7 @@ class PublishDrafts extends AbstractCommand
 
                     // Create a new discussion using JsonApi
                     $attributes = [
-                        'title' => $draft->title,
+                        'title'   => $draft->title,
                         'content' => $draft->content,
                     ];
 
@@ -99,8 +99,8 @@ class PublishDrafts extends AbstractCommand
                         ->forEndpoint('create')
                         ->process([
                             'data' => [
-                                'type' => 'discussions',
-                                'attributes' => $attributes,
+                                'type'          => 'discussions',
+                                'attributes'    => $attributes,
                                 'relationships' => $relationships,
                             ],
                         ], [], ['actor' => $draft->user]);
