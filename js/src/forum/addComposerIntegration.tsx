@@ -30,7 +30,7 @@ export default function () {
 
     for (const field of fields) {
       const fieldValue = getData(field);
-      const draftFieldValue = draft && draft.data.attributes[field];
+      const draftFieldValue = draft?.data?.attributes?.[field];
 
       if ((!draft && fieldValue) || (draft && !deepEqual(fieldValue, draftFieldValue))) {
         return true;
