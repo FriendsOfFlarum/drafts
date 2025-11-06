@@ -16,43 +16,10 @@ use Flarum\User\User;
 class UpdateDraft
 {
     /**
-     * The ID of the draft.
-     *
-     * @var int
-     */
-    public $draftId;
-
-    /**
-     * The user performing the action.
-     *
-     * @var User
-     */
-    public $actor;
-
-    /**
-     * The attributes of the draft.
-     *
-     * @var array
-     */
-    public $data;
-
-    /**
-     * The IP address of the draft's creator.
-     */
-    public $ipAddress;
-
-    /**
      * UpdateDraft constructor.
      *
-     * @param       $draftId
-     * @param User  $actor
-     * @param array $data
-     */
-    public function __construct($draftId, User $actor, array $data, string $ipAddress)
+    
+    public function __construct(public $draftId, public User $actor, public array $data, public string $ipAddress)
     {
-        $this->draftId = $draftId;
-        $this->actor = $actor;
-        $this->data = $data;
-        $this->ipAddress = $ipAddress;
     }
 }

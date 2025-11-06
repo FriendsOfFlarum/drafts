@@ -23,16 +23,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PublishDrafts extends AbstractCommand
 {
-    protected $bus;
-    protected $settings;
-    protected $translator;
-
-    public function __construct(Dispatcher $bus, SettingsRepositoryInterface $settings, TranslatorInterface $translator)
+    public function __construct(protected Dispatcher $bus, protected SettingsRepositoryInterface $settings, protected TranslatorInterface $translator)
     {
         parent::__construct();
-        $this->bus = $bus;
-        $this->settings = $settings;
-        $this->translator = $translator;
     }
 
     /**

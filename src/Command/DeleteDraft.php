@@ -16,28 +16,10 @@ use Flarum\User\User;
 class DeleteDraft
 {
     /**
-     * The ID of the draft.
-     *
-     * @var int
-     */
-    public $draftId;
-
-    /**
-     * The user performing the action.
-     *
-     * @var User
-     */
-    public $actor;
-
-    /**
      * DeleteDraft constructor.
      *
-     * @param      $draftId
-     * @param User $actor
      */
-    public function __construct($draftId, User $actor)
+    public function __construct(public $draftId, public User $actor)
     {
-        $this->draftId = $draftId;
-        $this->actor = $actor;
     }
 }

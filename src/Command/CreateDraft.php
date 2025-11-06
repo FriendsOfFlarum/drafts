@@ -16,34 +16,10 @@ use Flarum\User\User;
 class CreateDraft
 {
     /**
-     * The user performing the action.
-     *
-     * @var User
-     */
-    public $actor;
-
-    /**
-     * The attributes of the new draft.
-     *
-     * @var array
-     */
-    public $data;
-
-    /**
-     * The IP address of the draft's creator.
-     */
-    public $ipAddress;
-
-    /**
      * CreateDraft constructor.
      *
-     * @param User  $actor
-     * @param array $data
      */
-    public function __construct(User $actor, array $data, string $ipAddress)
+    public function __construct(public User $actor, public array $data, public string $ipAddress)
     {
-        $this->actor = $actor;
-        $this->data = $data;
-        $this->ipAddress = $ipAddress;
     }
 }
