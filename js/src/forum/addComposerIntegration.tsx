@@ -5,6 +5,7 @@ import ComposerState from 'flarum/forum/states/ComposerState';
 import app from 'flarum/forum/app';
 import deepEqual from './utils/deepEqual';
 import fillRelationship from './utils/fillRelationship';
+import PrivateDiscussionComposer from 'ext:fof/byobu/forum/pages/discussions/PrivateDiscussionComposer';
 
 export default function () {
   // Add changed() method to ComposerState
@@ -306,9 +307,7 @@ export default function () {
   extend('flarum/forum/components/ReplyComposer', 'onsubmit', deleteDraftsOnSubmit);
 
   // Handle byobu extension if present
-  if (app.initializers.has('fof-byobu')) {
-    // @ts-ignore - Optional extension integration
-    const PrivateDiscussionComposer = flarum.extensions['fof-byobu'].discussions.PrivateDiscussionComposer;
-    extend(PrivateDiscussionComposer.prototype, 'onsubmit', deleteDraftsOnSubmit);
+  if ('fof-byobu' in flarum.extensions) {
+    extend('ext:fof/byobu/forum/pages/discussions/PrivateDiscussionComposer', 'onsubmit', deleteDraftsOnSubmit);
   }
 }

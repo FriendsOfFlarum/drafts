@@ -65,7 +65,8 @@
         "flarum/testing": "^2.0.0-beta",
         "flarum/tags": "^2.0.0-beta",
         "flarum/flags": "^2.0.0-beta",
-        "fof/default-user-preferences": "^2.0.0-beta"
+        "fof/default-user-preferences": "^2.0.0-beta",
+        "fof/byobu": "^2.0.0-beta"
     },
     "scripts": {
         "analyse:phpstan": "phpstan analyse",
