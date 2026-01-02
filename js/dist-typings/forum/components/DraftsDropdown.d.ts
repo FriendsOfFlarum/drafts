@@ -1,6 +1,9 @@
-export default class DraftsDropdown extends HeaderDropdown<import("flarum/forum/components/HeaderDropdown").IHeaderDropdownAttrs> {
+/// <reference types="mithril" />
+import HeaderDropdown from 'flarum/forum/components/HeaderDropdown';
+export default class DraftsDropdown extends HeaderDropdown {
     static initAttrs(attrs: any): void;
-    constructor();
-    getUnreadCount(): any;
+    getContent(): JSX.Element;
+    goToRoute(): void;
+    getUnreadCount(): number;
+    getNewCount(): number;
 }
-import HeaderDropdown from "flarum/forum/components/HeaderDropdown";

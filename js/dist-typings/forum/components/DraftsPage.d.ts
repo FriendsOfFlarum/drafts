@@ -1,6 +1,6 @@
-export default class DraftsPage extends Page<import("flarum/common/components/Page").IPageAttrs, undefined> {
-    constructor();
+/// <reference types="mithril" />
+import Page from 'flarum/common/components/Page';
+export default class DraftsPage extends Page {
     oninit(vnode: any): void;
     view(): JSX.Element;
 }
-import Page from "flarum/common/components/Page";
