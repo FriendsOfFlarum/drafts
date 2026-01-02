@@ -7,7 +7,7 @@ import ItemList from 'flarum/common/utils/ItemList';
 import Stream from 'flarum/common/utils/Stream';
 
 export default function () {
-  extend('flarum/forum/components/SettingsPage', 'oninit', function () {
+  extend('flarum/forum/components/SettingsPage', 'oninit', function (this: any) {
     this.draftAutosaveInterval = Stream(this.user.preferences().draftAutosaveInterval);
 
     // Add draftsItems method to SettingsPage instance
@@ -19,7 +19,7 @@ export default function () {
         Switch.component(
           {
             state: this.user.preferences().draftAutosaveEnable,
-            onchange: (value) => {
+            onchange: (value: boolean) => {
               this.draftAutosaveEnableLoading = true;
 
               this.user.savePreferences({ draftAutosaveEnable: value }).then(() => {
@@ -43,7 +43,7 @@ export default function () {
               {
                 className: 'Button Button--primary',
                 onclick: () => {
-                  const isInt = (str) => str == Math.round(str);
+                  const isInt = (str: number) => str == Math.round(str);
                   if (this.draftAutosaveInterval() < 0 || !isInt(this.draftAutosaveInterval())) {
                     this.draftAutosaveIntervalInvalid = true;
                     this.draftAutosaveInterval(this.user.preferences().draftAutosaveInterval);
@@ -76,7 +76,7 @@ export default function () {
   });
 
   extend('flarum/forum/components/SettingsPage', 'settingsItems', function (items) {
-    if (app.forum.data.attributes.canSaveDrafts) {
+    if (app.forum.attribute<boolean>('canSaveDrafts')) {
       items.add(
         'drafts',
         FieldSet.component(
@@ -84,7 +84,7 @@ export default function () {
             label: app.translator.trans('fof-drafts.forum.user.settings.drafts_heading'),
             className: 'Settings-drafts',
           },
-          this.draftsItems().toArray()
+          (this as any).draftsItems().toArray()
         )
       );
     }

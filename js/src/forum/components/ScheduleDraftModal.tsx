@@ -2,35 +2,38 @@ import Form from 'flarum/common/components/Form';
 import app from 'flarum/forum/app';
 import Alert from 'flarum/common/components/Alert';
 import Button from 'flarum/common/components/Button';
-import FormModal from 'flarum/common/components/FormModal';
+import FormModal, { IFormModalAttrs } from 'flarum/common/components/FormModal';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
+import type Draft from '../models/Draft';
 
 const CurrentDate = dayjs().format('YYYY-MM-DD');
 const CurrentTime = dayjs().format('HH:mm');
 
-export default class ScheduleDraftModal extends FormModal {
-  loading = false;
+interface ScheduleDraftModalAttrs extends IFormModalAttrs {
+  draft: Draft;
+}
 
-  date;
-  time;
+export default class ScheduleDraftModal extends FormModal<ScheduleDraftModalAttrs> {
+  loading: boolean = false;
+  date!: string;
+  time!: string;
+  previewFormatString!: string;
 
-  previewFormatString;
-
-  oninit(vnode) {
+  oninit(vnode: any) {
     super.oninit(vnode);
 
     this.date = this.isScheduled() ? dayjs(this.attrs.draft.scheduledFor()).format('YYYY-MM-DD') : CurrentDate;
     this.time = this.isScheduled() ? dayjs(this.attrs.draft.scheduledFor()).format('HH:mm') : CurrentTime;
 
-    this.previewFormatString = app.translator.trans('fof-drafts.forum.schedule_draft_modal.schedule_time_preview_formatter')[0];
+    this.previewFormatString = app.translator.trans('fof-drafts.forum.schedule_draft_modal.schedule_time_preview_formatter')[0] as string;
   }
 
-  className() {
+  className(): string {
     return 'ScheduleDraftModal';
   }
 
-  title() {
-    return app.translator.trans('fof-drafts.forum.schedule_draft_modal.title');
+  title(): string {
+    return app.translator.trans('fof-drafts.forum.schedule_draft_modal.title') as string;
   }
 
   content() {
@@ -74,14 +77,14 @@ export default class ScheduleDraftModal extends FormModal {
               type="date"
               min={CurrentDate}
               value={this.date}
-              onchange={(dateEvent) => (this.date = dateEvent.target.value)}
+              onchange={(dateEvent: Event) => (this.date = (dateEvent.target as HTMLInputElement).value)}
             />
             <input
               name="scheduledForTime"
               className="FormControl"
               type="time"
               value={this.time}
-              onchange={(timeEvent) => (this.time = timeEvent.target.value)}
+              onchange={(timeEvent: Event) => (this.time = (timeEvent.target as HTMLInputElement).value)}
             />
           </div>
           {}
@@ -121,7 +124,7 @@ export default class ScheduleDraftModal extends FormModal {
   /**
    * Returns a Date object for currently entered values in the modal.
    */
-  scheduledFor() {
+  scheduledFor(): Date | null {
     const date = new Date(`${this.date} ${this.time}`);
 
     return date || null;
@@ -130,39 +133,35 @@ export default class ScheduleDraftModal extends FormModal {
   /**
    * Whether the modal's details have been modified.
    */
-  changed() {
-    const getTimeOrNull = (date) => (date ? date.getTime() || null : null);
+  changed(): boolean {
+    const getTimeOrNull = (date: Date | null | undefined): number | null => (date ? date.getTime() || null : null);
 
     return getTimeOrNull(this.scheduledFor()) !== getTimeOrNull(this.attrs.draft.scheduledFor());
   }
 
-  isScheduled() {
+  isScheduled(): boolean {
     return !!this.attrs.draft.scheduledFor();
   }
 
-  formattedDateTime() {
+  formattedDateTime(): string {
     const date = dayjs(this.scheduledFor());
-
-    // if (!date) {
-    //     return app.translator.trans('fof-drafts.forum.schedule_draft_modal.schedule_time_preview_invalid');
-    // }
 
     const formatted = date.format(this.previewFormatString);
 
     return formatted;
   }
 
-  unschedule(e) {
+  unschedule(e: Event) {
     e.preventDefault();
 
     this.loading = true;
 
     // Save draft with no scheduled post time
-    if (confirm(app.translator.trans('fof-drafts.forum.schedule_draft_modal.unschedule_warning'))) {
+    if (confirm(app.translator.trans('fof-drafts.forum.schedule_draft_modal.unschedule_warning') as string)) {
       this.attrs.draft
         .save({ scheduledFor: null, clearValidationError: true })
         .then(() => {
-          this.success = true;
+          (this as any).success = true;
           this.hide.call(this);
         })
         .catch(() => {})
@@ -170,14 +169,14 @@ export default class ScheduleDraftModal extends FormModal {
     }
   }
 
-  onsubmit(e) {
+  onsubmit(e: Event) {
     e.preventDefault();
 
     this.loading = true;
 
     this.attrs.draft
       .save({ scheduledFor: this.scheduledFor(), clearValidationError: true })
-      .then(() => (this.success = true))
+      .then(() => ((this as any).success = true))
       .catch(() => {})
       .then(this.loaded.bind(this));
   }

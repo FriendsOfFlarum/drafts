@@ -2,12 +2,18 @@ import app from 'flarum/forum/app';
 import Component from 'flarum/common/Component';
 import HeaderList from 'flarum/forum/components/HeaderList';
 import Button from 'flarum/common/components/Button';
-import DraftsListItem from './DraftsListItem';
 import Tooltip from 'flarum/common/components/Tooltip';
 import ItemList from 'flarum/common/utils/ItemList';
+import type Draft from '../models/Draft';
+import type DraftsListState from '../states/DraftsListState';
+import DraftsListItem from './DraftsListItem';
 
-export default class DraftsList extends Component {
-  oncreate(vnode) {
+interface DraftsListAttrs {
+  state: DraftsListState;
+}
+
+export default class DraftsList extends Component<DraftsListAttrs> {
+  oncreate(vnode: any) {
     super.oncreate(vnode);
 
     $('.draft--delete').on('click tap', function (event) {
@@ -16,7 +22,7 @@ export default class DraftsList extends Component {
   }
 
   deleteAll() {
-    if (!confirm(app.translator.trans('fof-drafts.forum.dropdown.delete_all_alert'))) return;
+    if (!confirm(app.translator.trans('fof-drafts.forum.dropdown.delete_all_alert') as string)) return;
 
     app
       .request({
@@ -24,7 +30,9 @@ export default class DraftsList extends Component {
         url: app.forum.attribute('apiUrl') + '/drafts/all',
       })
       .then(() => {
-        app.store.data.drafts = [];
+        // Clear drafts from store
+        const drafts = app.store.all<Draft>('drafts');
+        drafts.forEach((draft) => app.store.remove(draft));
         m.redraw();
       });
   }
@@ -48,7 +56,7 @@ export default class DraftsList extends Component {
   }
 
   view() {
-    const drafts = app.store.all('drafts');
+    const drafts = app.store.all<Draft>('drafts');
     const state = this.attrs.state;
 
     return (
@@ -62,7 +70,7 @@ export default class DraftsList extends Component {
       >
         <ul className="HeaderListGroup-content">
           {drafts
-            .sort((a, b) => b.updatedAt() - a.updatedAt())
+            .sort((a, b) => b.updatedAt()!.getTime() - a.updatedAt()!.getTime())
             .map((draftItem) => {
               return <DraftsListItem draft={draftItem} state={state} />;
             })}
