@@ -73,7 +73,10 @@ export default function () {
       const dataIds = fillRelationship(composerData.relationships[relName], getId);
       const draftIds = fillRelationship(draftModel.relationships()[relName].data, getId);
 
-      return !dataIds.some((id: string, i: number) => id !== draftIds[i]);
+      const dataIdsArray = Array.isArray(dataIds) ? dataIds : [dataIds];
+      const draftIdsArray = Array.isArray(draftIds) ? draftIds : [draftIds];
+
+      return !dataIdsArray.some((id: string, i: number) => id !== draftIdsArray[i]);
     };
 
     for (const relationship of relationships) {

@@ -11,14 +11,13 @@
 
 import app from 'flarum/forum/app';
 import Page from 'flarum/common/components/Page';
-
 import DraftsList from './DraftsList';
 
 export default class DraftsPage extends Page {
-  oninit(vnode) {
+  oninit(vnode: any) {
     super.oninit(vnode);
 
-    app.history.push('drafts');
+    app.history.push('drafts', app.translator.trans('fof-drafts.forum.dropdown.title') as string);
 
     app.drafts.load();
 
@@ -28,7 +27,7 @@ export default class DraftsPage extends Page {
   view() {
     return (
       <div className="DraftsPage">
-        <DraftsList state={app.drafts}></DraftsList>
+        <DraftsList state={app.drafts} />
       </div>
     );
   }

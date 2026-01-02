@@ -8,7 +8,7 @@ import addPreferences from './addPreferences';
 export { default as extend } from './extend';
 
 app.initializers.add('fof-drafts', () => {
-  app.drafts = new DraftsListState(app);
+  app.drafts = new DraftsListState();
 
   addComposerIntegration();
   addDraftsDropdown();

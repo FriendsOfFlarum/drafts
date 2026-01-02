@@ -1,25 +1,17 @@
 import app from 'flarum/forum/app';
-import ScheduleDraftModal from '../components/ScheduleDraftModal';
+import type Draft from '../models/Draft';
 
 export default class DraftsListState {
-  constructor() {
-    /**
-     * Whether or not the flags are loading.
-     *
-     * @type {Boolean}
-     */
-    this.loading = false;
+  loading: boolean = false;
+  cache: any[] = [];
 
-    this.cache = [];
-  }
-
-  deleteDraft(draft) {
-    if (!window.confirm(app.translator.trans('fof-drafts.forum.dropdown.alert'))) return;
+  deleteDraft(draft: Draft) {
+    if (!window.confirm(app.translator.trans('fof-drafts.forum.dropdown.alert') as string)) return;
 
     this.loading = true;
 
     draft.delete().then(() => {
-      if (app.composer.body && app.composer.draft && app.composer.draft.id() === draft.id() && !app.composer.changed()) {
+      if (app.composer.body && app.composer.draft && app.composer.draft.id() === draft.id() && !app.composer.changed?.()) {
         app.composer.hide();
       }
 
@@ -28,24 +20,27 @@ export default class DraftsListState {
     });
   }
 
-  scheduleDraft(draft) {
+  scheduleDraft(draft: Draft) {
     if (!app.forum.attribute('canScheduleDrafts') || !app.forum.attribute('drafts.enableScheduledDrafts')) return;
 
-    app.modal.show(ScheduleDraftModal, { draft });
+    // Lazy load ScheduleDraftModal
+    import('../components/ScheduleDraftModal').then((module) => {
+      app.modal.show(module.default as any, { draft });
+    });
   }
 
-  showComposer(draft) {
+  showComposer(draft: Draft): Promise<any> | undefined {
     if (this.loading) return;
 
     return new Promise(async (resolve) => {
-      let componentClass;
+      let componentClass: any;
 
       switch (draft.type()) {
         case 'privateDiscussion':
           // Use lazy loading for byobu extension
           try {
-            const byobuModule = await import('ext:fof/byobu/discussions');
-            componentClass = byobuModule.PrivateDiscussionComposer;
+            const byobuModule = await import('ext:fof/byobu/forum/pages/discussions/PrivateDiscussionComposer');
+            componentClass = byobuModule.default;
           } catch (e) {
             console.error('Failed to load byobu composer:', e);
             return;
@@ -84,7 +79,7 @@ export default class DraftsListState {
     m.redraw();
 
     app.store
-      .find('drafts')
+      .find<Draft[]>('drafts')
       .then(
         () => (app.cache.draftsLoaded = true),
         () => {}
