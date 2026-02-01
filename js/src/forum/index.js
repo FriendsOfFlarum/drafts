@@ -152,6 +152,7 @@ app.initializers.add('fof-drafts', () => {
         .save(
           Object.assign(draft.data.attributes, this.data(), {
             errorHandler: () => {},
+            background: true,
           })
         )
         .then(() => afterSave())
@@ -164,6 +165,7 @@ app.initializers.add('fof-drafts', () => {
         .createRecord('drafts')
         .save(this.data(), {
           errorHandler: () => {},
+          background: true,
         })
         .then((draft) => {
           draft.loadRelationships(true);
