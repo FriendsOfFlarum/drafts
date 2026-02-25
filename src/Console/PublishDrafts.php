@@ -61,11 +61,11 @@ class PublishDrafts extends AbstractCommand
         foreach (Draft::where('scheduled_for', '<=', Carbon::now())->with('user')->get() as $draft) {
             try {
                 $relationships = json_decode($draft->relationships, true);
-                $discussionId = $relationships['discussion']['data']['id'];
+                $discussionId = $relationships['discussion']['data']['id'] ?? null;
 
                 $this->info("Publishing draft reply for discussion {$discussionId}");
 
-                if (array_key_exists('discussion', $relationships)) {
+                if (array_key_exists('discussion', $relationships) && $discussionId) {
                     $post = $this->bus->dispatch(
                         new PostReply($discussionId, $draft->user, [
                             'attributes' => [
