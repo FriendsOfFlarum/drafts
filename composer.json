@@ -20,7 +20,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^2.0.0-beta"
+        "flarum/core": "^2.0.0"
     },
     "authors": [
         {
@@ -60,13 +60,13 @@
         }
     },
     "require-dev": {
-        "flarum/gdpr": "^2.0.0-beta",
-        "flarum/phpstan": "^2.0.0-beta",
-        "flarum/testing": "^2.0.0-beta",
-        "flarum/tags": "^2.0.0-beta",
-        "flarum/flags": "^2.0.0-beta",
-        "fof/default-user-preferences": "^2.0.0-beta",
-        "fof/byobu": "^2.0.0-beta"
+        "flarum/gdpr": "^2.0.0",
+        "flarum/phpstan": "^2.0.0",
+        "flarum/testing": "^2.0.0",
+        "flarum/tags": "^2.0.0",
+        "flarum/flags": "^2.0.0",
+        "fof/default-user-preferences": "^2.0.0",
+        "fof/byobu": "^2.0.0"
     },
     "scripts": {
         "analyse:phpstan": "phpstan analyse",
@@ -90,5 +90,7 @@
         "psr-4": {
             "FoF\\Drafts\\Tests\\": "tests/"
         }
-    }
+    },
+    "minimum-stability": "beta",
+    "prefer-stable": true
 }
