@@ -83,6 +83,13 @@ class PublishDrafts extends AbstractCommand
                     $post->ip_address = $draft->ip_address;
                     $post->save();
                 } else {
+                    if (empty(trim((string) $draft->title))) {
+                        $draft->scheduled_validation_error = $this->translator->trans('fof-drafts.console.no_title_error');
+                        $draft->save();
+                        $this->error("Draft {$draft->id} skipped: discussion title is missing.");
+                        continue;
+                    }
+
                     $this->info('Publishing draft discussion');
 
                     // Create a new discussion using JsonApi
