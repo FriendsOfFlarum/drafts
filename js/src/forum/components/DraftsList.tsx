@@ -1,4 +1,5 @@
 import app from 'flarum/forum/app';
+import haptic from 'flarum/common/utils/haptic';
 import Component from 'flarum/common/Component';
 import HeaderList from 'flarum/forum/components/HeaderList';
 import Button from 'flarum/common/components/Button';
@@ -24,6 +25,7 @@ export default class DraftsList extends Component<DraftsListAttrs> {
   deleteAll() {
     if (!confirm(app.translator.trans('fof-drafts.forum.dropdown.delete_all_alert') as string)) return;
 
+    haptic('heavy');
     app
       .request({
         method: 'DELETE',
@@ -45,7 +47,7 @@ export default class DraftsList extends Component<DraftsListAttrs> {
       <Tooltip showOnFocus={false} text={app.translator.trans('fof-drafts.forum.dropdown.delete_all_button')}>
         <Button
           data-container="body"
-          icon="fas fa-trash-alt"
+          icon="fas fa-trash-can"
           className="Button Button--link Button--icon Alert-dismiss"
           onclick={this.deleteAll.bind(this)}
         />

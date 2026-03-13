@@ -8,7 +8,7 @@ export default class DraftsDropdown extends HeaderDropdown {
   static initAttrs(attrs: any) {
     attrs.className = classList('DraftsDropdown', attrs.className);
     attrs.label = attrs.label || app.translator.trans('fof-drafts.forum.dropdown.tooltip');
-    attrs.icon = attrs.icon || 'fas fa-edit';
+    attrs.icon = attrs.icon || 'fas fa-feather-pointed';
 
     super.initAttrs(attrs);
   }

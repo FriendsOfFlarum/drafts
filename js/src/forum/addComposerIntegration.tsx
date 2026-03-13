@@ -3,9 +3,9 @@ import Stream from 'flarum/common/utils/Stream';
 import Button from 'flarum/common/components/Button';
 import ComposerState from 'flarum/forum/states/ComposerState';
 import app from 'flarum/forum/app';
+import haptic from 'flarum/common/utils/haptic';
 import deepEqual from './utils/deepEqual';
 import fillRelationship from './utils/fillRelationship';
-import PrivateDiscussionComposer from 'ext:fof/byobu/forum/pages/discussions/PrivateDiscussionComposer';
 
 export default function () {
   // Add changed() method to ComposerState
@@ -212,13 +212,16 @@ export default function () {
     items.add(
       'save-draft',
       <Button
-        icon={this.state.justSaved ? 'fas fa-check' : this.state.saving ? 'fas fa-spinner fa-spin' : 'fas fa-save'}
+        icon={this.state.justSaved ? 'fas fa-check' : this.state.saving ? 'fas fa-spinner fa-spin' : 'fas fa-floppy-disk'}
         className={classNames.join(' ')}
         itemClassName="App-backControl"
         title={app.translator.trans('fof-drafts.forum.composer.title')}
         aria-label={app.translator.trans('fof-drafts.forum.composer.title')}
         disabled={this.state.saving || this.state.justSaved || this.loading}
-        onclick={this.state.saveDraft.bind(this.state)}
+        onclick={() => {
+          haptic('success');
+          this.state.saveDraft();
+        }}
       />,
       20
     );
