@@ -26,7 +26,7 @@ class PublishDraftsTest extends ConsoleTestCase
 {
     use RetrievesAuthorizedUsers;
 
-    private const PAST   = '2020-01-01 00:00:00';
+    private const PAST = '2020-01-01 00:00:00';
     private const FUTURE = '2099-01-01 00:00:00';
 
     protected function setUp(): void
