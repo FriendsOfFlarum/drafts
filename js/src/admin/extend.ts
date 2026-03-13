@@ -20,7 +20,7 @@ export default [
     }))
     .permission(
       () => ({
-        icon: 'fas fa-edit',
+        icon: 'fas fa-pen-to-square',
         label: app.translator.trans('fof-drafts.admin.permissions.start'),
         permission: 'user.saveDrafts',
       }),

@@ -1,4 +1,5 @@
 import app from 'flarum/forum/app';
+import haptic from 'flarum/common/utils/haptic';
 import Component from 'flarum/common/Component';
 import Avatar from 'flarum/common/components/Avatar';
 import Icon from 'flarum/common/components/Icon';
@@ -44,7 +45,7 @@ export default class DraftsListItem extends Component<IAttrs> {
     const { draft, state } = this.attrs;
 
     let scheduledDraftIcon = 'far fa-calendar-plus';
-    if (draft.scheduledValidationError()) scheduledDraftIcon = 'far fa-calendar-times';
+    if (draft.scheduledValidationError()) scheduledDraftIcon = 'far fa-calendar-xmark';
     else if (draft.scheduledFor()) scheduledDraftIcon = 'far fa-calendar-check';
 
     // Build the content with scheduled icon if needed
@@ -86,9 +87,10 @@ export default class DraftsListItem extends Component<IAttrs> {
       <>
         <Tooltip showOnFocus={false} text={app.translator.trans('fof-drafts.forum.dropdown.delete_button')}>
           <Button
-            icon="fas fa-trash-alt"
+            icon="fas fa-trash-can"
             className="Button Button--link hasIcon draft--delete"
             onclick={(e: MouseEvent) => {
+              haptic('heavy');
               state.deleteDraft(draft);
               e.stopPropagation();
             }}
@@ -101,6 +103,7 @@ export default class DraftsListItem extends Component<IAttrs> {
               icon={scheduledDraftIcon}
               className="Button Button--link hasIcon draft--schedule"
               onclick={(e: MouseEvent) => {
+                haptic('medium');
                 state.scheduleDraft(draft);
                 e.stopPropagation();
               }}

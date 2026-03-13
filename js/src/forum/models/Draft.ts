@@ -59,7 +59,7 @@ export default class Draft extends Model {
   icon(): string {
     switch (this.type()) {
       case 'discussion':
-        return 'fas fa-edit';
+        return 'fas fa-feather-pointed';
       case 'reply':
         return 'fas fa-reply';
       case 'privateDiscussion':

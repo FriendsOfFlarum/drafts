@@ -39,7 +39,7 @@
             "title": "FoF Drafts",
             "category": "feature",
             "icon": {
-                "name": "fas fa-edit",
+                "name": "fas fa-feather-pointed",
                 "backgroundColor": "#e74c3c",
                 "color": "#fff"
             },
