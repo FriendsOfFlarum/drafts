@@ -15,6 +15,7 @@ interface ScheduleDraftModalAttrs extends IFormModalAttrs {
 
 export default class ScheduleDraftModal extends FormModal<ScheduleDraftModalAttrs> {
   loading: boolean = false;
+  titleError: boolean = false;
   date!: string;
   time!: string;
   previewFormatString!: string;
@@ -59,6 +60,15 @@ export default class ScheduleDraftModal extends FormModal<ScheduleDraftModalAttr
             {app.translator.trans('fof-drafts.forum.schedule_draft_modal.scheduled_error', {
               error: this.attrs.draft.scheduledValidationError(),
             })}
+          </Alert>
+        </div>
+      ) : (
+        ''
+      ),
+      this.titleError ? (
+        <div className="Modal-alert">
+          <Alert type="error" dismissible={false}>
+            {app.translator.trans('fof-drafts.forum.schedule_draft_modal.no_title_error')}
           </Alert>
         </div>
       ) : (
@@ -171,6 +181,13 @@ export default class ScheduleDraftModal extends FormModal<ScheduleDraftModalAttr
 
   onsubmit(e: Event) {
     e.preventDefault();
+
+    if (this.attrs.draft.type() !== 'reply' && !this.attrs.draft.title()?.trim()) {
+      this.titleError = true;
+      m.redraw();
+      return;
+    }
+    this.titleError = false;
 
     this.loading = true;
 
