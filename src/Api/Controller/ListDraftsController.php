@@ -31,6 +31,9 @@ class ListDraftsController extends AbstractListController
      */
     public $include = [
         'user',
+        'discussion',
+        'recipientUsers',
+        'recipientGroups',
     ];
 
     /**

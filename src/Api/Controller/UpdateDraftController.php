@@ -25,6 +25,16 @@ class UpdateDraftController extends AbstractShowController
     public $serializer = DraftSerializer::class;
 
     /**
+     * {@inheritdoc}
+     */
+    public $include = [
+        'user',
+        'discussion',
+        'recipientUsers',
+        'recipientGroups',
+    ];
+
+    /**
      * @var Dispatcher
      */
     protected $bus;
