@@ -55,7 +55,7 @@ class DraftSerializer extends AbstractSerializer
      */
     protected function discussion($draft)
     {
-        if (! $discussionId = Arr::get($this->getStoredRelationshipData($draft), 'discussion.data.id')) {
+        if (!$discussionId = Arr::get($this->getStoredRelationshipData($draft), 'discussion.data.id')) {
             return null;
         }
 
