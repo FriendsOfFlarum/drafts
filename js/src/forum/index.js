@@ -70,21 +70,23 @@ app.initializers.add('fof-drafts', () => {
       }
     }
 
-    if (!data.relationships && !draft.relationships()) {
+    const draftRelationships = draft ? draft.relationshipData() : {};
+
+    if (!data.relationships && !Object.keys(draftRelationships).length) {
       return false;
     }
 
-    const relationships = Object.keys(data.relationships);
+    const relationships = Object.keys(data.relationships || draftRelationships);
 
     const equalRelationships = (data, draft, relationship) => {
       if (
-        (!data.relationships[relationship] || !data.relationships[relationship].length) &&
-        (!(relationship in draft.relationships()) || !draft.relationships()[relationship].data?.length)
+        (!data.relationships?.[relationship] || !data.relationships[relationship].length) &&
+        (!(relationship in draftRelationships) || !draftRelationships[relationship].data?.length)
       ) {
         return true;
       } else if (
-        !(relationship in draft.relationships()) ||
-        data.relationships[relationship].length !== draft.relationships()[relationship].data?.length
+        !(relationship in draftRelationships) ||
+        (data.relationships?.[relationship]?.length || 0) !== draftRelationships[relationship].data?.length
       ) {
         return false;
       }
@@ -92,7 +94,7 @@ app.initializers.add('fof-drafts', () => {
       const getId = (element) => (typeof element.id == 'function' ? element.id() : element.id);
 
       const dataIds = fillRelationship(data.relationships[relationship], getId);
-      const draftIds = fillRelationship(draft.relationships()[relationship].data, getId);
+      const draftIds = fillRelationship(draftRelationships[relationship].data, getId);
 
       return !dataIds.some((id, i) => id !== draftIds[i]);
     };
