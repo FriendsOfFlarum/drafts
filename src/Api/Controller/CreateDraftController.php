@@ -33,6 +33,9 @@ class CreateDraftController extends AbstractCreateController
     public $include = [
         'user',
         'user.user_requests',
+        'discussion',
+        'recipientUsers',
+        'recipientGroups',
     ];
 
     /**
