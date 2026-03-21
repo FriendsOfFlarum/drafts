@@ -55,7 +55,7 @@ class DraftSerializer extends AbstractSerializer
      */
     protected function discussion($draft)
     {
-        if (! $discussionId = Arr::get($this->getRelationshipData($draft), 'discussion.data.id')) {
+        if (! $discussionId = Arr::get($this->getStoredRelationshipData($draft), 'discussion.data.id')) {
             return null;
         }
 
@@ -69,7 +69,7 @@ class DraftSerializer extends AbstractSerializer
      */
     protected function recipientUsers($draft)
     {
-        $userIds = collect(Arr::get($this->getRelationshipData($draft), 'recipientUsers.data', []))
+        $userIds = collect(Arr::get($this->getStoredRelationshipData($draft), 'recipientUsers.data', []))
             ->pluck('id')
             ->filter()
             ->all();
@@ -88,7 +88,7 @@ class DraftSerializer extends AbstractSerializer
      */
     protected function recipientGroups($draft)
     {
-        $groupIds = collect(Arr::get($this->getRelationshipData($draft), 'recipientGroups.data', []))
+        $groupIds = collect(Arr::get($this->getStoredRelationshipData($draft), 'recipientGroups.data', []))
             ->pluck('id')
             ->filter()
             ->all();
@@ -105,7 +105,7 @@ class DraftSerializer extends AbstractSerializer
     /**
      * @return array<string, mixed>
      */
-    protected function getRelationshipData($draft): array
+    protected function getStoredRelationshipData($draft): array
     {
         $relationships = json_decode($draft->relationships ?? '', true);
 
