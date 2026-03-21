@@ -59,9 +59,9 @@ class DraftSerializer extends AbstractSerializer
             return null;
         }
 
-        return $this->hasOne($draft, BasicDiscussionSerializer::class, function () use ($discussionId) {
-            return Discussion::query()->find($discussionId);
-        });
+        return $this->hasOne([
+            'discussion' => Discussion::query()->find($discussionId),
+        ], BasicDiscussionSerializer::class);
     }
 
     /**
@@ -78,9 +78,9 @@ class DraftSerializer extends AbstractSerializer
             return null;
         }
 
-        return $this->hasMany($draft, BasicUserSerializer::class, function () use ($userIds) {
-            return User::query()->whereIn('id', $userIds)->get();
-        });
+        return $this->hasMany([
+            'recipientUsers' => User::query()->whereIn('id', $userIds)->get(),
+        ], BasicUserSerializer::class);
     }
 
     /**
@@ -97,9 +97,9 @@ class DraftSerializer extends AbstractSerializer
             return null;
         }
 
-        return $this->hasMany($draft, GroupSerializer::class, function () use ($groupIds) {
-            return Group::query()->whereIn('id', $groupIds)->get();
-        });
+        return $this->hasMany([
+            'recipientGroups' => Group::query()->whereIn('id', $groupIds)->get(),
+        ], GroupSerializer::class);
     }
 
     /**
