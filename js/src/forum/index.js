@@ -260,7 +260,11 @@ app.initializers.add('fof-drafts', () => {
 
     const draft = this.draft;
     if (draft && !draft.title() && !draft.content() && confirm(app.translator.trans('fof-drafts.forum.composer.discard_empty_draft_alert'))) {
-      draft.delete();
+      app.request({
+        method: 'DELETE',
+        url: app.forum.attribute('apiUrl') + '/drafts/' + draft.id(),
+        errorHandler: () => false,
+      });
     }
 
     return prevented;
@@ -289,7 +293,11 @@ app.initializers.add('fof-drafts', () => {
 
   function deleteDraftsOnSubmit() {
     if (this.composer.draft) {
-      this.composer.draft.delete();
+      app.request({
+        method: 'DELETE',
+        url: app.forum.attribute('apiUrl') + '/drafts/' + this.composer.draft.id(),
+        errorHandler: () => false,
+      });
     }
   }
 
