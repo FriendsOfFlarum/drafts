@@ -297,11 +297,6 @@ app.initializers.add('fof-drafts', () => {
 
   function deleteDraftsOnSubmit() {
     if (this.composer.draft) {
-      app.request({
-        method: 'DELETE',
-        url: app.forum.attribute('apiUrl') + '/drafts/' + this.composer.draft.id(),
-        errorHandler: () => false,
-      });
       app
         .request({
           method: 'DELETE',
