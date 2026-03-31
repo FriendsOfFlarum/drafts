@@ -167,24 +167,15 @@ app.initializers.add('fof-drafts', () => {
           failedAfterSave();
         });
     } else {
-      app
-        .request({
-          method: 'POST',
-          url: app.forum.attribute('apiUrl') + '/drafts',
-          body: {
-            data: {
-              type: 'drafts',
-              attributes: this.data(),
-            },
-          },
-          errorHandler: () => false,
+      app.store
+        .createRecord('drafts')
+        .save(this.data(), {
+          errorHandler: () => {},
+          background: true,
         })
-        .then((response) => {
-          const draft = app.store.pushPayload(response).data;
-
+        .then((draft) => {
           draft.loadRelationships(true);
           this.draft = draft;
-
           afterSave();
         })
         .catch(() => {
@@ -306,6 +297,11 @@ app.initializers.add('fof-drafts', () => {
 
   function deleteDraftsOnSubmit() {
     if (this.composer.draft) {
+      app.request({
+        method: 'DELETE',
+        url: app.forum.attribute('apiUrl') + '/drafts/' + this.composer.draft.id(),
+        errorHandler: () => false,
+      });
       app
         .request({
           method: 'DELETE',
