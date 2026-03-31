@@ -150,15 +150,17 @@ app.initializers.add('fof-drafts', () => {
     if (draft) {
       delete draft.data.attributes.relationships;
 
-      draft
-        .save(
-          Object.assign(draft.data.attributes, this.data(), {
-            errorHandler: () => {
-              return false;
+      app
+        .request({
+          method: 'PATCH',
+          url: app.forum.attribute('apiUrl') + '/drafts/' + draft.id(),
+          body: {
+            data: {
+              attributes: this.data(),
             },
-            background: true,
-          })
-        )
+          },
+          errorHandler: () => false,
+        })
         .then(() => afterSave())
         .catch(() => {
           console.log('draft save failure ignored');
