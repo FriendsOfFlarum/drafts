@@ -25,8 +25,7 @@ export default class DraftsList extends Component {
     });
   }
 
-  deleteAll(e) {
-    $(e.currentTarget).trigger('mouseleave');
+  deleteAll() {
     if (!confirm(app.translator.trans('fof-drafts.forum.dropdown.delete_all_alert'))) return;
 
     app
