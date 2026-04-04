@@ -153,7 +153,7 @@ app.initializers.add('fof-drafts', () => {
       draft
         .save(
           Object.assign(draft.data.attributes, this.data(), {
-            errorHandler: () => {return false},
+            errorHandler: () => {},
             background: true,
           })
         )
