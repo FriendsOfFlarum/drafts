@@ -167,24 +167,21 @@ app.initializers.add('fof-drafts', () => {
           failedAfterSave();
         });
     } else {
-      app
+      app.store
+        .createRecord('drafts')
         .request({
-          method: 'POST',
-          url: app.forum.attribute('apiUrl') + '/drafts',
+          method: 'PATCH',
+          url: app.forum.attribute('apiUrl') + '/drafts/' + draft.id(),
           body: {
             data: {
-              type: 'drafts',
               attributes: this.data(),
             },
           },
           errorHandler: () => false,
         })
-        .then((response) => {
-          const draft = app.store.pushPayload(response).data;
-
+        .then((draft) => {
           draft.loadRelationships(true);
           this.draft = draft;
-
           afterSave();
         })
         .catch(() => {
