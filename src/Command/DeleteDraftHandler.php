@@ -27,7 +27,12 @@ class DeleteDraftHandler
     {
         $actor = $command->actor;
 
-        $draft = Draft::findOrFail($command->draftId);
+        $draft = Draft::find($command->draftId);
+
+        // Draft can already be gone in async cleanup flows. Treat delete as idempotent.
+        if (!$draft) {
+            return null;
+        }
 
         if (strval($actor->id) !== strval($draft->user_id)) {
             throw new PermissionDeniedException();
