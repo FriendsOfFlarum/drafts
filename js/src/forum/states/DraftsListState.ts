@@ -1,5 +1,6 @@
 import app from 'flarum/forum/app';
 import type Draft from '../models/Draft';
+import { adjustDraftCount, setDraftCount } from '../utils/draftCount';
 
 export default class DraftsListState {
   loading: boolean = false;
@@ -11,6 +12,8 @@ export default class DraftsListState {
     this.loading = true;
 
     draft.delete().then(() => {
+      adjustDraftCount(-1);
+
       if (app.composer.body && app.composer.draft && app.composer.draft.id() === draft.id() && !app.composer.changed?.()) {
         app.composer.hide();
       }
@@ -81,7 +84,10 @@ export default class DraftsListState {
     app.store
       .find<Draft[]>('drafts')
       .then(
-        () => (app.cache.draftsLoaded = true),
+        () => {
+          app.cache.draftsLoaded = true;
+          setDraftCount(app.store.all<Draft>('drafts').length);
+        },
         () => {}
       )
       .then(() => {

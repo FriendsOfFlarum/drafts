@@ -5,6 +5,7 @@ import ComposerState from 'flarum/forum/states/ComposerState';
 import app from 'flarum/forum/app';
 import haptic from 'flarum/common/utils/haptic';
 import deepEqual from './utils/deepEqual';
+import { adjustDraftCount } from './utils/draftCount';
 import fillRelationship from './utils/fillRelationship';
 
 export default function () {
@@ -274,7 +275,10 @@ export default function () {
       !draft.content() &&
       confirm(app.translator.trans('fof-drafts.forum.composer.discard_empty_draft_alert') as string)
     ) {
-      draft.delete();
+      draft.delete().then(() => {
+        adjustDraftCount(-1);
+        m.redraw();
+      });
     }
 
     return prevented;
@@ -305,7 +309,10 @@ export default function () {
   // Delete drafts when submitted
   function deleteDraftsOnSubmit(this: any): void {
     if (this.composer.draft) {
-      this.composer.draft.delete();
+      this.composer.draft.delete().then(() => {
+        adjustDraftCount(-1);
+        m.redraw();
+      });
     }
   }
 
