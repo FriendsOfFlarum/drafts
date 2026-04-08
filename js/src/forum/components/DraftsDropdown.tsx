@@ -26,7 +26,7 @@ export default class DraftsDropdown extends HeaderDropdown {
       return app.store.all('drafts').length;
     }
 
-    return app.store.all('drafts').length + (app.session.user?.draftCount() || 0);
+    return app.session.user?.draftCount() || 0;
   }
 
   getNewCount(): number {

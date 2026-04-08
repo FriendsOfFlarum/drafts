@@ -7,6 +7,7 @@ import Tooltip from 'flarum/common/components/Tooltip';
 import ItemList from 'flarum/common/utils/ItemList';
 import type Draft from '../models/Draft';
 import type DraftsListState from '../states/DraftsListState';
+import { setDraftCount } from '../utils/draftCount';
 import DraftsListItem from './DraftsListItem';
 
 interface DraftsListAttrs {
@@ -35,6 +36,7 @@ export default class DraftsList extends Component<DraftsListAttrs> {
         // Clear drafts from store
         const drafts = app.store.all<Draft>('drafts');
         drafts.forEach((draft) => app.store.remove(draft));
+        setDraftCount(0);
         m.redraw();
       });
   }
@@ -72,7 +74,7 @@ export default class DraftsList extends Component<DraftsListAttrs> {
       >
         <ul className="HeaderListGroup-content">
           {drafts
-            .sort((a, b) => b.updatedAt()!.getTime() - a.updatedAt()!.getTime())
+            .sort((a, b) => (b.updatedAt()?.getTime?.() ?? 0) - (a.updatedAt()?.getTime?.() ?? 0))
             .map((draftItem) => {
               return <DraftsListItem draft={draftItem} state={state} />;
             })}
