@@ -196,7 +196,7 @@ export default function () {
     if (
       !(this.state.bodyMatches('flarum/forum/components/DiscussionComposer') || this.state.bodyMatches('flarum/forum/components/ReplyComposer')) ||
       !app.forum.attribute('canSaveDrafts') ||
-      this.state.position === 'minimized'
+      (this.state.position === 'minimized' && !this.state.isFullScreen())
     )
       return;
 
