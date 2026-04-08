@@ -61,7 +61,7 @@ export default class DraftsListItem extends Component<IAttrs> {
             <Icon name="far fa-clock" className="draft--scheduledIcon" />
           </Tooltip>
         )}
-        {draft.type() === 'reply' ? draft.loadRelationships().discussion.title() : draft.title()}
+        {draft.type() === 'reply' ? (draft.loadRelationships().discussion?.title() ?? draft.title()) : draft.title()}
       </>
     );
 
