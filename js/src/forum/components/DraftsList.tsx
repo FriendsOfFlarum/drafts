@@ -22,7 +22,7 @@ export default class DraftsList extends Component<DraftsListAttrs> {
     });
   }
 
-  deleteAll(e) {
+  deleteAll(e: MouseEvent) {
     $(e.currentTarget).trigger('mouseleave');
     if (!confirm(app.translator.trans('fof-drafts.forum.dropdown.delete_all_alert') as string)) return;
 
@@ -50,7 +50,9 @@ export default class DraftsList extends Component<DraftsListAttrs> {
           data-container="body"
           icon="fas fa-trash-can"
           className="Button Button--link Button--icon Alert-dismiss"
-          onclick={this.deleteAll.bind(this)}
+          onclick={(e: MouseEvent) => {
+            this.deleteAll(e);
+          }}
         />
       </Tooltip>
     );
