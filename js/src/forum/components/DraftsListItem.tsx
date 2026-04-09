@@ -69,7 +69,7 @@ export default class DraftsListItem extends Component<IAttrs> {
                 icon="fas fa-trash-alt"
                 className="Notification-action Button Button--link hasIcon draft--delete"
                 onclick={(e: MouseEvent) => {
-                  $(e.currentTarget).trigger('mouseleave');
+                  $(e.currentTarget as HTMLElement).trigger('mouseleave');
                   state.deleteDraft(draft);
                   e.stopPropagation();
                 }}
