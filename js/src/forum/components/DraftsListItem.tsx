@@ -90,7 +90,7 @@ export default class DraftsListItem extends Component<IAttrs> {
             icon="fas fa-trash-can"
             className="Button Button--link hasIcon draft--delete"
             onclick={(e: MouseEvent) => {
-              $(e.currentTarget).trigger('mouseleave');
+              $(e.currentTarget as HTMLElement).trigger('mouseleave');
               haptic('heavy');
               state.deleteDraft(draft);
               e.stopPropagation();
@@ -104,7 +104,7 @@ export default class DraftsListItem extends Component<IAttrs> {
               icon={scheduledDraftIcon}
               className="Button Button--link hasIcon draft--schedule"
               onclick={(e: MouseEvent) => {
-                $(e.currentTarget).trigger('mouseleave');
+                $(e.currentTarget as HTMLElement).trigger('mouseleave');
                 haptic('medium');
                 state.scheduleDraft(draft);
                 e.stopPropagation();
