@@ -271,7 +271,10 @@ export default function () {
       !draft.content() &&
       confirm(app.translator.trans('fof-drafts.forum.composer.discard_empty_draft_alert') as string)
     ) {
-      draft.delete();
+      draft.delete().catch((deleteError: any) => {
+        console.error('Draft delete failed:', deleteError);
+        console.error('Response:', deleteError.response);
+      });
     }
 
     return prevented;
@@ -302,7 +305,10 @@ export default function () {
   // Delete drafts when submitted
   function deleteDraftsOnSubmit(this: any): void {
     if (this.composer.draft) {
-      this.composer.draft.delete();
+      this.composer.draft.delete().catch((deleteError: any) => {
+        console.error('Draft delete failed:', deleteError);
+        console.error('Response:', deleteError.response);
+      });
     }
   }
 
