@@ -12,6 +12,7 @@
 namespace FoF\Drafts\Tests\integration\forum;
 
 use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class ForumTest extends TestCase
 {
@@ -22,10 +23,8 @@ class ForumTest extends TestCase
         $this->extension('fof-drafts');
     }
 
-    /**
-     * @test
-     */
-    public function extension_boots_and_serializes()
+    #[Test]
+    public function extension_boots_and_serializes(): void
     {
         $response = $this->send($this->request('GET', '/'));
 

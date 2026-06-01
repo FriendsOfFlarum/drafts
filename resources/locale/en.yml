@@ -10,6 +10,7 @@ fof-drafts:
       schedule_log_output: Append scheduler output to log storage
   console:
     scheduled_drafts_disabled: Scheduled drafts are currently disabled in settings.
+    no_title_error: "Draft skipped: discussion title is missing."
   ref:
     schedule_draft: Schedule draft
   forum:
@@ -44,6 +45,7 @@ fof-drafts:
       # String passed to dayjs.format() to generate the preview
       schedule_time_preview_formatter: LLLL
       schedule_time_preview_invalid: Invalid date and/or time
+      no_title_error: A discussion title is required before scheduling.
     user:
       settings:
         drafts_heading: Drafts

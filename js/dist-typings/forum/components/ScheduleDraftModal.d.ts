@@ -6,6 +6,7 @@ interface ScheduleDraftModalAttrs extends IFormModalAttrs {
 }
 export default class ScheduleDraftModal extends FormModal<ScheduleDraftModalAttrs> {
     loading: boolean;
+    titleError: boolean;
     date: string;
     time: string;
     previewFormatString: string;

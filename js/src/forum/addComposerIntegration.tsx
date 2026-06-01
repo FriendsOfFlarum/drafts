@@ -3,9 +3,10 @@ import Stream from 'flarum/common/utils/Stream';
 import Button from 'flarum/common/components/Button';
 import ComposerState from 'flarum/forum/states/ComposerState';
 import app from 'flarum/forum/app';
+import haptic from 'flarum/common/utils/haptic';
 import deepEqual from './utils/deepEqual';
+import { adjustDraftCount } from './utils/draftCount';
 import fillRelationship from './utils/fillRelationship';
-import PrivateDiscussionComposer from 'ext:fof/byobu/forum/pages/discussions/PrivateDiscussionComposer';
 
 export default function () {
   // Add changed() method to ComposerState
@@ -195,7 +196,7 @@ export default function () {
     if (
       !(this.state.bodyMatches('flarum/forum/components/DiscussionComposer') || this.state.bodyMatches('flarum/forum/components/ReplyComposer')) ||
       !app.forum.attribute('canSaveDrafts') ||
-      this.state.position === 'minimized'
+      (this.state.position === 'minimized' && !this.state.isFullScreen())
     )
       return;
 
@@ -212,13 +213,16 @@ export default function () {
     items.add(
       'save-draft',
       <Button
-        icon={this.state.justSaved ? 'fas fa-check' : this.state.saving ? 'fas fa-spinner fa-spin' : 'fas fa-save'}
+        icon={this.state.justSaved ? 'fas fa-check' : this.state.saving ? 'fas fa-spinner fa-spin' : 'fas fa-floppy-disk'}
         className={classNames.join(' ')}
         itemClassName="App-backControl"
         title={app.translator.trans('fof-drafts.forum.composer.title')}
         aria-label={app.translator.trans('fof-drafts.forum.composer.title')}
         disabled={this.state.saving || this.state.justSaved || this.loading}
-        onclick={this.state.saveDraft.bind(this.state)}
+        onclick={() => {
+          haptic('success');
+          this.state.saveDraft();
+        }}
       />,
       20
     );
@@ -271,10 +275,16 @@ export default function () {
       !draft.content() &&
       confirm(app.translator.trans('fof-drafts.forum.composer.discard_empty_draft_alert') as string)
     ) {
-      draft.delete().catch((deleteError: any) => {
-        console.error('Draft delete failed:', deleteError);
-        console.error('Response:', deleteError.response);
-      });
+      draft
+        .delete()
+        .then(() => {
+          adjustDraftCount(-1);
+          m.redraw();
+        })
+        .catch((deleteError: any) => {
+          console.error('Draft delete failed:', deleteError);
+          console.error('Response:', deleteError.response);
+        });
     }
 
     return prevented;
@@ -305,10 +315,16 @@ export default function () {
   // Delete drafts when submitted
   function deleteDraftsOnSubmit(this: any): void {
     if (this.composer.draft) {
-      this.composer.draft.delete().catch((deleteError: any) => {
-        console.error('Draft delete failed:', deleteError);
-        console.error('Response:', deleteError.response);
-      });
+      this.composer.draft
+        .delete()
+        .then(() => {
+          adjustDraftCount(-1);
+          m.redraw();
+        })
+        .catch((deleteError: any) => {
+          console.error('Draft delete failed:', deleteError);
+          console.error('Response:', deleteError.response);
+        });
     }
   }
 

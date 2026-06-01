@@ -4,7 +4,7 @@ import Draft from './models/Draft';
 
 export default [
   new Extend.Routes() //
-    .add('drafts', '/drafts', () => import('./components/DraftsPage').then((module) => module.default)),
+    .add('drafts', '/drafts', () => import('./components/DraftsPage')),
 
   new Extend.Store() //
     .add('drafts', Draft),

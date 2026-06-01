@@ -1,4 +1,5 @@
 import app from 'flarum/forum/app';
+import haptic from 'flarum/common/utils/haptic';
 import Component from 'flarum/common/Component';
 import HeaderList from 'flarum/forum/components/HeaderList';
 import Button from 'flarum/common/components/Button';
@@ -6,6 +7,7 @@ import Tooltip from 'flarum/common/components/Tooltip';
 import ItemList from 'flarum/common/utils/ItemList';
 import type Draft from '../models/Draft';
 import type DraftsListState from '../states/DraftsListState';
+import { setDraftCount } from '../utils/draftCount';
 import DraftsListItem from './DraftsListItem';
 
 interface DraftsListAttrs {
@@ -24,6 +26,7 @@ export default class DraftsList extends Component<DraftsListAttrs> {
   deleteAll() {
     if (!confirm(app.translator.trans('fof-drafts.forum.dropdown.delete_all_alert') as string)) return;
 
+    haptic('heavy');
     app
       .request({
         method: 'DELETE',
@@ -33,6 +36,7 @@ export default class DraftsList extends Component<DraftsListAttrs> {
         // Clear drafts from store
         const drafts = app.store.all<Draft>('drafts');
         drafts.forEach((draft) => app.store.remove(draft));
+        setDraftCount(0);
         m.redraw();
       });
   }
@@ -45,7 +49,7 @@ export default class DraftsList extends Component<DraftsListAttrs> {
       <Tooltip showOnFocus={false} text={app.translator.trans('fof-drafts.forum.dropdown.delete_all_button')}>
         <Button
           data-container="body"
-          icon="fas fa-trash-alt"
+          icon="fas fa-trash-can"
           className="Button Button--link Button--icon Alert-dismiss"
           onclick={this.deleteAll.bind(this)}
         />
@@ -70,7 +74,7 @@ export default class DraftsList extends Component<DraftsListAttrs> {
       >
         <ul className="HeaderListGroup-content">
           {drafts
-            .sort((a, b) => b.updatedAt()!.getTime() - a.updatedAt()!.getTime())
+            .sort((a, b) => (b.updatedAt()?.getTime?.() ?? 0) - (a.updatedAt()?.getTime?.() ?? 0))
             .map((draftItem) => {
               return <DraftsListItem draft={draftItem} state={state} />;
             })}

@@ -89,6 +89,8 @@ class DraftResource extends Resource\AbstractDatabaseResource
                 ->writable()
                 ->minLength(1)
                 ->maxLength(65535),
+            Schema\DateTime::make('updatedAt')
+                ->nullable(),
             Schema\Arr::make('extra')
                 ->nullable()
                 ->writable(),
@@ -98,6 +100,8 @@ class DraftResource extends Resource\AbstractDatabaseResource
             Schema\DateTime::make('scheduledFor')
                 ->nullable()
                 ->writable(fn (Draft $draft, Context $context) => $context->getActor()->can('user.scheduleDrafts')),
+            Schema\Str::make('scheduledValidationError')
+                ->nullable(),
             Schema\Boolean::make('clearValidationError')
                 ->writable()
                 ->set(function (Draft $draft, bool $value) {
