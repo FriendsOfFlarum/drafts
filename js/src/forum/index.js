@@ -150,6 +150,9 @@ app.initializers.add('fof-drafts', () => {
           draft.loadRelationships(true);
           this.draft = draft;
           afterSave();
+        })
+        .catch(() => {
+          console.log('draft save failure ignored');
         });
     }
   };
@@ -219,7 +222,9 @@ app.initializers.add('fof-drafts', () => {
 
     const draft = this.draft;
     if (draft && !draft.title() && !draft.content() && confirm(app.translator.trans('fof-drafts.forum.composer.discard_empty_draft_alert'))) {
-      draft.delete();
+      draft.delete().catch(() => {
+        console.log('draft delete failure ignored');
+      });
     }
 
     return prevented;
@@ -248,7 +253,9 @@ app.initializers.add('fof-drafts', () => {
 
   function deleteDraftsOnSubmit() {
     if (this.composer.draft) {
-      this.composer.draft.delete();
+      this.composer.draft.delete().catch(() => {
+        console.log('draft delete failure ignored');
+      });
     }
   }
 
