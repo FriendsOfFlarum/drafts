@@ -63,14 +63,21 @@ class PublishDrafts extends AbstractCommand
                 $relationships = json_decode($draft->relationships, true);
                 $discussionId = $relationships['discussion']['data']['id'] ?? null;
 
+                // When a draft is saved, every composer attribute that isn't title/content is
+                // stored in the `extra` column (see CreateDraftHandler) — that's how third-party
+                // composer data (custom attributes from other extensions) is persisted. Restore
+                // it on publish, otherwise scheduled publishing silently drops that data while
+                // manual publishing (which round-trips through the composer) keeps it.
+                $extra = json_decode($draft->extra ?? '', true) ?: [];
+
                 $this->info("Publishing draft reply for discussion {$discussionId}");
 
                 if (array_key_exists('discussion', $relationships) && $discussionId) {
                     $post = $this->bus->dispatch(
                         new PostReply($discussionId, $draft->user, [
-                            'attributes' => [
+                            'attributes' => array_merge($extra, [
                                 'content' => $draft->content,
-                            ],
+                            ]),
                         ], $draft->ip_address)
                     );
                     $post->created_at = $draft->scheduled_for;
@@ -78,17 +85,25 @@ class PublishDrafts extends AbstractCommand
                 } else {
                     $discussion = $this->bus->dispatch(
                         new StartDiscussion($draft->user, [
-                            'attributes' => [
+                            'attributes' => array_merge($extra, [
                                 'title'   => $draft->title,
                                 'content' => $draft->content,
-                            ],
+                            ]),
                             'relationships' => $relationships,
                         ], $draft->ip_address)
                     );
                     $discussion->created_at = $draft->scheduled_for;
-                    $discussion->firstPost->created_at = $draft->scheduled_for;
                     $discussion->save();
-                    $discussion->firstPost->save();
+
+                    // Reload the first post from the database before using it. When the extra
+                    // attributes make another extension create something alongside the discussion,
+                    // $discussion->firstPost can be empty and would crash here — which also left
+                    // the draft undeleted, so every later run tried to publish it again.
+                    $discussion->load('firstPost');
+                    if ($discussion->firstPost) {
+                        $discussion->firstPost->created_at = $draft->scheduled_for;
+                        $discussion->firstPost->save();
+                    }
 
                     $this->info("Published draft discussion: $discussion->id");
                 }
