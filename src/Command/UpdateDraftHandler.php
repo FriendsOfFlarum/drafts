@@ -31,16 +31,30 @@ class UpdateDraftHandler
     {
         $actor = $command->actor;
         $data = $command->data;
+        $attributes = Arr::get($data, 'attributes', []);
 
-        $draft = Draft::findOrFail($command->draftId);
+        $draft = Draft::find($command->draftId);
+
+        // Draft can disappear during async autosave/delete flows (e.g. after submit).
+        // In this case we intentionally no-op instead of surfacing an API error.
+        if (!$draft) {
+            $fallbackDraft = new Draft();
+            $fallbackDraft->id = (int) $command->draftId;
+            $fallbackDraft->user_id = (int) $actor->id;
+            $fallbackDraft->title = Arr::get($attributes, 'title');
+            $fallbackDraft->content = Arr::get($attributes, 'content');
+            $fallbackDraft->relationships = json_encode(Arr::get($data, 'relationships', []));
+            $fallbackDraft->extra = json_encode(Arr::get($attributes, 'content.extra', []));
+            $fallbackDraft->updated_at = Carbon::now();
+
+            return $fallbackDraft;
+        }
 
         if (intval($actor->id) !== intval($draft->user_id)) {
             throw new PermissionDeniedException();
         }
 
         $actor->assertCan('user.saveDrafts');
-
-        $attributes = Arr::get($data, 'attributes', []);
 
         if ($title = Arr::get($attributes, 'title')) {
             $draft->title = $title;

@@ -70,21 +70,23 @@ app.initializers.add('fof-drafts', () => {
       }
     }
 
-    if (!data.relationships && !draft.relationships()) {
+    const draftRelationships = draft ? draft.relationshipData() : {};
+
+    if (!data.relationships && !Object.keys(draftRelationships).length) {
       return false;
     }
 
-    const relationships = Object.keys(data.relationships);
+    const relationships = Object.keys(data.relationships || draftRelationships);
 
     const equalRelationships = (data, draft, relationship) => {
       if (
-        (!data.relationships[relationship] || !data.relationships[relationship].length) &&
-        (!(relationship in draft.relationships()) || !draft.relationships()[relationship].data?.length)
+        (!data.relationships?.[relationship] || !data.relationships[relationship].length) &&
+        (!(relationship in draftRelationships) || !draftRelationships[relationship].data?.length)
       ) {
         return true;
       } else if (
-        !(relationship in draft.relationships()) ||
-        data.relationships[relationship].length !== draft.relationships()[relationship].data?.length
+        !(relationship in draftRelationships) ||
+        (data.relationships?.[relationship]?.length || 0) !== draftRelationships[relationship].data?.length
       ) {
         return false;
       }
@@ -92,7 +94,7 @@ app.initializers.add('fof-drafts', () => {
       const getId = (element) => (typeof element.id == 'function' ? element.id() : element.id);
 
       const dataIds = fillRelationship(data.relationships[relationship], getId);
-      const draftIds = fillRelationship(draft.relationships()[relationship].data, getId);
+      const draftIds = fillRelationship(draftRelationships[relationship].data, getId);
 
       return !dataIds.some((id, i) => id !== draftIds[i]);
     };
@@ -119,8 +121,20 @@ app.initializers.add('fof-drafts', () => {
     const afterSave = () => {
       this.saving = false;
       this.justSaved = true;
+      this.justFailed = false;
       setTimeout(() => {
         this.justSaved = false;
+        m.redraw();
+      }, 300);
+      m.redraw();
+    };
+
+    const failedAfterSave = () => {
+      this.saving = false;
+      this.justSaved = false;
+      this.justFailed = true;
+      setTimeout(() => {
+        this.justFailed = false;
         m.redraw();
       }, 300);
       m.redraw();
@@ -130,6 +144,8 @@ app.initializers.add('fof-drafts', () => {
 
     if (draft && draft.id() && !draft.exists) {
       // Draft was deleted before autosave, no need to save.
+      this.saving = false;
+      m.redraw();
       return;
     }
 
@@ -137,19 +153,32 @@ app.initializers.add('fof-drafts', () => {
       delete draft.data.attributes.relationships;
 
       draft
-        .save(Object.assign(draft.data.attributes, this.data()))
+        .save(
+          Object.assign(draft.data.attributes, this.data(), {
+            errorHandler: () => {},
+            background: true,
+          })
+        )
+        .then(() => afterSave())
         .catch(() => {
           console.log('draft save failure ignored');
-        })
-        .then(() => afterSave());
+          failedAfterSave();
+        });
     } else {
       app.store
         .createRecord('drafts')
-        .save(this.data())
+        .save(this.data(), {
+          errorHandler: () => {},
+          background: true,
+        })
         .then((draft) => {
           draft.loadRelationships(true);
           this.draft = draft;
           afterSave();
+        })
+        .catch(() => {
+          console.log('draft save failure ignored');
+          failedAfterSave();
         });
     }
   };
@@ -172,14 +201,24 @@ app.initializers.add('fof-drafts', () => {
       classNames.push('justSaved');
     }
 
+    if (this.state.justFailed) {
+      classNames.push('justFailed');
+    }
+
     items.add(
       'save-draft',
       Button.component({
-        icon: this.state.justSaved ? 'fas fa-check' : this.state.saving ? 'fas fa-spinner fa-spin' : 'fas fa-save',
+        icon: this.state.justSaved
+          ? 'fas fa-check'
+          : this.state.justFailed
+            ? 'fas fa-times'
+            : this.state.saving
+              ? 'fas fa-spinner fa-spin'
+              : 'fas fa-save',
         className: classNames.join(' '),
         itemClassName: 'App-backControl',
         title: app.translator.trans('fof-drafts.forum.composer.title'),
-        disabled: this.state.saving || this.state.justSaved || this.loading,
+        disabled: this.state.saving || this.state.justSaved || this.state.justFailed || this.loading,
         onclick: this.state.saveDraft.bind(this.state),
       }),
       20

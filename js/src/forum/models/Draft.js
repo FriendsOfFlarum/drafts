@@ -20,7 +20,6 @@ export default class Draft extends mixin(Model, {
   content: Model.attribute('content'),
   title: Model.attribute('title'),
   scheduledValidationError: Model.attribute('scheduledValidationError'),
-  relationships: Model.attribute('relationships'),
   extra: Model.attribute('extra'),
   scheduledFor: Model.attribute('scheduledFor', Model.transformDate),
   updatedAt: Model.attribute('updatedAt', Model.transformDate),
@@ -28,8 +27,9 @@ export default class Draft extends mixin(Model, {
   loadedRelationships: null,
 
   type() {
-    const relationships = this.loadRelationships();
-    if (relationships.discussion) {
+    const relationships = this.relationshipData();
+
+    if (relationships.discussion?.data) {
       return 'reply';
     } else if (
       flarum.extensions['fof-byobu'] &&
@@ -40,6 +40,10 @@ export default class Draft extends mixin(Model, {
     } else {
       return 'discussion';
     }
+  },
+
+  relationshipData() {
+    return this.data.relationships || this.data.attributes.relationships || {};
   },
 
   icon() {
@@ -59,14 +63,14 @@ export default class Draft extends mixin(Model, {
       !force &&
       this.loadedRelationships &&
       (Object.keys(this.loadedRelationships).length > 0 ||
-        (Object.keys(this.loadedRelationships).length === 0 && Object.keys(this.relationships).length === 0))
+        (Object.keys(this.loadedRelationships).length === 0 && Object.keys(this.relationshipData()).length === 0))
     ) {
       return this.loadedRelationships;
     }
 
     this.loadedRelationships = {};
 
-    const relationships = this.relationships();
+    const relationships = this.relationshipData();
 
     if (relationships) {
       Object.keys(relationships).forEach((relationshipName) => {
@@ -74,7 +78,10 @@ export default class Draft extends mixin(Model, {
 
         if (!relationship || !relationship.data) return;
 
-        this.loadedRelationships[relationshipName] = fillRelationship(relationship.data, (model) => app.store.getById(model.type, model.id));
+        this.loadedRelationships[relationshipName] = fillRelationship(relationship.data, (model) => {
+          if (!model || !model.type || !model.id) return null;
+          return app.store.getById(model.type, model.id);
+        });
       });
     }
 
