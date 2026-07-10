@@ -144,6 +144,7 @@ app.initializers.add('fof-drafts', () => {
 
     if (draft && draft.id() && !draft.exists) {
       // Draft was deleted before autosave, no need to save.
+      this.saving = false;
       return;
     }
 
