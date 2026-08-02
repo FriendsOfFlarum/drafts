@@ -7,7 +7,7 @@ interface DraftsListAttrs {
 }
 export default class DraftsList extends Component<DraftsListAttrs> {
     oncreate(vnode: any): void;
-    deleteAll(): void;
+    deleteAll(e: MouseEvent): void;
     controlItems(): ItemList<unknown>;
     view(): JSX.Element;
 }
