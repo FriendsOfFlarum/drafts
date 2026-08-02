@@ -196,7 +196,11 @@ export default function () {
     if (
       !(this.state.bodyMatches('flarum/forum/components/DiscussionComposer') || this.state.bodyMatches('flarum/forum/components/ReplyComposer')) ||
       !app.forum.attribute('canSaveDrafts') ||
-      (this.state.position === 'minimized' && !this.state.isFullScreen())
+      // Just position — isFullScreen() is unconditionally true on phones
+      // ("we always consider the composer as full-screen" — ComposerState),
+      // so qualifying with it meant the minimized composer kept its save
+      // button pinned in the mobile header.
+      this.state.position === 'minimized'
     )
       return;
 
