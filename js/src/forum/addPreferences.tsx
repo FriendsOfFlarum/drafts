@@ -36,7 +36,7 @@ export default function () {
       items.add(
         'draft-autosave-interval',
         this.user.preferences().draftAutosaveEnable ? (
-          <label>
+          <label className="item-draft-autosave-interval">
             <p>{app.translator.trans('fof-drafts.forum.user.settings.draft_autosave_interval_label')}</p>
             <input className="FormControl" type="number" min="0" bidi={this.draftAutosaveInterval} />
             {Button.component(
@@ -51,6 +51,7 @@ export default function () {
                   } else {
                     this.draftAutosaveIntervalInvalid = false;
                     this.user.savePreferences({ draftAutosaveInterval: this.draftAutosaveInterval() }).then(() => {
+                      app.alerts.show({ type: 'success' }, app.translator.trans('fof-drafts.forum.user.settings.draft_autosave_interval_saved_message'));
                       m.redraw();
                     });
                   }
