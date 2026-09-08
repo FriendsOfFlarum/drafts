@@ -3,6 +3,7 @@ import haptic from 'flarum/common/utils/haptic';
 import Component from 'flarum/common/Component';
 import HeaderList from 'flarum/forum/components/HeaderList';
 import Button from 'flarum/common/components/Button';
+import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import Tooltip from 'flarum/common/components/Tooltip';
 import ItemList from 'flarum/common/utils/ItemList';
 import type Draft from '../models/Draft';
@@ -15,12 +16,32 @@ interface DraftsListAttrs {
 }
 
 export default class DraftsList extends Component<DraftsListAttrs> {
+  protected observer: IntersectionObserver | undefined;
+
   oncreate(vnode: any) {
     super.oncreate(vnode);
 
     $('.draft--delete').on('click tap', function (event) {
       event.stopPropagation();
     });
+
+    if ('IntersectionObserver' in window) {
+      this.observer = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) {
+            this.attrs.state.loadMore();
+          }
+        },
+        { rootMargin: '100px' }
+      );
+    }
+  }
+
+  onremove(vnode: any) {
+    super.onremove(vnode);
+
+    this.observer?.disconnect();
+    this.observer = undefined;
   }
 
   deleteAll(e: MouseEvent) {
@@ -81,6 +102,22 @@ export default class DraftsList extends Component<DraftsListAttrs> {
             .map((draftItem) => {
               return <DraftsListItem draft={draftItem} state={state} />;
             })}
+          {state.hasNextPage && (
+            <li
+              className="DraftsList--loadMore"
+              aria-hidden="true"
+              oncreate={(vnode: any) => {
+                if (this.observer && vnode.dom) {
+                  this.observer.observe(vnode.dom);
+                }
+              }}
+            />
+          )}
+          {state.loadingMore && (
+            <li className="DraftsList--loading">
+              <LoadingIndicator size="small" />
+            </li>
+          )}
         </ul>
       </HeaderList>
     );

@@ -22,10 +22,8 @@ export default class DraftsDropdown extends HeaderDropdown {
   }
 
   getUnreadCount(): number {
-    if (app.cache.draftsLoaded) {
-      return app.store.all('drafts').length;
-    }
-
+    // Always use the server-computed draft count: the store only holds the
+    // drafts loaded so far, as older ones are paginated in on scroll.
     return app.session.user?.draftCount() || 0;
   }
 
