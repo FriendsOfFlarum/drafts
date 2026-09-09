@@ -6,7 +6,9 @@ interface DraftsListAttrs {
     state: DraftsListState;
 }
 export default class DraftsList extends Component<DraftsListAttrs> {
+    protected observer: IntersectionObserver | undefined;
     oncreate(vnode: any): void;
+    onremove(vnode: any): void;
     deleteAll(e: MouseEvent): void;
     controlItems(): ItemList<unknown>;
     view(): JSX.Element;
