@@ -48,13 +48,13 @@ class ListDraftsTest extends TestCase
 
         for ($i = 1; $i <= self::TOTAL_DRAFTS; $i++) {
             $drafts[] = [
-                'user_id' => self::USER_ID,
-                'content' => 'Draft content '.$i,
-                'relationships' => '{}',
-                'extra' => '{}',
-                'ip_address' => '127.0.0.1',
+                'user_id'                    => self::USER_ID,
+                'content'                    => 'Draft content '.$i,
+                'relationships'              => '{}',
+                'extra'                      => '{}',
+                'ip_address'                 => '127.0.0.1',
                 'scheduled_validation_error' => '',
-                'updated_at' => $this->draftUpdatedAt($i),
+                'updated_at'                 => $this->draftUpdatedAt($i),
             ];
         }
 
