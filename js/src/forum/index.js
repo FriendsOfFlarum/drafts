@@ -89,12 +89,15 @@ app.initializers.add('fof-drafts', () => {
         return false;
       }
 
-      const getId = (element) => (typeof element.id == 'function' ? element.id() : element.id);
+      const getId = (element) => (element ? (typeof element.id == 'function' ? element.id() : element.id) || '' : '');
 
       const dataIds = fillRelationship(data.relationships[relationship], getId);
       const draftIds = fillRelationship(draft.relationships()[relationship].data, getId);
 
-      return !dataIds.some((id, i) => id !== draftIds[i]);
+      const dataIdsArray = (Array.isArray(dataIds) ? dataIds : dataIds ? [dataIds] : []).filter(Boolean);
+      const draftIdsArray = (Array.isArray(draftIds) ? draftIds : draftIds ? [draftIds] : []).filter(Boolean);
+
+      return !dataIdsArray.some((id, i) => id !== draftIdsArray[i]);
     };
 
     for (const relationship of relationships) {
@@ -133,11 +136,23 @@ app.initializers.add('fof-drafts', () => {
       return;
     }
 
+    const getCleanData = () => {
+      const data = this.data();
+      if (data && data.relationships) {
+        Object.keys(data.relationships).forEach((key) => {
+          if (Array.isArray(data.relationships[key])) {
+            data.relationships[key] = data.relationships[key].filter(Boolean);
+          }
+        });
+      }
+      return data;
+    };
+
     if (draft) {
       delete draft.data.attributes.relationships;
 
       draft
-        .save(Object.assign(draft.data.attributes, this.data()))
+        .save(Object.assign(draft.data.attributes, getCleanData()))
         .catch(() => {
           console.log('draft save failure ignored');
         })
@@ -145,7 +160,7 @@ app.initializers.add('fof-drafts', () => {
     } else {
       app.store
         .createRecord('drafts')
-        .save(this.data())
+        .save(getCleanData())
         .then((draft) => {
           draft.loadRelationships(true);
           this.draft = draft;
