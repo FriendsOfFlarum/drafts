@@ -1,1 +1,7 @@
-export default <T, R>(items: T | T[], mapFn: (item: T) => R): R | R[] => (Array.isArray(items) ? items.map(mapFn).sort() : mapFn(items));
+export default <T, R>(items: T | T[] | null | undefined, mapFn: (item: T) => R): R[] | R | null => {
+  if (Array.isArray(items)) {
+    return (items.filter(Boolean) as T[]).map(mapFn).filter(Boolean).sort();
+  }
+
+  return items ? mapFn(items) : null;
+};
