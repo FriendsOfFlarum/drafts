@@ -88,7 +88,9 @@ export default class Draft extends Model {
 
         if (!relationship || !relationship.data) return;
 
-        this.loadedRelationships![relationshipName] = fillRelationship(relationship.data, (model: any) => app.store.getById(model.type, model.id));
+        this.loadedRelationships![relationshipName] = fillRelationship(relationship.data, (model: any) =>
+          model && model.type && model.id ? app.store.getById(model.type, model.id) : null
+        );
       });
     }
 
