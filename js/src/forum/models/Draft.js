@@ -74,7 +74,9 @@ export default class Draft extends mixin(Model, {
 
         if (!relationship || !relationship.data) return;
 
-        this.loadedRelationships[relationshipName] = fillRelationship(relationship.data, (model) => app.store.getById(model.type, model.id));
+        this.loadedRelationships[relationshipName] = fillRelationship(relationship.data, (model) =>
+          model && model.type && model.id ? app.store.getById(model.type, model.id) : null
+        );
       });
     }
 

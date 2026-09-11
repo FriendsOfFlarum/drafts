@@ -55,7 +55,7 @@ export default class DraftsListItem extends Component<IAttrs> {
                   {icon('far fa-clock', { className: 'draft--scheduledIcon' })}
                 </Tooltip>
               )}
-              {draft.type() === 'reply' ? draft.loadRelationships().discussion.title() : draft.title()}
+              {draft.type() === 'reply' ? draft.loadRelationships().discussion?.title() || draft.title() : draft.title()}
             </span>
             <span class="Notification-title-spring" />
             {humanTime(draft.updatedAt())}
