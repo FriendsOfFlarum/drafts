@@ -63,11 +63,8 @@ class PublishDrafts extends AbstractCommand
                 $relationships = json_decode($draft->relationships, true);
                 $discussionId = $relationships['discussion']['data']['id'] ?? null;
 
-                // When a draft is saved, every composer attribute that isn't title/content is
-                // stored in the `extra` column (see CreateDraftHandler) — that's how third-party
-                // composer data (custom attributes from other extensions) is persisted. Restore
-                // it on publish, otherwise scheduled publishing silently drops that data while
-                // manual publishing (which round-trips through the composer) keeps it.
+                // `extra` holds every composer attribute that isn't title/content (see
+                // CreateDraftHandler). Unrestored, scheduled publishing drops what manual keeps.
                 $extra = json_decode($draft->extra ?? '', true) ?: [];
 
                 $this->info("Publishing draft reply for discussion {$discussionId}");
@@ -95,10 +92,8 @@ class PublishDrafts extends AbstractCommand
                     $discussion->created_at = $draft->scheduled_for;
                     $discussion->save();
 
-                    // Reload the first post from the database before using it. When the extra
-                    // attributes make another extension create something alongside the discussion,
-                    // $discussion->firstPost can be empty and would crash here — which also left
-                    // the draft undeleted, so every later run tried to publish it again.
+                    // firstPost can be empty when another extension acts on the new discussion.
+                    // Fataling here left the draft undeleted, so every later run retried it.
                     $discussion->load('firstPost');
                     if ($discussion->firstPost) {
                         $discussion->firstPost->created_at = $draft->scheduled_for;

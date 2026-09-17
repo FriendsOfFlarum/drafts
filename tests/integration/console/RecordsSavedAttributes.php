@@ -13,12 +13,12 @@ namespace FoF\Drafts\Tests\integration\console;
 
 /**
  * Stands in for a third-party extension reading composer attributes off the
- * Saving events. The command's `extra` merge has no other observable effect —
- * core only consumes title and content — so the payload is captured here.
+ * Saving events — core consumes only title and content, so the merge has no
+ * other observable effect.
  *
- * A class listener rather than a closure: under processIsolation a closure
- * reachable from the test case masks real failures with "Serialization of
- * 'Closure' is not allowed".
+ * Must stay a class, not a closure: under processIsolation a closure reachable
+ * from the test case masks real failures with "Serialization of 'Closure' is
+ * not allowed".
  */
 class RecordsSavedAttributes
 {

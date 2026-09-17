@@ -26,10 +26,7 @@ class PublishDraftsTest extends ConsoleTestCase
 {
     use RetrievesAuthorizedUsers;
 
-    /**
-     * Anything the composer sent that isn't title or content lands in the
-     * draft's `extra` column as JSON — see CreateDraftHandler.
-     */
+    /** Composer attributes other than title/content, as CreateDraftHandler stores them. */
     const EXTRA = '{"isSticky":true,"myExtensionField":"kept"}';
 
     /** Any past timestamp — the command picks up every draft due on or before now. */
@@ -131,8 +128,7 @@ class PublishDraftsTest extends ConsoleTestCase
      */
     public function draft_columns_override_a_conflicting_extra_attribute()
     {
-        // array_merge order is load-bearing: `extra` is the base, the draft's own
-        // columns are applied over it, so a stale composer value cannot win.
+        // array_merge order is load-bearing: a stale composer value must not beat the columns.
         $this->draft([
             'title'         => 'Column title',
             'content'       => 'Column content',
@@ -191,8 +187,7 @@ class PublishDraftsTest extends ConsoleTestCase
      */
     public function discussion_draft_is_deleted_when_no_first_post_remains()
     {
-        // The regression: this used to fatal on a null firstPost, which left the
-        // draft in place so every later run retried it forever.
+        // Pins the regression: the fatal left the draft to be retried on every later run.
         $this->extend(
             (new Extend\Event())->listen(Started::class, DetachesFirstPost::class)
         );
