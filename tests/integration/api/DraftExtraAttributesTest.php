@@ -11,7 +11,6 @@
 
 namespace FoF\Drafts\Tests\integration\api;
 
-use Flarum\Api\Context;
 use Flarum\Api\Schema;
 use Flarum\Extend;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;

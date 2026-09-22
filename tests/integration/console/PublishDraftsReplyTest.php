@@ -54,7 +54,6 @@ class PublishDraftsReplyTest extends ConsoleTestCase
         ]);
     }
 
-
     private function replyDraft(array $overrides = []): array
     {
         return array_merge([
@@ -69,7 +68,6 @@ class PublishDraftsReplyTest extends ConsoleTestCase
             'scheduled_validation_error' => '',
         ], $overrides);
     }
-
 
     #[Test]
     public function reply_draft_with_no_title_is_not_skipped_by_title_guard(): void

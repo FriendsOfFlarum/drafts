@@ -164,7 +164,7 @@ class PublishDrafts extends AbstractCommand
     {
         $extra = $draft->extra;
 
-        if (! is_array($extra) || $extra === []) {
+        if (!is_array($extra) || $extra === []) {
             return $own;
         }
 
