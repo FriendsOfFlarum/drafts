@@ -81,9 +81,8 @@ class PublishDraftsReplyTest extends ConsoleTestCase
     }
 
     /**
-     * Same filtering as the discussion branch: a key PostResource does not declare —
-     * typically one whose owning extension has since been disabled — is dropped so the
-     * draft still publishes, instead of failing identically on every cron tick.
+     * Same filtering as the discussion branch: a key PostResource does not declare is
+     * dropped so the draft still publishes.
      */
     #[Test]
     public function reply_draft_drops_extra_keys_undeclared_by_post_resource(): void

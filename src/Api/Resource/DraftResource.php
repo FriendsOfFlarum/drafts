@@ -120,19 +120,12 @@ class DraftResource extends Resource\AbstractDatabaseResource
     }
 
     /**
-     * Any extension may add keys to DiscussionComposer::data(), and those reach the
-     * draft payload verbatim. 1.x kept undeclared ones in `extra`; 2.x answers 400
-     * "Unknown field [x]" and writes nothing, so a single such extension breaks draft
-     * saving forum-wide.
+     * 2.x rejects attributes no field declares, so one extension adding a key to
+     * DiscussionComposer::data() breaks draft saving; 1.x kept them in `extra`.
+     * before() is the only hook ahead of that rejection, as fof/byobu does for tags.
      *
-     * before() is the only hook running ahead of that rejection, and Context::$request
-     * is public with a lazily-read body, so this rewrite is what parseData() then sees.
-     * Same technique as fof/byobu's tag stripping.
-     *
-     * Merge rules, both deliberate: undeclared siblings beat an explicit `extra`, being
-     * the composer's live values; on update without one, the stored blob is the base so
-     * a partial PATCH cannot wipe the rest. Clearing a key therefore means sending
-     * `extra` explicitly, preserving Schema\Arr's wholesale semantics.
+     * Undeclared siblings beat an explicit `extra`; without one the stored blob is the
+     * base, so a partial PATCH cannot wipe it.
      */
     protected function foldUndeclaredAttributesIntoExtra(Context $context): void
     {
@@ -144,8 +137,7 @@ class DraftResource extends Resource\AbstractDatabaseResource
 
         $attributes = $body['data']['attributes'];
 
-        // Resolves through resolveFields(), so fields other extensions contribute via
-        // Extend\ApiResource->fields() count as declared and this cannot drift.
+        // resolveFields() includes other extensions' fields, so this cannot drift.
         $undeclared = array_diff_key($attributes, $context->fields($this));
 
         if ($undeclared === []) {

@@ -126,8 +126,8 @@ class PublishDraftsTest extends ConsoleTestCase
         $this->prepareDatabase([
             'drafts' => [
                 // Lower id so it is reached first on an unordered full scan.
-                // Relationships are replayed verbatim, so an undeclared one is still a
-                // hard API rejection — unlike `extra`, which is now filtered first.
+                // Relationships are replayed verbatim, so an undeclared one still hard-
+                // fails — unlike `extra`, which is filtered first.
                 $this->discussionDraft([
                     'id'            => 10,
                     'title'         => 'Poisoned Draft',
@@ -174,17 +174,14 @@ class PublishDraftsTest extends ConsoleTestCase
         $error = (string) $this->database()->table('drafts')->where('id', 14)->first()->scheduled_validation_error;
 
         $this->assertStringContainsString('/data/attributes/title', $error);
-        // UnprocessableEntityException::getMessage() is print_r($errors, true); storing
-        // that verbatim is what this guards against.
+        // Guards against storing UnprocessableEntityException's print_r() dump.
         $this->assertStringNotContainsString('[detail]', $error);
         $this->assertStringNotContainsString('Array', $error);
     }
 
     /**
-     * Deliberate design choice: only API-layer rejections (ErrorProvider / KnownError /
-     * ValidationException) are isolated per draft. An unexpected Throwable is a defect
-     * or an infrastructure failure and must abort the run so the cron exit code reports
-     * it, rather than being written into a field the draft author sees.
+     * Only API-layer rejections are isolated per draft; an unexpected Throwable is a
+     * defect and must abort so the cron exit code reports it.
      */
     #[Test]
     public function unexpected_exception_aborts_the_run(): void
@@ -236,9 +233,8 @@ class PublishDraftsTest extends ConsoleTestCase
     {
         $this->extension('flarum-tags');
 
-        // flarum-tags' default settings are written by its migration through a raw
-        // DatabaseSettingsRepository, which bypasses the already-warm memory cache —
-        // so they read back as null here. Set them explicitly.
+        // flarum-tags' migration writes defaults past the already-warm settings cache,
+        // so they read back null here.
         $this->setting('flarum-tags.min_primary_tags', '1');
         $this->setting('flarum-tags.max_primary_tags', '1');
         $this->setting('flarum-tags.min_secondary_tags', '0');
@@ -270,10 +266,8 @@ class PublishDraftsTest extends ConsoleTestCase
     }
 
     /**
-     * `extra` is whatever the composer held when the draft was saved. If the extension
-     * that owned a key is later disabled, that key is no longer a declared field on the
-     * target resource — forwarding it would make the draft permanently unpublishable
-     * and re-fail on every cron tick, so it is dropped instead.
+     * A key whose owning extension was since disabled is dropped, not forwarded — it
+     * would otherwise leave the draft permanently unpublishable.
      */
     #[Test]
     public function extra_key_undeclared_by_the_target_resource_is_dropped(): void
