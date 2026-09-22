@@ -16,7 +16,6 @@ use Flarum\Extend;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use FoF\Drafts\Api\Resource\DraftResource;
-use FoF\Drafts\Draft;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
