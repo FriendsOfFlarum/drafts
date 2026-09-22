@@ -26,7 +26,6 @@ class PublishDraftsTest extends ConsoleTestCase
 {
     use RetrievesAuthorizedUsers;
 
-    /** Composer attributes other than title/content, as CreateDraftHandler stores them. */
     const EXTRA = '{"isSticky":true,"myExtensionField":"kept"}';
 
     /** Any past timestamp — the command picks up every draft due on or before now. */
@@ -187,7 +186,6 @@ class PublishDraftsTest extends ConsoleTestCase
      */
     public function discussion_draft_is_deleted_when_no_first_post_remains()
     {
-        // Pins the regression: the fatal left the draft to be retried on every later run.
         $this->extend(
             (new Extend\Event())->listen(Started::class, DetachesFirstPost::class)
         );

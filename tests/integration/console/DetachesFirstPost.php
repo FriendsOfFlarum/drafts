@@ -14,9 +14,7 @@ namespace FoF\Drafts\Tests\integration\console;
 use Flarum\Discussion\Event\Started;
 
 /**
- * Reproduces the state the null-guard exists for. Detaching in memory as well as
- * in the database matters: the command saves the discussion once more before
- * reloading, which would otherwise write the stale id back.
+ * Reproduces the state the null-guard in PublishDrafts exists for.
  */
 class DetachesFirstPost
 {
