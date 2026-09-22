@@ -63,14 +63,17 @@ class PublishDrafts extends AbstractCommand
                 $relationships = json_decode($draft->relationships, true);
                 $discussionId = $relationships['discussion']['data']['id'] ?? null;
 
+                // `extra` is every composer attribute beyond title/content, as CreateDraftHandler stored it.
+                $extra = json_decode($draft->extra ?? '', true) ?: [];
+
                 $this->info("Publishing draft reply for discussion {$discussionId}");
 
                 if (array_key_exists('discussion', $relationships) && $discussionId) {
                     $post = $this->bus->dispatch(
                         new PostReply($discussionId, $draft->user, [
-                            'attributes' => [
+                            'attributes' => array_merge($extra, [
                                 'content' => $draft->content,
-                            ],
+                            ]),
                         ], $draft->ip_address)
                     );
                     $post->created_at = $draft->scheduled_for;
@@ -78,17 +81,23 @@ class PublishDrafts extends AbstractCommand
                 } else {
                     $discussion = $this->bus->dispatch(
                         new StartDiscussion($draft->user, [
-                            'attributes' => [
+                            'attributes' => array_merge($extra, [
                                 'title'   => $draft->title,
                                 'content' => $draft->content,
-                            ],
+                            ]),
                             'relationships' => $relationships,
                         ], $draft->ip_address)
                     );
                     $discussion->created_at = $draft->scheduled_for;
-                    $discussion->firstPost->created_at = $draft->scheduled_for;
                     $discussion->save();
-                    $discussion->firstPost->save();
+
+                    // firstPost can be missing when another extension acts on the new discussion;
+                    // fataling here would skip the $draft->delete() below and retry it on every run.
+                    $discussion->load('firstPost');
+                    if ($discussion->firstPost) {
+                        $discussion->firstPost->created_at = $draft->scheduled_for;
+                        $discussion->firstPost->save();
+                    }
 
                     $this->info("Published draft discussion: $discussion->id");
                 }
