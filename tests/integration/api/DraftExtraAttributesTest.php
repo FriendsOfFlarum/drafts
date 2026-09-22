@@ -41,6 +41,9 @@ class DraftExtraAttributesTest extends TestCase
 
     private function createDraft(array $attributes): array
     {
+        // The composer always sends its relationships map, and the column is NOT NULL.
+        $attributes += ['relationships' => []];
+
         $response = $this->send(
             $this->request('POST', '/api/drafts', [
                 'authenticatedAs' => 1,
