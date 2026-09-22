@@ -30,9 +30,18 @@ export default function () {
 
     const getData = (fieldKey: string): string => (fieldKey === 'content' ? this.fields.content() : currentData[fieldKey]) || '';
 
+    // DraftResource folds undeclared composer keys into `extra`, so a saved `poll`
+    // reads back as attributes.extra.poll. Comparing only the top level left it
+    // permanently undefined, so changed() never returned false and autosave looped.
+    const draftAttributes: Record<string, any> = draft?.data?.attributes || {};
+    const draftExtra: Record<string, any> = draftAttributes.extra || {};
+    // `|| ''` mirrors getData: absent and empty must compare equal, or every such
+    // pair reads as a change.
+    const getDraftData = (fieldKey: string): string => (fieldKey in draftExtra ? draftExtra[fieldKey] : draftAttributes[fieldKey]) || '';
+
     for (const field of fields) {
       const fieldValue = getData(field);
-      const draftFieldValue = draft?.data?.attributes?.[field];
+      const draftFieldValue = getDraftData(field);
 
       if ((!draft && fieldValue) || (draft && !deepEqual(fieldValue, draftFieldValue))) {
         return true;
@@ -165,11 +174,16 @@ export default function () {
 
       draft
         .save(updatePayload)
+        .then(() => afterSave())
         .catch((saveError: any) => {
           console.error('Draft save failed:', saveError);
           console.error('Response:', saveError.response);
-        })
-        .then(() => afterSave());
+          // .catch() used to come first, so a rejected save still ran afterSave() and
+          // flashed the success tick. afterSave() also clears `saving`, which the
+          // autosave tick skips on — hence the reset here too.
+          this.saving = false;
+          m.redraw();
+        });
     } else {
       const rawData = this.data?.();
       if (!rawData) return;
