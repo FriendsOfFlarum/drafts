@@ -53,11 +53,13 @@ class DraftResource extends Resource\AbstractDatabaseResource
             Endpoint\Create::make()
                 ->authenticated()
                 ->defaultInclude(['user'])
-                ->can('user.saveDrafts'),
+                ->can('user.saveDrafts')
+                ->before($this->foldUndeclaredAttributesIntoExtra(...)),
             Endpoint\Update::make()
                 ->authenticated()
                 ->can('user.saveDrafts')
-                ->visible(fn (Draft $draft, Context $context) => $context->getActor()->id === $draft->user_id),
+                ->visible(fn (Draft $draft, Context $context) => $context->getActor()->id === $draft->user_id)
+                ->before($this->foldUndeclaredAttributesIntoExtra(...)),
             Endpoint\Endpoint::make('delete.all')
                 ->route('DELETE', '/all')
                 ->authenticated()
@@ -115,6 +117,43 @@ class DraftResource extends Resource\AbstractDatabaseResource
                 ->inverse('drafts')
                 ->type('users'),
         ];
+    }
+
+    /**
+     * 2.x rejects attributes no field declares, so one extension adding a key to
+     * DiscussionComposer::data() breaks draft saving; 1.x kept them in `extra`.
+     * before() is the only hook ahead of that rejection, as fof/byobu does for tags.
+     *
+     * Undeclared siblings beat an explicit `extra`; without one the stored blob is the
+     * base, so a partial PATCH cannot wipe it.
+     */
+    protected function foldUndeclaredAttributesIntoExtra(Context $context): void
+    {
+        $body = $context->request->getParsedBody();
+
+        if (!is_array($body) || !isset($body['data']['attributes']) || !is_array($body['data']['attributes'])) {
+            return;
+        }
+
+        $attributes = $body['data']['attributes'];
+
+        // resolveFields() includes other extensions' fields, so this cannot drift.
+        $undeclared = array_diff_key($attributes, $context->fields($this));
+
+        if ($undeclared === []) {
+            return;
+        }
+
+        $base = array_key_exists('extra', $attributes)
+            ? (array) ($attributes['extra'] ?? [])
+            : ($context->model instanceof Draft ? (array) ($context->model->extra ?? []) : []);
+
+        $attributes = array_diff_key($attributes, $undeclared);
+        $attributes['extra'] = array_merge($base, $undeclared);
+
+        $body['data']['attributes'] = $attributes;
+
+        $context->request = $context->request->withParsedBody($body);
     }
 
     public function creating(object $model, OriginalContext $context): ?object
