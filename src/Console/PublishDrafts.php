@@ -59,7 +59,7 @@ class PublishDrafts extends AbstractCommand
 
         foreach (Draft::where('scheduled_for', '<=', Carbon::now())->with('user')->get() as $draft) {
             try {
-                $relationships = $draft->relationships;
+                $relationships = $draft->relationships ?: [];
 
                 if (is_array($relationships) && isset($relationships['discussion']['data']['id'])) {
                     $discussionId = $relationships['discussion']['data']['id'];
@@ -115,9 +115,7 @@ class PublishDrafts extends AbstractCommand
                     $discussion->created_at = $draft->scheduled_for;
                     $discussion->save();
 
-                    // saveModel() always sets first_post_id so this should resolve, but the
-                    // relation is lazy-loaded rather than assigned — guard it rather than let
-                    // a null take down the whole batch.
+                    // Lazy-loaded rather than assigned; a null must not take down the batch.
                     if (($firstPost = $discussion->firstPost) !== null) {
                         $firstPost->created_at = $draft->scheduled_for;
                         $firstPost->ip_address = $draft->ip_address;
@@ -128,10 +126,8 @@ class PublishDrafts extends AbstractCommand
                 }
                 $draft->delete();
             } catch (ErrorProvider|KnownError|ValidationException $e) {
-                // Every way the API layer refuses a draft. Record and move on — one
-                // unpublishable draft must not stop the batch. Anything else is a defect
-                // or an infrastructure failure and deliberately aborts the run, so the
-                // cron exit code reports it instead of a field only the author sees.
+                // Every way the API layer refuses a draft; isolate it and move on.
+                // Anything else is a defect and aborts, so the cron exit code reports it.
                 $message = $this->describeError($e);
 
                 $draft->scheduled_validation_error = $message;
@@ -147,13 +143,10 @@ class PublishDrafts extends AbstractCommand
     }
 
     /**
-     * The draft's own columns win: `extra` is a client-supplied blob and must not
-     * rewrite the title or content the draft holds.
+     * The draft's own columns win over `extra`.
      *
-     * Keys the target resource no longer declares are dropped rather than forwarded —
-     * disabling the extension that owned one would otherwise make every draft holding
-     * it permanently unpublishable, re-failing on every cron tick. Publishing without
-     * the key is the lesser loss.
+     * Keys the resource no longer declares are dropped: a disabled extension would
+     * otherwise leave the draft permanently unpublishable.
      *
      * @param class-string<AbstractResource> $resourceClass
      * @param array<string, mixed>           $own
@@ -172,8 +165,7 @@ class PublishDrafts extends AbstractCommand
     }
 
     /**
-     * Resolved at call time, so fields other enabled extensions contribute via
-     * Extend\ApiResource->fields() count as declared too.
+     * Resolved at call time, so other enabled extensions' fields count as declared.
      *
      * @param class-string<AbstractResource> $resourceClass
      *
@@ -187,8 +179,7 @@ class PublishDrafts extends AbstractCommand
         $names = [];
 
         foreach ($resource->resolveFields() as $field) {
-            // An `extra` key sharing a relationship's name is still unknown at the
-            // attributes location.
+            // A relationship's name is still unknown at the attributes location.
             if ($field instanceof Attribute) {
                 $names[$field->name] = true;
             }
@@ -198,8 +189,7 @@ class PublishDrafts extends AbstractCommand
     }
 
     /**
-     * UnprocessableEntityException::getMessage() is a print_r() dump, so the JSON:API
-     * error objects — not the message — are the only usable source for these.
+     * UnprocessableEntityException::getMessage() is a print_r() dump.
      */
     protected function describeError(Throwable $e): string
     {
