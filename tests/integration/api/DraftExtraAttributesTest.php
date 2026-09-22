@@ -20,9 +20,8 @@ use FoF\Drafts\Draft;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
- * 1.x kept unrecognised composer attributes in `extra`; 2.x rejects them outright,
- * breaking draft saving for any extension that extends DiscussionComposer::data().
- * These cover the create/update before() hook that restores the old behaviour.
+ * The create/update before() hook that keeps undeclared composer attributes in `extra`,
+ * which 2.x would otherwise reject outright.
  */
 class DraftExtraAttributesTest extends TestCase
 {
@@ -97,8 +96,7 @@ class DraftExtraAttributesTest extends TestCase
         $attributes = $body['data']['attributes'];
 
         $this->assertArrayNotHasKey('poll', $attributes, 'Undeclared keys must not survive at the top level');
-        // Flat map keyed by the composer's own data keys — Draft::compileData()
-        // flat-merges extra() into `fields`, so extra.poll has to become
+        // Flat: compileData() merges extra() into `fields`, so extra.poll must become
         // app.composer.fields.poll and nothing deeper.
         $this->assertSame(['poll' => ['question' => 'Best colour?']], $attributes['extra']);
         $this->assertSame(['poll' => ['question' => 'Best colour?']], $this->storedExtra($body['data']['id']));
@@ -145,9 +143,8 @@ class DraftExtraAttributesTest extends TestCase
     }
 
     /**
-     * The escape hatch for the merge above: a payload with no undeclared siblings is
-     * left alone, so `extra` keeps Schema\Arr's wholesale set semantics and remains the
-     * only way to drop a stored key.
+     * The escape hatch: with no undeclared siblings, `extra` keeps its wholesale set
+     * semantics and stays the only way to drop a stored key.
      */
     #[Test]
     public function an_explicit_extra_alone_still_replaces_the_stored_one(): void
@@ -164,9 +161,7 @@ class DraftExtraAttributesTest extends TestCase
     }
 
     /**
-     * The field set is resolved at runtime, so a field another extension contributes
-     * through Extend\ApiResource->fields() is a declared field here too and must not be
-     * swept into `extra`.
+     * A field another extension contributes is declared too, and must not be swept in.
      */
     #[Test]
     public function a_field_added_by_another_extension_is_not_treated_as_undeclared(): void
