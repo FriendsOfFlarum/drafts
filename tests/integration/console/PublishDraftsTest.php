@@ -57,7 +57,6 @@ class PublishDraftsTest extends ConsoleTestCase
         ]);
     }
 
-
     private function discussionDraft(array $overrides = []): array
     {
         return array_merge([
@@ -72,7 +71,6 @@ class PublishDraftsTest extends ConsoleTestCase
             'scheduled_validation_error' => '',
         ], $overrides);
     }
-
 
     #[Test]
     public function command_returns_message_when_scheduled_drafts_disabled(): void

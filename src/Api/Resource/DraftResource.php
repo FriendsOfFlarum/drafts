@@ -138,7 +138,7 @@ class DraftResource extends Resource\AbstractDatabaseResource
     {
         $body = $context->request->getParsedBody();
 
-        if (! is_array($body) || ! isset($body['data']['attributes']) || ! is_array($body['data']['attributes'])) {
+        if (!is_array($body) || !isset($body['data']['attributes']) || !is_array($body['data']['attributes'])) {
             return;
         }
 
