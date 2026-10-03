@@ -25,6 +25,9 @@ use PHPUnit\Framework\Attributes\Test;
  * seeded by other test classes sharing the database do not affect the
  * expectations, as the visibility scope restricts listings to the
  * actor's own drafts.
+ *
+ * Another user's drafts are seeded too, newer than all of the actor's, so any
+ * leaking into the actor's listing would show up first and in the totals.
  */
 class ListDraftsTest extends TestCase
 {
@@ -32,6 +35,8 @@ class ListDraftsTest extends TestCase
 
     private const USER_ID = 999;
     private const TOTAL_DRAFTS = 45;
+    private const OTHER_USER_ID = 998;
+    private const OTHER_USER_DRAFTS = 7;
 
     protected function setUp(): void
     {
@@ -58,9 +63,27 @@ class ListDraftsTest extends TestCase
             ];
         }
 
+        $otherUser = $this->normalUser();
+        $otherUser['id'] = self::OTHER_USER_ID;
+        $otherUser['username'] = 'other_drafter';
+        $otherUser['email'] = 'other_drafter@machine.local';
+
+        for ($i = 1; $i <= self::OTHER_USER_DRAFTS; $i++) {
+            $drafts[] = [
+                'user_id'                    => self::OTHER_USER_ID,
+                'content'                    => 'Other user draft '.$i,
+                'relationships'              => '{}',
+                'extra'                      => '{}',
+                'ip_address'                 => '127.0.0.1',
+                'scheduled_validation_error' => '',
+                'updated_at'                 => $this->draftUpdatedAt(self::TOTAL_DRAFTS + $i),
+            ];
+        }
+
         $this->prepareDatabase([
             'users' => [
                 $user,
+                $otherUser,
             ],
             'group_permission' => [
                 ['group_id' => 3, 'permission' => 'user.saveDrafts'],
@@ -151,5 +174,19 @@ class ListDraftsTest extends TestCase
         }
 
         $this->assertArrayNotHasKey('next', $body['links'] ?? []);
+    }
+
+    #[Test]
+    public function draft_count_is_the_actors_total_not_the_page_size(): void
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/users/'.self::USER_ID, ['authenticatedAs' => self::USER_ID])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $body = json_decode((string) $response->getBody(), true);
+
+        $this->assertSame(45, $body['data']['attributes']['draftCount']);
     }
 }
