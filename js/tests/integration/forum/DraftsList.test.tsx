@@ -35,4 +35,19 @@ describe('DraftsList pagination', () => {
     expect(list).toContainRaw('Draft 40');
     expect(list).not.toContainRaw('Draft 41');
   });
+
+  it('keeps loading while the bottom of the list stays in view', async () => {
+    fakeDraftsApi(45);
+    const state = new DraftsListState();
+    const list = mq(DraftsList, { state });
+
+    state.load();
+    await settle(list);
+
+    // A tall viewport: each new page still leaves the bottom of the list visible.
+    FakeIntersectionObserver.setInView(true);
+    await settle(list);
+
+    expect(list).toContainRaw('Draft 45');
+  });
 });

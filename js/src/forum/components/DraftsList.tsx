@@ -17,6 +17,7 @@ interface DraftsListAttrs {
 
 export default class DraftsList extends Component<DraftsListAttrs> {
   protected observer: IntersectionObserver | undefined;
+  protected observedOffset: number | undefined;
 
   oncreate(vnode: any) {
     super.oncreate(vnode);
@@ -42,6 +43,18 @@ export default class DraftsList extends Component<DraftsListAttrs> {
 
     this.observer?.disconnect();
     this.observer = undefined;
+  }
+
+  /**
+   * The observer only reports visibility changes, so re-observe after each page loads: that
+   * makes it report the sentinel afresh, and a page that leaves it in view still loads the next.
+   */
+  observeSentinel(el: Element) {
+    if (!this.observer) return;
+
+    this.observer.unobserve(el);
+    this.observer.observe(el);
+    this.observedOffset = this.attrs.state.nextOffset;
   }
 
   deleteAll(e: MouseEvent) {
@@ -106,10 +119,9 @@ export default class DraftsList extends Component<DraftsListAttrs> {
             <li
               className="DraftsList--loadMore"
               aria-hidden="true"
-              oncreate={(vnode: any) => {
-                if (this.observer && vnode.dom) {
-                  this.observer.observe(vnode.dom);
-                }
+              oncreate={(vnode: any) => this.observeSentinel(vnode.dom)}
+              onupdate={(vnode: any) => {
+                if (this.observedOffset !== state.nextOffset) this.observeSentinel(vnode.dom);
               }}
             />
           )}
