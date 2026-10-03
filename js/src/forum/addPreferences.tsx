@@ -51,7 +51,10 @@ export default function () {
                   } else {
                     this.draftAutosaveIntervalInvalid = false;
                     this.user.savePreferences({ draftAutosaveInterval: this.draftAutosaveInterval() }).then(() => {
-                      app.alerts.show({ type: 'success' }, app.translator.trans('fof-drafts.forum.user.settings.draft_autosave_interval_saved_message'));
+                      app.alerts.show(
+                        { type: 'success' },
+                        app.translator.trans('fof-drafts.forum.user.settings.draft_autosave_interval_saved_message')
+                      );
                       m.redraw();
                     });
                   }
