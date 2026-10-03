@@ -16,6 +16,8 @@ export default class DraftsListState {
 
     draft.delete().then(() => {
       adjustDraftCount(-1);
+      // Later drafts each move up a place on the server, so the next page starts one earlier.
+      this.nextOffset = Math.max(0, this.nextOffset - 1);
 
       if (app.composer.body && app.composer.draft && app.composer.draft.id() === draft.id() && !app.composer.changed?.()) {
         app.composer.hide();

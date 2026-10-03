@@ -78,17 +78,26 @@ export async function settle(out: { redraw(): void }): Promise<void> {
 }
 
 /**
- * Serve `total` drafts from GET /api/drafts the way the API does: newest first,
- * 20 per page, with `links.next` while more remain. Draft 1 is the newest.
+ * Stand-in for the drafts API, serving `total` drafts the way the real one does: newest
+ * first, 20 per page, with `links.next` while more remain. Draft 1 is the newest.
+ * Deletes are applied, so later pages shift just as they do on the server.
  */
 export function fakeDraftsApi(total: number) {
+  let drafts = Array.from({ length: total }, (_, i) => i + 1);
+
   return jest.spyOn(app, 'request').mockImplementation(((options: any) => {
+    if (options.method === 'DELETE') {
+      const id = options.url.split('/').pop();
+      drafts = id === 'all' ? [] : drafts.filter((n) => String(n) !== id);
+
+      return Promise.resolve(undefined);
+    }
+
     const offset = Number(options.params?.page?.offset ?? 0);
     const limit = 20;
-    const data = [];
 
-    for (let n = offset + 1; n <= Math.min(offset + limit, total); n++) {
-      data.push({
+    return Promise.resolve({
+      data: drafts.slice(offset, offset + limit).map((n) => ({
         type: 'drafts',
         id: String(n),
         attributes: {
@@ -98,13 +107,9 @@ export function fakeDraftsApi(total: number) {
           extra: {},
           updatedAt: new Date(Date.UTC(2026, 0, 1) - n * 60_000).toISOString(),
         },
-      });
-    }
-
-    return Promise.resolve({
-      data,
-      meta: { page: { offset, limit, total } },
-      links: offset + limit < total ? { next: `/api/drafts?page[offset]=${offset + limit}` } : {},
+      })),
+      meta: { page: { offset, limit, total: drafts.length } },
+      links: offset + limit < drafts.length ? { next: `/api/drafts?page[offset]=${offset + limit}` } : {},
     });
   }) as any);
 }
