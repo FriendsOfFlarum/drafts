@@ -72,6 +72,8 @@ export default class DraftsList extends Component<DraftsListAttrs> {
         const drafts = app.store.all<Draft>('drafts');
         drafts.forEach((draft) => app.store.remove(draft));
         setDraftCount(0);
+        this.attrs.state.hasNextPage = false;
+        this.attrs.state.nextOffset = 0;
         m.redraw();
       });
   }

@@ -73,4 +73,26 @@ describe('DraftsList pagination', () => {
     expect(list).not.toContainRaw('Draft 5');
     expect(list).toContainRaw('Draft 21');
   });
+
+  it('does not look for older drafts after all drafts are deleted', async () => {
+    const api = fakeDraftsApi(45);
+    jest.spyOn(window, 'confirm').mockReturnValue(true);
+    const state = new DraftsListState();
+    const list = mq(DraftsList, { state });
+
+    state.load();
+    await settle(list);
+
+    list.click('.App-primaryControl button');
+    await settle(list);
+
+    // A draft saved from the composer afterwards brings the list back.
+    app.store.pushPayload({ data: { type: 'drafts', id: '100', attributes: { title: 'Fresh draft', content: '', relationships: {}, extra: {} } } });
+    FakeIntersectionObserver.setInView(true);
+    await settle(list);
+
+    const pageRequests = api.mock.calls.filter(([options]: any[]) => options.method === 'GET' && options.params?.page);
+    expect(list).toContainRaw('Fresh draft');
+    expect(pageRequests).toHaveLength(0);
+  });
 });
