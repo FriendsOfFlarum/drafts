@@ -69,13 +69,13 @@ export default function () {
         return false;
       }
 
-      const getId = (relItem: any): string => (typeof relItem.id == 'function' ? relItem.id() : relItem.id);
+      const getId = (relItem: any): string => (relItem ? (typeof relItem.id === 'function' ? relItem.id() : relItem.id) || '' : '');
 
       const dataIds = fillRelationship(composerData.relationships[relName], getId);
       const draftIds = fillRelationship(draftModel.relationships()[relName].data, getId);
 
-      const dataIdsArray = Array.isArray(dataIds) ? dataIds : [dataIds];
-      const draftIdsArray = Array.isArray(draftIds) ? draftIds : [draftIds];
+      const dataIdsArray: string[] = (Array.isArray(dataIds) ? dataIds : dataIds ? [dataIds] : []).filter(Boolean);
+      const draftIdsArray: string[] = (Array.isArray(draftIds) ? draftIds : draftIds ? [draftIds] : []).filter(Boolean);
 
       return !dataIdsArray.some((id: string, i: number) => id !== draftIdsArray[i]);
     };
@@ -134,10 +134,12 @@ export default function () {
           if (Array.isArray(relationship)) {
             // Convert array of models to JSON:API format with data wrapper
             serialized.relationships[relationshipKey] = {
-              data: relationship.map((relModel: any) => ({
-                type: typeof relModel.data?.type === 'function' ? relModel.data.type() : relModel.data?.type || relModel.type?.() || 'unknown',
-                id: typeof relModel.id === 'function' ? relModel.id() : relModel.id,
-              })),
+              data: relationship
+                .filter((relModel: any) => relModel && (typeof relModel.id === 'function' ? relModel.id() : relModel.id))
+                .map((relModel: any) => ({
+                  type: typeof relModel.data?.type === 'function' ? relModel.data.type() : relModel.data?.type || relModel.type?.() || 'unknown',
+                  id: typeof relModel.id === 'function' ? relModel.id() : relModel.id,
+                })),
             };
           } else if (relationship && typeof relationship === 'object') {
             // Convert single model to JSON:API format with data wrapper
