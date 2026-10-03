@@ -71,6 +71,7 @@ class DraftResource extends Resource\AbstractDatabaseResource
             Endpoint\Index::make()
                 ->authenticated()
                 ->can('user.saveDrafts')
+                ->defaultSort('-updatedAt')
                 ->paginate(),
         ];
     }
@@ -137,7 +138,7 @@ class DraftResource extends Resource\AbstractDatabaseResource
     public function sorts(): array
     {
         return [
-            // SortColumn::make('createdAt'),
+            SortColumn::make('updatedAt'),
         ];
     }
 }

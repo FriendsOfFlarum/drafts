@@ -1,9 +1,12 @@
 import app from 'flarum/forum/app';
 import type Draft from '../models/Draft';
-import { adjustDraftCount, setDraftCount } from '../utils/draftCount';
+import { adjustDraftCount } from '../utils/draftCount';
 
 export default class DraftsListState {
   loading: boolean = false;
+  loadingMore: boolean = false;
+  hasNextPage: boolean = false;
+  nextOffset: number = 0;
   cache: any[] = [];
 
   deleteDraft(draft: Draft) {
@@ -13,6 +16,8 @@ export default class DraftsListState {
 
     draft.delete().then(() => {
       adjustDraftCount(-1);
+      // Later drafts each move up a place on the server, so the next page starts one earlier.
+      this.nextOffset = Math.max(0, this.nextOffset - 1);
 
       if (app.composer.body && app.composer.draft && app.composer.draft.id() === draft.id() && !app.composer.changed?.()) {
         app.composer.hide();
@@ -74,7 +79,7 @@ export default class DraftsListState {
   }
 
   load() {
-    if (app.cache.draftsLoaded) {
+    if (app.cache.draftsLoaded || this.loading) {
       return;
     }
 
@@ -84,14 +89,44 @@ export default class DraftsListState {
     app.store
       .find<Draft[]>('drafts')
       .then(
-        () => {
+        (drafts) => {
           app.cache.draftsLoaded = true;
-          setDraftCount(app.store.all<Draft>('drafts').length);
+
+          // The badge count is derived from the server-side draftCount
+          // attribute, which reflects the total number of drafts, so we
+          // must not overwrite it with the number of drafts loaded here.
+          const meta = drafts.payload?.meta?.page;
+          this.nextOffset = (meta?.offset ?? 0) + (meta?.limit ?? drafts.length);
+          this.hasNextPage = Boolean(drafts.payload?.links?.next);
         },
         () => {}
       )
       .then(() => {
         this.loading = false;
+        m.redraw();
+      });
+  }
+
+  loadMore() {
+    if (!app.cache.draftsLoaded || !this.hasNextPage || this.loadingMore) {
+      return;
+    }
+
+    this.loadingMore = true;
+    m.redraw();
+
+    app.store
+      .find<Draft[]>('drafts', { page: { offset: this.nextOffset, limit: 20 } })
+      .then(
+        (drafts) => {
+          const meta = drafts.payload?.meta?.page;
+          this.nextOffset = meta?.offset != null ? meta.offset + (meta.limit ?? drafts.length) : this.nextOffset + drafts.length;
+          this.hasNextPage = Boolean(drafts.payload?.links?.next);
+        },
+        () => {}
+      )
+      .then(() => {
+        this.loadingMore = false;
         m.redraw();
       });
   }
