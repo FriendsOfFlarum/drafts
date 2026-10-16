@@ -13,13 +13,19 @@ namespace FoF\Drafts\Console;
 
 use Carbon\Carbon;
 use Flarum\Api\JsonApi;
+use Flarum\Api\Resource\AbstractResource;
 use Flarum\Api\Resource\DiscussionResource;
 use Flarum\Api\Resource\PostResource;
 use Flarum\Console\AbstractCommand;
+use Flarum\Foundation\KnownError;
 use Flarum\Foundation\ValidationException;
 use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Drafts\Draft;
+use ReflectionClass;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Throwable;
+use Tobyz\JsonApiServer\Exception\ErrorProvider;
+use Tobyz\JsonApiServer\Schema\Field\Attribute;
 
 class PublishDrafts extends AbstractCommand
 {
@@ -53,21 +59,20 @@ class PublishDrafts extends AbstractCommand
 
         foreach (Draft::where('scheduled_for', '<=', Carbon::now())->with('user')->get() as $draft) {
             try {
-                $relationships = $draft->relationships;
+                $relationships = $draft->relationships ?: [];
 
                 if (is_array($relationships) && isset($relationships['discussion']['data']['id'])) {
                     $discussionId = $relationships['discussion']['data']['id'];
                     $this->info("Publishing draft reply for discussion {$discussionId}");
 
-                    // Create a post reply using JsonApi
                     $post = $this->api->forResource(PostResource::class)
                         ->forEndpoint('create')
                         ->process([
                             'data' => [
                                 'type'       => 'posts',
-                                'attributes' => [
+                                'attributes' => $this->attributesFor($draft, PostResource::class, [
                                     'content' => $draft->content,
-                                ],
+                                ]),
                                 'relationships' => [
                                     'discussion' => [
                                         'data' => [
@@ -92,16 +97,10 @@ class PublishDrafts extends AbstractCommand
 
                     $this->info('Publishing draft discussion');
 
-                    // Create a new discussion using JsonApi
-                    $attributes = [
+                    $attributes = $this->attributesFor($draft, DiscussionResource::class, [
                         'title'   => $draft->title,
                         'content' => $draft->content,
-                    ];
-
-                    // Merge any extra attributes (e.g., tags, etc.) stored in the draft
-                    if (is_array($draft->extra) && !empty($draft->extra)) {
-                        $attributes = array_merge($attributes, $draft->extra);
-                    }
+                    ]);
 
                     $discussion = $this->api->forResource(DiscussionResource::class)
                         ->forEndpoint('create')
@@ -114,23 +113,116 @@ class PublishDrafts extends AbstractCommand
                         ], [], ['actor' => $draft->user]);
 
                     $discussion->created_at = $draft->scheduled_for;
-                    $discussion->firstPost->created_at = $draft->scheduled_for;
-                    $discussion->firstPost->ip_address = $draft->ip_address;
                     $discussion->save();
-                    $discussion->firstPost->save();
+
+                    // Lazy-loaded rather than assigned; a null must not take down the batch.
+                    if (($firstPost = $discussion->firstPost) !== null) {
+                        $firstPost->created_at = $draft->scheduled_for;
+                        $firstPost->ip_address = $draft->ip_address;
+                        $firstPost->save();
+                    }
 
                     $this->info("Published draft discussion: $discussion->id");
                 }
                 $draft->delete();
-            } catch (ValidationException $e) {
-                $draft->scheduled_validation_error = $e->getMessage();
+            } catch (ErrorProvider|KnownError|ValidationException $e) {
+                // Every way the API layer refuses a draft; isolate it and move on.
+                // Anything else is a defect and aborts, so the cron exit code reports it.
+                $message = $this->describeError($e);
+
+                $draft->scheduled_validation_error = $message;
                 $draft->save();
-                echo $e->getMessage();
+
+                $this->error("Draft {$draft->id} could not be published: {$message}");
             }
         }
 
         $this->info('Done.');
 
         return AbstractCommand::SUCCESS;
+    }
+
+    /**
+     * The draft's own columns win over `extra`.
+     *
+     * Keys the resource no longer declares are dropped: a disabled extension would
+     * otherwise leave the draft permanently unpublishable.
+     *
+     * @param class-string<AbstractResource> $resourceClass
+     * @param array<string, mixed>           $own
+     *
+     * @return array<string, mixed>
+     */
+    protected function attributesFor(Draft $draft, string $resourceClass, array $own): array
+    {
+        $extra = $draft->extra;
+
+        if (!is_array($extra) || $extra === []) {
+            return $own;
+        }
+
+        return array_merge(array_intersect_key($extra, $this->declaredAttributesOf($resourceClass)), $own);
+    }
+
+    /**
+     * Resolved at call time, so other enabled extensions' fields count as declared.
+     *
+     * @param class-string<AbstractResource> $resourceClass
+     *
+     * @return array<string, true>
+     */
+    protected function declaredAttributesOf(string $resourceClass): array
+    {
+        /** @var AbstractResource $resource */
+        $resource = $this->api->getResource($resourceClass);
+
+        $names = [];
+
+        foreach ($resource->resolveFields() as $field) {
+            // A relationship's name is still unknown at the attributes location.
+            if ($field instanceof Attribute) {
+                $names[$field->name] = true;
+            }
+        }
+
+        return $names;
+    }
+
+    /**
+     * UnprocessableEntityException::getMessage() is a print_r() dump.
+     */
+    protected function describeError(Throwable $e): string
+    {
+        if ($e instanceof ErrorProvider) {
+            $parts = [];
+
+            foreach ($e->getJsonApiErrors() as $error) {
+                $text = (string) ($error['detail'] ?? $error['title'] ?? '');
+                $pointer = $error['source']['pointer'] ?? null;
+
+                if ($pointer !== null) {
+                    $text = $text === '' ? (string) $pointer : "{$pointer}: {$text}";
+                }
+
+                if ($text !== '') {
+                    $parts[] = $text;
+                }
+            }
+
+            if ($parts !== []) {
+                return implode("\n", $parts);
+            }
+        }
+
+        $message = trim($e->getMessage());
+
+        if ($message !== '') {
+            return $message;
+        }
+
+        // KnownError instances such as PermissionDeniedException carry no message.
+        return $e instanceof KnownError
+            ? $e->getType()
+            : (new ReflectionClass($e))->getShortName();
     }
 }
