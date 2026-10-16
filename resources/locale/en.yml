@@ -8,6 +8,8 @@ fof-drafts:
       enable_scheduled_drafts: Enable Scheduled Drafts
       schedule_on_one_server: Use 'onOneServer()' directive for the task scheduler (requires Redis/Memcache)
       schedule_log_output: Append scheduler output to log storage
+  api:
+    empty_draft_message: There's nothing to save in this draft yet.
   console:
     scheduled_drafts_disabled: Scheduled drafts are currently disabled in settings.
     no_title_error: "Draft skipped: discussion title is missing."

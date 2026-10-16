@@ -189,6 +189,8 @@ export default function () {
         .catch((createError: any) => {
           console.error('New draft save failed:', createError);
           console.error('Response:', createError.response);
+          this.saving = false;
+          m.redraw();
         });
     }
   };
