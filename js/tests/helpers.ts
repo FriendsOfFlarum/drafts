@@ -1,6 +1,7 @@
 // @ts-expect-error -- @flarum/jest-config ships its bootstrap helpers untyped
 import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import app from 'flarum/forum/app';
+import ReplyComposer from 'flarum/forum/components/ReplyComposer';
 import { jest } from '@jest/globals';
 import extend from '../src/forum/extend';
 
@@ -8,6 +9,17 @@ export function bootForum(): void {
   bootstrapForum();
   app.bootExtensions({ 'fof-drafts': { extend } });
   app.boot();
+}
+
+export async function openReplyComposer(): Promise<void> {
+  const discussion = app.store.pushPayload({ data: { type: 'discussions', id: '1', attributes: { title: 'A discussion' } } });
+
+  // The way core's DiscussionControls.replyAction() opens it: a lazy loader, not the class itself.
+  await app.composer.load(() => Promise.resolve({ default: ReplyComposer }), { user: app.session.user, discussion });
+
+  // In the browser our ReplyComposer oninit hook does this when the body renders. That hook is a
+  // string-path extend(), which never attaches here: no chunk registers, and setup-env clears the registry.
+  (app.composer as any).data = ReplyComposer.prototype.data.bind({ attrs: app.composer.body.attrs, composer: app.composer });
 }
 
 export function flushPromises(): Promise<void> {
