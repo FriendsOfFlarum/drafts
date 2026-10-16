@@ -17,9 +17,11 @@ use Flarum\Api\Endpoint;
 use Flarum\Api\Resource;
 use Flarum\Api\Schema;
 use Flarum\Api\Sort\SortColumn;
+use Flarum\Foundation\ValidationException;
 use FoF\Drafts\Draft;
 use Illuminate\Database\Eloquent\Builder;
 use Laminas\Diactoros\Response\EmptyResponse;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Tobyz\JsonApiServer\Context as OriginalContext;
 
 /**
@@ -27,6 +29,11 @@ use Tobyz\JsonApiServer\Context as OriginalContext;
  */
 class DraftResource extends Resource\AbstractDatabaseResource
 {
+    public function __construct(
+        protected TranslatorInterface $translator
+    ) {
+    }
+
     public function type(): string
     {
         return 'drafts';
@@ -86,9 +93,8 @@ class DraftResource extends Resource\AbstractDatabaseResource
                 ->maxLength(255)
                 ->writable(),
             Schema\Str::make('content')
-                ->requiredOnCreate()
+                ->nullable()
                 ->writable()
-                ->minLength(1)
                 ->maxLength(65535),
             Schema\DateTime::make('updatedAt')
                 ->nullable(),
@@ -133,6 +139,22 @@ class DraftResource extends Resource\AbstractDatabaseResource
         $model->updated_at = Carbon::now();
 
         return $model;
+    }
+
+    public function saving(object $model, OriginalContext $context): ?object
+    {
+        if ($this->isBlank($model->title) && $this->isBlank($model->content) && empty($model->extra)) {
+            throw new ValidationException([
+                'content' => $this->translator->trans('fof-drafts.api.empty_draft_message'),
+            ]);
+        }
+
+        return $model;
+    }
+
+    protected function isBlank(?string $value): bool
+    {
+        return trim($value ?? '') === '';
     }
 
     public function sorts(): array
