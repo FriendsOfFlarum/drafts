@@ -234,22 +234,48 @@ export default function () {
     );
   });
 
-  // Set up autosave
-  extend(ComposerState.prototype, 'load', function (this: ComposerState) {
+  // Set up autosave. load() is async and core passes it a lazy loader, so the new
+  // body is only in place once the returned promise resolves, not when this runs.
+  extend(ComposerState.prototype, 'load', function (this: ComposerState, loaded: Promise<unknown>) {
     if (!app.forum.attribute('canSaveDrafts')) return;
 
-    if (
-      // @ts-ignore - User preferences access
-      app.session.user?.preferences().draftAutosaveEnable &&
-      (this.bodyMatches('flarum/forum/components/DiscussionComposer') || this.bodyMatches('flarum/forum/components/ReplyComposer'))
-    ) {
-      this.autosaveInterval = setInterval(() => {
-        if (this.changed?.() && !this.saving && !this.loading) {
-          this.saveDraft?.();
+    Promise.resolve(loaded).then(
+      (componentClass) => {
+        // load() resolves empty when preventExit() kept the current body (and its timer).
+        if (!componentClass) return;
+
+        if (
+          // @ts-ignore - User preferences access
+          app.session.user?.preferences().draftAutosaveEnable &&
+          (this.bodyMatches('flarum/forum/components/DiscussionComposer') || this.bodyMatches('flarum/forum/components/ReplyComposer'))
+        ) {
+          // Overlapping load() calls can both get here; replace the timer rather than leak one.
+          if (this.autosaveInterval) clearInterval(this.autosaveInterval);
+
+          // @ts-ignore - User preferences access
+          const delay = 1000 * app.session.user?.preferences().draftAutosaveInterval;
+          let changedSince: number | null = null;
+
+          // Check every second, so a save comes the full interval after the first unsaved
+          // change rather than on a clock that started when the composer opened.
+          this.autosaveInterval = setInterval(() => {
+            if (!this.changed?.()) {
+              changedSince = null;
+              return;
+            }
+
+            changedSince ??= Date.now();
+
+            if (Date.now() - changedSince >= delay && !this.saving && !this.loading) {
+              changedSince = null;
+              this.saveDraft?.();
+            }
+          }, 1000);
         }
-        // @ts-ignore - User preferences access
-      }, 1000 * app.session.user?.preferences().draftAutosaveInterval);
-    }
+      },
+      // A failed load already rejects for load()'s caller; don't report it twice.
+      () => {}
+    );
   });
 
   // Clear draft on composer clear
