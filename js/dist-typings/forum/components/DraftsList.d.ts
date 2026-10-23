@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import Component from 'flarum/common/Component';
 import ItemList from 'flarum/common/utils/ItemList';
 import type DraftsListState from '../states/DraftsListState';

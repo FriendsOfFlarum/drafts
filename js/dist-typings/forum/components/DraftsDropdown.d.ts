@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import HeaderDropdown from 'flarum/forum/components/HeaderDropdown';
 export default class DraftsDropdown extends HeaderDropdown {
     static initAttrs(attrs: any): void;

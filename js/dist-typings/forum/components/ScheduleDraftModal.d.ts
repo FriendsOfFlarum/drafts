@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import FormModal, { IFormModalAttrs } from 'flarum/common/components/FormModal';
 import type Draft from '../models/Draft';
 interface ScheduleDraftModalAttrs extends IFormModalAttrs {
