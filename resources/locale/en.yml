@@ -61,7 +61,9 @@ fof-default-user-preferences:
   admin:
     settings:
       draftAutosaveEnable: Enable Draft Autosave by Default
+      draftAutosaveEnable-help: When enabled, new users' drafts are saved automatically while they write. Users can change this in their settings.
       draftAutosaveInterval: Default Autosave Interval (seconds)
+      draftAutosaveInterval-help: How often, in seconds, a new user's draft is saved while autosave is on. Users can change this in their settings.
 
 flarum-gdpr:
   lib:
